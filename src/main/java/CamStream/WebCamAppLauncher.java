@@ -271,7 +271,7 @@ public class WebCamAppLauncher extends Application {
 
         stopCamera = true;
         webCam.close();
-        Webcam.shutdown();
+       // Webcam.shutdown();
         btnCamreaStart.setDisable(true);
         btnCamreaStop.setDisable(true);
     }
