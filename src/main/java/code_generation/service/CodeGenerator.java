@@ -1,17 +1,17 @@
 package code_generation.service;
 
 import code_generation.entities.DetectedObject;
-import code_generation.entities.views.Button;
-import code_generation.entities.views.EditText;
-import code_generation.entities.views.ImageView;
-import code_generation.entities.views.View;
+import code_generation.entities.views.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CodeGenerator {
 
-    public static List<View> parse(List<DetectedObject> objects) {
+    public static ConstraintLayout parse(List<DetectedObject> objects) {
+        if (objects == null || objects.isEmpty()) {
+            return null;
+        }
         //find frame and remove it from list
         DetectedObject frame = null;
         for (DetectedObject object : objects) {
@@ -22,7 +22,7 @@ public class CodeGenerator {
             }
         }
         if (frame == null || objects.isEmpty()) {
-            return new ArrayList<>();
+            return null;
         }
 
         //order by y ascending
@@ -143,7 +143,32 @@ public class CodeGenerator {
             }
         }
 
-        return views;
+        ConstraintLayout layout = new ConstraintLayout();
+        layout.setWidth("match_parent");
+        layout.setHeight("match_parent");
+
+        for (View view : views) {
+            if (view instanceof Button) {
+                if (layout.getButtons() == null) {
+                    layout.setButtons(new ArrayList<>());
+                }
+                layout.getButtons().add((Button) view);
+            }
+            if (view instanceof ImageView) {
+                if (layout.getImageViews() == null) {
+                    layout.setImageViews(new ArrayList<>());
+                }
+                layout.getImageViews().add((ImageView) view);
+            }
+            if (view instanceof EditText) {
+                if (layout.getEditTexts() == null) {
+                    layout.setEditTexts(new ArrayList<>());
+                }
+                layout.getEditTexts().add((EditText) view);
+            }
+        }
+
+        return layout;
     }
 
     private static View getViewInstance(DetectedObject object) {

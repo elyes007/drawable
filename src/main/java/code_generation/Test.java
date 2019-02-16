@@ -2,7 +2,7 @@ package code_generation;
 
 import code_generation.entities.Box;
 import code_generation.entities.DetectedObject;
-import code_generation.entities.views.*;
+import code_generation.entities.views.ConstraintLayout;
 import code_generation.service.CodeGenerator;
 
 import javax.xml.bind.JAXBContext;
@@ -26,29 +26,9 @@ public class Test {
         JAXBContext jc = JAXBContext.newInstance(ConstraintLayout.class);
         Marshaller marshaller = jc.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        ConstraintLayout layout = new ConstraintLayout();
-        layout.setWidth("match_parent");
-        layout.setHeight("match_parent");
-        for (View view : CodeGenerator.parse(objects)) {
-            if (view instanceof Button) {
-                if (layout.getButtons() == null) {
-                    layout.setButtons(new ArrayList<>());
-                }
-                layout.getButtons().add((Button) view);
-            }
-            if (view instanceof ImageView) {
-                if (layout.getImageViews() == null) {
-                    layout.setImageViews(new ArrayList<>());
-                }
-                layout.getImageViews().add((ImageView) view);
-            }
-            if (view instanceof EditText) {
-                if (layout.getEditTexts() == null) {
-                    layout.setEditTexts(new ArrayList<>());
-                }
-                layout.getEditTexts().add((EditText) view);
-            }
-        }
+
+        ConstraintLayout layout = CodeGenerator.parse(objects);
+
         marshaller.marshal(layout, System.out);
         OutputStream os = new FileOutputStream("../AndroidTest/app/src/main/res/layout/layout.xml");
         marshaller.marshal(layout, os);
