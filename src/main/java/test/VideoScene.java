@@ -1,5 +1,9 @@
 package test;
 
+import code_generation.entities.DetectedObject;
+import code_generation.entities.views.ConstraintLayout;
+import code_generation.service.CodeGenerator;
+import code_generation.service.ShapeDetectionService;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
@@ -17,7 +21,13 @@ import javafx.scene.layout.FlowPane;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacv.*;
 
+import javax.imageio.ImageIO;
+import javax.xml.bind.JAXBException;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 
 public class VideoScene {
     private FlowPane bottomCameraControlPane;
@@ -34,6 +44,41 @@ public class VideoScene {
     private Thread thread;
     private FrameGrabber grabber;
     private BufferedImage bufferedFrame;
+
+    private Date lastRequestDate;
+    private ShapeDetectionService.UploadCallback mUploadCallback = new ShapeDetectionService.UploadCallback() {
+        @Override
+        public void onUploaded(List<DetectedObject> objects) {
+            try {
+                ConstraintLayout layout = CodeGenerator.parse(objects);
+                CodeGenerator.generateLayoutFile(layout);
+                File file = getFileFromImage();
+                long timeDiff = new Date().getTime() - lastRequestDate.getTime();
+                if (timeDiff < 2000) {
+                    Thread.sleep(2000 - timeDiff);
+                }
+                ShapeDetectionService.upload(file, mUploadCallback);
+                lastRequestDate = new Date();
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("creating file failed");
+            } catch (JAXBException e) {
+                e.printStackTrace();
+                System.out.println("marshalling layout failed");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                System.out.println("Sleeping interrupted");
+            }
+        }
+    };
+
+    private File getFileFromImage() throws IOException {
+        File file = new File("frame.jpg");
+        ImageIO.write(bufferedFrame, "jpg", file);
+        return file;
+    }
+
+    private boolean mDidUpload = false;
 
     public VideoScene(int cameraIndex){
         root = new BorderPane();
@@ -80,6 +125,13 @@ public class VideoScene {
                             opencv_core.cvFlip(img, img, 1);
                             frame = grabberConverter.convert(img);
                             bufferedFrame = paintConverter.getBufferedImage(frame,1);
+
+                            if (!mDidUpload) {
+                                ShapeDetectionService.upload(getFileFromImage(), mUploadCallback);
+                                lastRequestDate = new Date();
+                                mDidUpload = true;
+                            }
+
                             final Image mainImage = SwingFXUtils.toFXImage(bufferedFrame, null);
                             imageProperty.set(mainImage);
                         }

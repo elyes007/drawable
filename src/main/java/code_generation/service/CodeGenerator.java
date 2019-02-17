@@ -178,10 +178,14 @@ public class CodeGenerator {
     }
 
     public static void generateLayoutFile(ConstraintLayout layout) throws JAXBException, FileNotFoundException {
+        if (layout == null) {
+            System.out.println("layout is null");
+            return;
+        }
         JAXBContext jc = JAXBContext.newInstance(ConstraintLayout.class);
         Marshaller marshaller = jc.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        marshaller.marshal(layout, System.out);
+        //marshaller.marshal(layout, System.out);
         OutputStream os = new FileOutputStream("../AndroidTest/app/src/main/res/layout/layout.xml");
         marshaller.marshal(layout, os);
     }

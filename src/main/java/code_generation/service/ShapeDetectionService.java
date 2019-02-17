@@ -15,14 +15,16 @@ import org.apache.http.util.EntityUtils;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ShapeDetectionService {
 
-    private static final String URL = "http://localhost:3000/recipes/upload_file";
+    private static final String URL = "http://102.157.152.154:5000";
 
     public static void upload(File file, UploadCallback callback) {
         new Thread(() -> {
+            System.out.println(new Date());
             RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(3 * 1000).build();
             HttpClient client = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build();
             HttpPost postRequest = new HttpPost(URL);
