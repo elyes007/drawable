@@ -17,6 +17,8 @@ public class ConstraintLayout {
     private String android;
     private String tools;
 
+    private String fileName;
+
     @XmlAttribute(name = "android:layout_width")
     public String getWidth() {
         return width;
@@ -87,5 +89,13 @@ public class ConstraintLayout {
 
     public void setTools(String tools) {
         this.tools = tools;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }

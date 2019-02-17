@@ -3,6 +3,12 @@ package code_generation.service;
 import code_generation.entities.DetectedObject;
 import code_generation.entities.views.*;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -169,6 +175,15 @@ public class CodeGenerator {
         }
 
         return layout;
+    }
+
+    public static void generateLayoutFile(ConstraintLayout layout) throws JAXBException, FileNotFoundException {
+        JAXBContext jc = JAXBContext.newInstance(ConstraintLayout.class);
+        Marshaller marshaller = jc.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.marshal(layout, System.out);
+        OutputStream os = new FileOutputStream("../AndroidTest/app/src/main/res/layout/layout.xml");
+        marshaller.marshal(layout, os);
     }
 
     private static View getViewInstance(DetectedObject object) {

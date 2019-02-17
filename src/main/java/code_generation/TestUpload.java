@@ -19,13 +19,7 @@ public class TestUpload {
         ShapeDetectionService.upload(file, objects -> {
             ConstraintLayout layout = CodeGenerator.parse(objects);
             try {
-                JAXBContext jc = JAXBContext.newInstance(ConstraintLayout.class);
-                Marshaller marshaller = jc.createMarshaller();
-                marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-                marshaller.marshal(layout, System.out);
-                OutputStream os = new FileOutputStream("../AndroidTest/app/src/main/res/layout/layout.xml");
-                marshaller.marshal(layout, os);
+                CodeGenerator.generateLayoutFile(layout);
             } catch (JAXBException | FileNotFoundException e) {
                 e.printStackTrace();
             }
