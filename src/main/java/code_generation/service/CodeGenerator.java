@@ -104,7 +104,13 @@ public class CodeGenerator {
             if (i == 0) { //if this is the top left element in the screen
                 list.get(0).view.setTopToTop("parent");
             } else {
-                list.get(0).view.setTopToBottom("@id/" + grid.get(i - 1).get(0).view.getSimpleId());
+                ObjectWrapper elementToSetTopConstraintsTo = grid.get(i - 1).get(0);
+                for (ObjectWrapper wrapper : grid.get(i - 1)) {
+                    if (wrapper.detectedObject.getBox().getyMax() > elementToSetTopConstraintsTo.detectedObject.getBox().getyMax()) {
+                        elementToSetTopConstraintsTo = wrapper;
+                    }
+                }
+                list.get(0).view.setTopToBottom("@id/" + elementToSetTopConstraintsTo.view.getSimpleId());
             }
             list.get(0).view.setLeftToLeft("parent");
             list.get(0).view.setMarginTop("8dp");
@@ -203,9 +209,9 @@ public class CodeGenerator {
     }
 
     private static boolean areNeighbors(DetectedObject o1, DetectedObject o2) {
-        boolean bool = Math.abs(o1.getBox().getyMin() + o1.getBox().getHeight() / 2 - o2.getBox().getyMin() - o2.getBox().getHeight() / 2) <=
-                Math.min(o1.getBox().getHeight() / 2, o2.getBox().getHeight() / 2);
-        return bool;
+        //two elements are neighbors if the distance between their centers is less or equal to the greater height of the two divided by two
+        return Math.abs(o1.getBox().getyMin() + o1.getBox().getHeight() / 2 - o2.getBox().getyMin() - o2.getBox().getHeight() / 2) <=
+                Math.max(o1.getBox().getHeight() / 2, o2.getBox().getHeight() / 2);
     }
 
     private static class ObjectWrapper {
