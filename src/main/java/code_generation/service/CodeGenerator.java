@@ -19,17 +19,78 @@ public class CodeGenerator {
             return null;
         }
         //find frame and remove it from list
-        DetectedObject frame = null;
+        List<DetectedObject> frames = new ArrayList<>();
         for (DetectedObject object : objects) {
             if (object.getClasse() == DetectedObject.FRAME) {
-                frame = object;
+                frames.add(object);
                 objects.remove(object);
-                break;
             }
         }
-        if (frame == null || objects.isEmpty()) {
+        if (frames.isEmpty() || objects.isEmpty()) {
             return null;
         }
+
+        DetectedObject topFrame = frames.get(0);
+        DetectedObject bottomFrame = frames.get(0);
+        for (DetectedObject object : frames) {
+            if (object.getBox().getyMin() < topFrame.getBox().getyMin()) {
+                topFrame = object;
+            }
+            if (object.getBox().getyMin() > bottomFrame.getBox().getyMin()) {
+                bottomFrame = object;
+            }
+        }
+        if (topFrame == bottomFrame) {
+            return parseWithSingleFrame(topFrame, objects);
+        } else {
+            return parseWithDoubleFrames(topFrame, bottomFrame, objects);
+        }
+    }
+
+    private static ConstraintLayout parseWithDoubleFrames(DetectedObject topFrame, DetectedObject bottomFrame, List<DetectedObject> objects) {
+        List<View> views = new ArrayList<>();
+        int i = 1;
+        int j = 1;
+        int k = 1;
+        for (DetectedObject object : objects) {
+            View view = getViewInstance(object);
+            if (view == null) continue;
+            view.setId(view.getClass().getSimpleName() + i);
+            if (view instanceof Button) {
+                ((Button) view).setText("Button " + j);
+                j++;
+            }
+            if (view instanceof EditText) {
+                ((EditText) view).setHint("EditText " + k);
+                k++;
+            }
+            view.setTopToTop("parent");
+            view.setBottomToBottom("parent");
+            view.setRightToRight("parent");
+            view.setLeftToLeft("parent");
+            view.setWidth("0dp");
+            if (view instanceof ImageView) {
+                view.setHeight("0dp");
+            } else {
+                view.setHeight("wrap_content");
+            }
+
+            double verticalBias = Math.abs(object.getBox().getyMin() - topFrame.getBox().getyMax()) /
+                    Math.abs(bottomFrame.getBox().getyMin() - topFrame.getBox().getyMax() - object.getBox().getHeight());
+            double horizontalBias = Math.abs(object.getBox().getxMin() - topFrame.getBox().getyMin()) /
+                    Math.abs(topFrame.getBox().getWidth() - object.getBox().getWidth());
+
+            view.setVerticalBias(verticalBias + "");
+            view.setHorizontalBias(horizontalBias + "");
+
+            views.add(view);
+            i++;
+        }
+
+        return buildLayout(views);
+    }
+
+    private static ConstraintLayout parseWithSingleFrame(DetectedObject topFrame, List<DetectedObject> objects) {
 
         //order by y ascending
         objects.sort((a, b) -> {
@@ -115,14 +176,14 @@ public class CodeGenerator {
             list.get(0).view.setLeftToLeft("parent");
             list.get(0).view.setMarginTop("8dp");
             list.get(0).view.setWidth("0dp");
-            list.get(0).view.setWidthPercent(list.get(0).detectedObject.getBox().getWidth() / frame.getBox().getWidth() + "");
+            list.get(0).view.setWidthPercent(list.get(0).detectedObject.getBox().getWidth() / topFrame.getBox().getWidth() + "");
             list.get(0).view.setHeight("wrap_content");
 
             list.get(0).view.setRightToRight("parent");
             list.get(0).view.setHorizontalBias(
-                    Math.max(0, list.get(0).detectedObject.getBox().getxMin() - frame.getBox().getxMin())
+                    Math.max(0, list.get(0).detectedObject.getBox().getxMin() - topFrame.getBox().getxMin())
                             /
-                            Math.max(0, frame.getBox().getWidth() - list.get(0).detectedObject.getBox().getWidth())
+                            Math.max(0, topFrame.getBox().getWidth() - list.get(0).detectedObject.getBox().getWidth())
                             + ""
             );//if the objected is to the left of frame, count that as 0 margin
 
@@ -132,7 +193,7 @@ public class CodeGenerator {
                 list.get(j).view.setTopToTop("@id/" + list.get(0).view.getSimpleId());
                 list.get(j).view.setLeftToRight("@id/" + list.get(j - 1).view.getSimpleId());
                 list.get(j).view.setWidth("0dp");
-                list.get(j).view.setWidthPercent(list.get(j).detectedObject.getBox().getWidth() / frame.getBox().getWidth() + "");
+                list.get(j).view.setWidthPercent(list.get(j).detectedObject.getBox().getWidth() / topFrame.getBox().getWidth() + "");
                 list.get(j).view.setHeight("wrap_content");
 
                 list.get(j).view.setRightToRight("parent");
@@ -144,7 +205,7 @@ public class CodeGenerator {
                         )
                                 /
                                 (
-                                        (frame.getBox().getWidth() - list.get(j - 1).detectedObject.getBox().getxMax())
+                                        (topFrame.getBox().getWidth() - list.get(j - 1).detectedObject.getBox().getxMax())
                                                 -
                                                 list.get(j).detectedObject.getBox().getWidth()
                                 )
@@ -155,6 +216,10 @@ public class CodeGenerator {
             }
         }
 
+        return buildLayout(views);
+    }
+
+    private static ConstraintLayout buildLayout(List<View> views) {
         ConstraintLayout layout = new ConstraintLayout();
         layout.setWidth("match_parent");
         layout.setHeight("match_parent");
@@ -179,7 +244,6 @@ public class CodeGenerator {
                 layout.getEditTexts().add((EditText) view);
             }
         }
-
         return layout;
     }
 
