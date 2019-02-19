@@ -23,8 +23,10 @@ public class CodeGenerator {
         for (DetectedObject object : objects) {
             if (object.getClasse() == DetectedObject.FRAME) {
                 frames.add(object);
-                objects.remove(object);
             }
+        }
+        for (DetectedObject frame : frames) {
+            objects.remove(frame);
         }
         if (frames.isEmpty() || objects.isEmpty()) {
             return null;
@@ -77,11 +79,13 @@ public class CodeGenerator {
 
             double verticalBias = Math.abs(object.getBox().getyMin() - topFrame.getBox().getyMax()) /
                     Math.abs(bottomFrame.getBox().getyMin() - topFrame.getBox().getyMax() - object.getBox().getHeight());
-            double horizontalBias = Math.abs(object.getBox().getxMin() - topFrame.getBox().getyMin()) /
-                    Math.abs(topFrame.getBox().getWidth() - object.getBox().getWidth());
+            double horizontalBias = Math.min(0, object.getBox().getxMin() - topFrame.getBox().getxMin()) /
+                    Math.min(topFrame.getBox().getWidth(), topFrame.getBox().getWidth() - object.getBox().getWidth());
 
             view.setVerticalBias(verticalBias + "");
             view.setHorizontalBias(horizontalBias + "");
+
+            //view.setWidthPercent(object.getBox().getWidth() / topFrame.getBox().getWidth() > 1 ? "1" : object.getBox().getWidth() / topFrame.getBox().getWidth() + "");
 
             views.add(view);
             i++;

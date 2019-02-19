@@ -18,8 +18,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
-import org.bytedeco.javacpp.opencv_core;
-import org.bytedeco.javacv.*;
+import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.FrameGrabber;
+import org.bytedeco.javacv.Java2DFrameConverter;
+import org.bytedeco.javacv.VideoInputFrameGrabber;
 
 import javax.imageio.ImageIO;
 import javax.xml.bind.JAXBException;
@@ -115,15 +117,15 @@ public class VideoScene {
         Task<Void> task = new Task<Void>() {
             @Override
             protected Void call() {
-                final OpenCVFrameConverter.ToIplImage converter = new OpenCVFrameConverter.ToIplImage();
-                final OpenCVFrameConverter.ToIplImage grabberConverter = new OpenCVFrameConverter.ToIplImage();
+                //final OpenCVFrameConverter.ToIplImage converter = new OpenCVFrameConverter.ToIplImage();
+                //final OpenCVFrameConverter.ToIplImage grabberConverter = new OpenCVFrameConverter.ToIplImage();
                 final Java2DFrameConverter paintConverter = new Java2DFrameConverter();
                 try {
                     while (!stopCamera) {
                         if((frame = grabber.grab()) != null){
-                            opencv_core.IplImage img = converter.convert(frame);
-                            opencv_core.cvFlip(img, img, 1);
-                            frame = grabberConverter.convert(img);
+                            //opencv_core.IplImage img = converter.convert(frame);
+                            //opencv_core.cvFlip(img, img, 1);
+                            //frame = grabberConverter.convert(img);
                             bufferedFrame = paintConverter.getBufferedImage(frame,1);
 
                             if (!mDidUpload) {
