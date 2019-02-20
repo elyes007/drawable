@@ -24,6 +24,8 @@ public abstract class View {
     private String leftToRight;
     private String widthDefault = "percent";
     private String widthPercent;
+    private String heightDefault = "percent";
+    private String heightPercent;
     private String horizontalBias;
     private String VerticalBias;
 
@@ -191,6 +193,24 @@ public abstract class View {
 
     public void setWidthPercent(String widthPercent) {
         this.widthPercent = widthPercent;
+    }
+
+    @XmlAttribute(name = "app:layout_constraintHeight_default")
+    public String getHeightDefault() {
+        return heightDefault;
+    }
+
+    public void setHeightDefault(String heightDefault) {
+        this.heightDefault = heightDefault;
+    }
+
+    @XmlAttribute(name = "app:layout_constraintHeight_percent")
+    public String getHeightPercent() {
+        return heightPercent;
+    }
+
+    public void setHeightPercent(String heightPercent) {
+        this.heightPercent = heightPercent;
     }
 
     @XmlAttribute(name = "app:layout_constraintHorizontal_bias")

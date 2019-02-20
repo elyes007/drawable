@@ -73,19 +73,20 @@ public class CodeGenerator {
             view.setWidth("0dp");
             if (view instanceof ImageView) {
                 view.setHeight("0dp");
+                view.setHeightPercent(object.getBox().getHeight() / topFrame.getBox().getHeight() > 1 ? "1" : object.getBox().getHeight() / topFrame.getBox().getHeight() + "");
             } else {
                 view.setHeight("wrap_content");
             }
 
-            double verticalBias = Math.abs(object.getBox().getyMin() - topFrame.getBox().getyMax()) /
-                    Math.abs(bottomFrame.getBox().getyMin() - topFrame.getBox().getyMax() - object.getBox().getHeight());
-            double horizontalBias = Math.min(0, object.getBox().getxMin() - topFrame.getBox().getxMin()) /
-                    Math.min(topFrame.getBox().getWidth(), topFrame.getBox().getWidth() - object.getBox().getWidth());
+            double verticalBias = Math.min(1, Math.max(0, object.getBox().getyMin() - topFrame.getBox().getyMax()) /
+                    Math.max(0, bottomFrame.getBox().getyMin() - topFrame.getBox().getyMax() - object.getBox().getHeight()));
+            double horizontalBias = Math.max(0, object.getBox().getxMin() - topFrame.getBox().getxMin()) /
+                    Math.max(0, topFrame.getBox().getWidth() - object.getBox().getWidth());
 
             view.setVerticalBias(verticalBias + "");
             view.setHorizontalBias(horizontalBias + "");
 
-            //view.setWidthPercent(object.getBox().getWidth() / topFrame.getBox().getWidth() > 1 ? "1" : object.getBox().getWidth() / topFrame.getBox().getWidth() + "");
+            view.setWidthPercent(object.getBox().getWidth() / topFrame.getBox().getWidth() > 1 ? "1" : object.getBox().getWidth() / topFrame.getBox().getWidth() + "");
 
             views.add(view);
             i++;
@@ -107,7 +108,6 @@ public class CodeGenerator {
             return 0;
         });
 
-        //TODO: what if an object takes many rows in height
         //group horizontally adjacent objects
         List<List<ObjectWrapper>> grid = new ArrayList<>();
         List<ObjectWrapper> neighbors = new ArrayList<>();
