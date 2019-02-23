@@ -14,7 +14,7 @@ import java.util.List;
 
 public class CodeGenerator {
 
-    public static ConstraintLayout parse(List<DetectedObject> objects) {
+    public static ParseResult parse(List<DetectedObject> objects) {
         if (objects == null || objects.isEmpty()) {
             return null;
         }
@@ -49,7 +49,7 @@ public class CodeGenerator {
         }
     }
 
-    private static ConstraintLayout parseWithDoubleFrames(DetectedObject topFrame, DetectedObject bottomFrame, List<DetectedObject> objects) {
+    private static ParseResult parseWithDoubleFrames(DetectedObject topFrame, DetectedObject bottomFrame, List<DetectedObject> objects) {
         List<View> views = new ArrayList<>();
         int i = 1;
         int j = 1;
@@ -92,10 +92,10 @@ public class CodeGenerator {
             i++;
         }
 
-        return buildLayout(views);
+        return new ParseResult(false, views, null, buildLayout(views));
     }
 
-    private static ConstraintLayout parseWithSingleFrame(DetectedObject topFrame, List<DetectedObject> objects) {
+    private static ParseResult parseWithSingleFrame(DetectedObject topFrame, List<DetectedObject> objects) {
 
         //order by y ascending
         objects.sort((a, b) -> {
@@ -220,7 +220,7 @@ public class CodeGenerator {
             }
         }
 
-        return buildLayout(views);
+        return new ParseResult(true, views, grid, buildLayout(views));
     }
 
     private static ConstraintLayout buildLayout(List<View> views) {
@@ -282,7 +282,7 @@ public class CodeGenerator {
                 Math.max(o1.getBox().getHeight() / 2, o2.getBox().getHeight() / 2);
     }
 
-    private static class ObjectWrapper {
+    public static class ObjectWrapper {
         View view;
         DetectedObject detectedObject;
 
@@ -295,11 +295,76 @@ public class CodeGenerator {
             this.detectedObject = detectedObject;
         }
 
+        public View getView() {
+            return view;
+        }
+
+        public void setView(View view) {
+            this.view = view;
+        }
+
+        public DetectedObject getDetectedObject() {
+            return detectedObject;
+        }
+
+        public void setDetectedObject(DetectedObject detectedObject) {
+            this.detectedObject = detectedObject;
+        }
+
         @Override
         public String toString() {
             return "ObjectWrapper{" +
                     "view=" + view +
                     "}\n";
+        }
+    }
+
+    public static class ParseResult {
+        boolean hasSingleFrame;
+        List<View> views;
+        List<List<ObjectWrapper>> rows;
+        ConstraintLayout layout;
+
+        public ParseResult() {
+        }
+
+        public ParseResult(boolean hasSingleFrame, List<View> views, List<List<ObjectWrapper>> rows, ConstraintLayout layout) {
+            this.hasSingleFrame = hasSingleFrame;
+            this.views = views;
+            this.rows = rows;
+            this.layout = layout;
+        }
+
+        public boolean hasSingleFrame() {
+            return hasSingleFrame;
+        }
+
+        public void setHasSingleFrame(boolean hasSingleFrame) {
+            this.hasSingleFrame = hasSingleFrame;
+        }
+
+        public List<View> getViews() {
+            return views;
+        }
+
+        public void setViews(List<View> views) {
+            this.views = views;
+        }
+
+        public List<List<ObjectWrapper>> getRows() {
+            return rows;
+        }
+
+        public void setRows(List<List<ObjectWrapper>> rows) {
+            this.rows = rows;
+        }
+
+        public ConstraintLayout getLayout() {
+            return layout;
+        }
+
+        public void setLayout(ConstraintLayout layout) {
+            this.layout = layout;
         }
     }
 }

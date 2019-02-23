@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="600.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/8.0.171"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="preview.PreviewController">
+    <children>
+        <ImageView fitHeight="600.0" fitWidth="300.0" pickOnBounds="true">
+            <Image url="@../pictures/pixel2_frame.png"/>
+        </ImageView>
+        <AnchorPane fx:id="preview" layoutX="18.0" layoutY="51.0" prefHeight="500.0" prefWidth="260.0"/>
+    </children>
+</AnchorPane>
