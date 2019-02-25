@@ -29,7 +29,7 @@ public class TestFromServer {
         List<DetectedObject> objects = new Gson().fromJson(jsonString, new TypeToken<List<DetectedObject>>() {
         }.getType());
 
-        ConstraintLayout layout = CodeGenerator.parse(objects);
+        ConstraintLayout layout = CodeGenerator.parse(objects).getLayout();
 
         JAXBContext jc = JAXBContext.newInstance(ConstraintLayout.class);
         Marshaller marshaller = jc.createMarshaller();

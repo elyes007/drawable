@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<AnchorPane prefHeight="700.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/8.0.171"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="preview.AppViewController">
+    <children>
+        <Pane fx:id="cameraPane" prefHeight="700.0" prefWidth="700.0" style="-fx-background-color: gray;"/>
+        <Pane fx:id="previewPane" prefHeight="550.0" prefWidth="350.0" style="-fx-background-color: purple;"
+              AnchorPane.leftAnchor="825.0" AnchorPane.topAnchor="75.0"/>
+    </children>
+</AnchorPane>

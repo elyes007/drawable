@@ -60,7 +60,7 @@ public class WebCamAppLauncher extends Application {
         @Override
         public void onUploaded(List<DetectedObject> objects) {
             try {
-                ConstraintLayout layout = CodeGenerator.parse(objects);
+                ConstraintLayout layout = CodeGenerator.parse(objects).getLayout();
                 CodeGenerator.generateLayoutFile(layout);
                 File file = getFileFromImage();
                 ShapeDetectionService.upload(file, mUploadCallback);

@@ -27,7 +27,7 @@ public class Test {
         Marshaller marshaller = jc.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        ConstraintLayout layout = CodeGenerator.parse(objects);
+        ConstraintLayout layout = CodeGenerator.parse(objects).getLayout();
 
         marshaller.marshal(layout, System.out);
         OutputStream os = new FileOutputStream("../AndroidTest/app/src/main/res/layout/layout.xml");
