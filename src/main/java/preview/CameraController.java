@@ -1,8 +1,10 @@
 package preview;
 
+import code_generation.entities.Box;
 import code_generation.entities.DetectedObject;
 import code_generation.service.CodeGenerator;
 import code_generation.service.ShapeDetectionService;
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
@@ -12,10 +14,13 @@ import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.Java2DFrameConverter;
@@ -28,14 +33,25 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Stack;
 
 public class CameraController {
+    public class RectAttributes{
+        public String className;
+        public Color color;
+
+        public RectAttributes(String className, Color color){
+            this.className = className;
+            this.color = color;
+        }
+    }
+
     private FlowPane bottomCameraControlPane;
     private BorderPane root;
     private ImageView imgWebCamCapturedImage;
     private boolean stopCamera = false;
     ObjectProperty<Image> imageProperty = new SimpleObjectProperty<Image>();
-    private BorderPane webCamPane;
+    private FlowPane webCamPane;
     private Button btnCamreaStop;
     private Button btnCamreaStart;
     private Frame frame;
@@ -43,6 +59,13 @@ public class CameraController {
     private Thread thread;
     private FrameGrabber grabber;
     private BufferedImage bufferedFrame;
+    private BorderPane drawingPane;
+    private RectAttributes[] rectsAttributes = new RectAttributes[]{
+            new RectAttributes("frame", Color.YELLOW),
+            new RectAttributes("edit_text", Color.AQUA),
+            new RectAttributes("button", Color.RED),
+            new RectAttributes("image_view", Color.GREEN)
+    };
 
     private Date lastRequestDate;
     private PreviewController previewController;
@@ -50,6 +73,38 @@ public class CameraController {
         @Override
         public void onUploaded(List<DetectedObject> objects) {
             try {
+                Platform.runLater(new Runnable(){
+                    @Override
+                    public void run() {
+                        drawingPane.getChildren().clear();
+                        for(DetectedObject detectedObject : objects){
+                            Box box = detectedObject.getBox();
+                            RectAttributes attributes = rectsAttributes[(int)detectedObject.getClasse()];
+                            Rectangle rectangle = new Rectangle(box.getxMin()*640,box.getyMin()*480, box.getWidth()*640, box.getHeight()*480);
+                            rectangle.setStrokeWidth(3);
+                            rectangle.setFill(Color.TRANSPARENT);
+                            rectangle.setStroke(attributes.color);
+
+                            VBox toDrawPane = new VBox();
+                            Label title = new Label(attributes.className);
+                            title.setFont(new Font("Arial", 12));
+                            title.setMinWidth(Region.USE_PREF_SIZE);
+                            String cssRule = "-fx-background-color: #"+attributes.color.toString().substring(2,8)+";";
+                            System.out.println(cssRule);
+                            title.setStyle(cssRule);
+
+                            toDrawPane.getChildren().add(title);
+                            toDrawPane.getChildren().add(rectangle);
+
+                            toDrawPane.setLayoutX(box.getxMin()*640);
+                            toDrawPane.setLayoutY((box.getyMin()*480)-17);
+
+
+                            drawingPane.getChildren().add(toDrawPane);
+                        }
+                    }
+                });
+
                 CodeGenerator.ParseResult result = CodeGenerator.parse(objects);
                 if (result != null) {
                     previewController.update(result);
@@ -85,10 +140,25 @@ public class CameraController {
 
     public CameraController(int cameraIndex) {
         root = new BorderPane();
-        webCamPane = new BorderPane();
+        StackPane stackPane = new StackPane();
+        webCamPane = new FlowPane();
         webCamPane.setStyle("-fx-background-color: #ccc;");
         imgWebCamCapturedImage = new ImageView();
-        webCamPane.setCenter(imgWebCamCapturedImage);
+
+        drawingPane = new BorderPane();
+        drawingPane.setStyle("-fx-border-color: red;");
+        drawingPane.setPrefHeight(480);
+        drawingPane.setPrefWidth(640);
+
+        stackPane.getChildren().add(imgWebCamCapturedImage);
+        stackPane.getChildren().add(drawingPane);
+        stackPane.setAlignment(Pos.CENTER);
+
+
+        webCamPane.setOrientation(Orientation.HORIZONTAL);
+        webCamPane.setAlignment(Pos.CENTER);
+        webCamPane.getChildren().add(stackPane);
+
         root.setCenter(webCamPane);
         bottomCameraControlPane = new FlowPane();
         bottomCameraControlPane.setOrientation(Orientation.HORIZONTAL);
