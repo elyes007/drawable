@@ -73,7 +73,8 @@ public class CodeGenerator {
             view.setWidth("0dp");
             if (view instanceof ImageView) {
                 view.setHeight("0dp");
-                view.setHeightPercent(object.getBox().getHeight() / topFrame.getBox().getHeight() > 1 ? "1" : object.getBox().getHeight() / topFrame.getBox().getHeight() + "");
+                double heightPercent = object.getBox().getHeight() / (bottomFrame.getBox().getyMin() - topFrame.getBox().getyMax());
+                view.setHeightPercent(heightPercent > 1 ? "1" : heightPercent + "");
             } else {
                 view.setHeight("wrap_content");
             }
