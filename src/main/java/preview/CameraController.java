@@ -61,8 +61,8 @@ public class CameraController {
     private BufferedImage bufferedFrame;
     private BorderPane drawingPane;
     private RectAttributes[] rectsAttributes = new RectAttributes[]{
-            new RectAttributes("frame", Color.YELLOW),
             new RectAttributes("edit_text", Color.AQUA),
+            new RectAttributes("frame", Color.YELLOW),
             new RectAttributes("button", Color.RED),
             new RectAttributes("image_view", Color.GREEN)
     };
@@ -79,7 +79,7 @@ public class CameraController {
                         drawingPane.getChildren().clear();
                         for(DetectedObject detectedObject : objects){
                             Box box = detectedObject.getBox();
-                            RectAttributes attributes = rectsAttributes[(int)detectedObject.getClasse()];
+                            RectAttributes attributes = rectsAttributes[(int)detectedObject.getClasse()-1];
                             Rectangle rectangle = new Rectangle(box.getxMin()*640,box.getyMin()*480, box.getWidth()*640, box.getHeight()*480);
                             rectangle.setStrokeWidth(3);
                             rectangle.setFill(Color.TRANSPARENT);
