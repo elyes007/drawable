@@ -1,7 +1,6 @@
 package preview;
 
 import code_generation.entities.DetectedObject;
-import code_generation.entities.views.ConstraintLayout;
 import code_generation.service.CodeGenerator;
 import code_generation.service.ShapeDetectionService;
 import javafx.beans.property.ObjectProperty;
@@ -46,12 +45,16 @@ public class CameraController {
     private BufferedImage bufferedFrame;
 
     private Date lastRequestDate;
+    private PreviewController previewController;
     private ShapeDetectionService.UploadCallback mUploadCallback = new ShapeDetectionService.UploadCallback() {
         @Override
         public void onUploaded(List<DetectedObject> objects) {
             try {
-                ConstraintLayout layout = CodeGenerator.parse(objects).getLayout();
-                CodeGenerator.generateLayoutFile(layout);
+                CodeGenerator.ParseResult result = CodeGenerator.parse(objects);
+                if (result != null) {
+                    previewController.update(result);
+                    CodeGenerator.generateLayoutFile(result.getLayout());
+                }
                 File file = getFileFromImage();
                 long timeDiff = new Date().getTime() - lastRequestDate.getTime();
                 if (timeDiff < 2000) {
@@ -189,5 +192,13 @@ public class CameraController {
 
     public BorderPane getRoot() {
         return root;
+    }
+
+    public PreviewController getPreviewController() {
+        return previewController;
+    }
+
+    public void setPreviewController(PreviewController previewController) {
+        this.previewController = previewController;
     }
 }

@@ -1,6 +1,8 @@
 package preview;
 
 import code_generation.entities.DetectedObject;
+import code_generation.entities.views.ConstraintLayout;
+import code_generation.entities.views.View;
 import code_generation.service.CodeGenerator;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -9,6 +11,10 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -20,7 +26,48 @@ public class PreviewController {
     private AnchorPane root;
 
     public void start() {
-        System.out.println("start");
+        try {
+            fromFile();
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void update(CodeGenerator.ParseResult result) {
+        List<Node> nodes = PreviewGenerator
+                .getNodes(result, preview.getPrefWidth(), preview.getPrefHeight());
+        System.out.println("nodes: " + nodes.size());
+        Platform.runLater(() -> {
+            System.out.println("inside run later");
+            preview.getChildren().clear();
+            preview.getChildren().addAll(nodes);
+        });
+    }
+
+    public void fromFile() throws JAXBException {
+        JAXBContext jc = JAXBContext.newInstance(ConstraintLayout.class);
+        Unmarshaller unmarshaller = jc.createUnmarshaller();
+        File file = new File("../AndroidTest/app/src/main/res/layout/test1.xml");
+        ConstraintLayout layout = (ConstraintLayout) unmarshaller.unmarshal(file);
+        List<View> views = new ArrayList<>();
+        views.addAll(layout.getButtons());
+        views.addAll(layout.getEditTexts());
+        views.addAll(layout.getImageViews());
+        System.out.println("views: " + views.size());
+        CodeGenerator.ParseResult result = new CodeGenerator.ParseResult();
+        result.setHasSingleFrame(false);
+        result.setViews(views);
+        List<Node> nodes = PreviewGenerator
+                .getNodes(result, preview.getPrefWidth(), preview.getPrefHeight());
+        System.out.println("nodes: " + nodes.size());
+        Platform.runLater(() -> {
+            System.out.println("inside run later");
+            preview.getChildren().clear();
+            preview.getChildren().addAll(nodes);
+        });
+    }
+
+    public void fromStatic() {
         List<String> jsonList = new ArrayList<>();
         jsonList.add("[{\"box\": {\"ymin\": 0.025714846327900887, \"xmax\": 0.6734870672225952, \"ymax\": 0.1516139805316925, \"xmin\": 0.11724734306335449}, \"score\": 0.999972939491272, \"class\": 2.0}, {\"box\": {\"ymin\": 0.1873399019241333, \"xmax\": 0.6572803854942322, \"ymax\": 0.2848241627216339, \"xmin\": 0.09451477229595184}, \"score\": 0.8894684314727783, \"class\": 1.0}, {\"box\": {\"ymin\": 0.32904940843582153, \"xmax\": 0.6667465567588806, \"ymax\": 0.5112229585647583, \"xmin\": 0.45405611395835876}, \"score\": 0.9979177117347717, \"class\": 2.0}, {\"box\": {\"ymin\": 0.3343687951564789, \"xmax\": 0.4240373373031616, \"ymax\": 0.43329837918281555, \"xmin\": 0.14275193214416504}, \"score\": 0.8916385769844055, \"class\": 1.0}, {\"box\": {\"ymin\": 0.468723326921463, \"xmax\": 0.4361937642097473, \"ymax\": 0.5646662712097168, \"xmin\": 0.14424824714660645}, \"score\": 0.9951849579811096, \"class\": 1.0}, {\"box\": {\"ymin\": 0.7543667554855347, \"xmax\": 0.6917593479156494, \"ymax\": 0.9149238467216492, \"xmin\": 0.14663562178611755}, \"score\": 0.9999821186065674, \"class\": 2.0}]");
         jsonList.add("[{\"box\": {\"ymin\": 0.016395270824432373, \"xmax\": 0.7258040308952332, \"ymax\": 0.11139510571956635, \"xmin\": 0.062356315553188324}, \"score\": 0.9999881982803345, \"class\": 2.0}, {\"box\": {\"ymin\": 0.025009112432599068, \"xmax\": 0.7368699908256531, \"ymax\": 0.10822702944278717, \"xmin\": 0.32776495814323425}, \"score\": 0.9618628621101379, \"class\": 2.0}, {\"box\": {\"ymin\": 0.13623343408107758, \"xmax\": 0.7395766973495483, \"ymax\": 0.38101688027381897, \"xmin\": 0.5247385501861572}, \"score\": 0.9975408315658569, \"class\": 2.0}, {\"box\": {\"ymin\": 0.16348318755626678, \"xmax\": 0.4583187997341156, \"ymax\": 0.24609439074993134, \"xmin\": 0.07989010959863663}, \"score\": 0.8506920337677002, \"class\": 1.0}, {\"box\": {\"ymin\": 0.3143550455570221, \"xmax\": 0.510962963104248, \"ymax\": 0.430195689201355, \"xmin\": 0.06380912661552429}, \"score\": 0.8270204067230225, \"class\": 1.0}, {\"box\": {\"ymin\": 0.4802985191345215, \"xmax\": 0.6668537855148315, \"ymax\": 0.7226132154464722, \"xmin\": 0.1673123687505722}, \"score\": 0.9946135878562927, \"class\": 2.0}, {\"box\": {\"ymin\": 0.7992014288902283, \"xmax\": 0.6791974306106567, \"ymax\": 0.9526691436767578, \"xmin\": 0.08723928034305573}, \"score\": 0.9072731137275696, \"class\": 1.0}]");
@@ -30,9 +77,7 @@ public class PreviewController {
         jsonList.add("[{\"box\": {\"ymin\": 0.040865182876586914, \"xmax\": 0.7273321747779846, \"ymax\": 0.171548992395401, \"xmin\": 0.16464856266975403}, \"score\": 0.9998561143875122, \"class\": 2.0}, {\"box\": {\"ymin\": 0.2122548669576645, \"xmax\": 0.4740588068962097, \"ymax\": 0.3058491349220276, \"xmin\": 0.20741981267929077}, \"score\": 0.9979639053344727, \"class\": 1.0}, {\"box\": {\"ymin\": 0.21429763734340668, \"xmax\": 0.7280877232551575, \"ymax\": 0.3078218698501587, \"xmin\": 0.54476398229599}, \"score\": 0.8325586915016174, \"class\": 1.0}, {\"box\": {\"ymin\": 0.3722515106201172, \"xmax\": 0.5906668901443481, \"ymax\": 0.6535466909408569, \"xmin\": 0.30715855956077576}, \"score\": 0.9962480664253235, \"class\": 2.0}, {\"box\": {\"ymin\": 0.692771315574646, \"xmax\": 0.812876284122467, \"ymax\": 0.7865605354309082, \"xmin\": 0.48643046617507935}, \"score\": 0.9434722661972046, \"class\": 1.0}, {\"box\": {\"ymin\": 0.8430420756340027, \"xmax\": 0.6217881441116333, \"ymax\": 0.9570510387420654, \"xmin\": 0.399746298789978}, \"score\": 0.9260500073432922, \"class\": 1.0}]");
 
         new Thread(() -> {
-            System.out.println("inside thread");
             for (String json : jsonList) {
-                System.out.println("inside for loop");
                 List<DetectedObject> objects = new Gson().fromJson(json, new TypeToken<List<DetectedObject>>() {
                 }.getType());
                 List<Node> nodes = PreviewGenerator

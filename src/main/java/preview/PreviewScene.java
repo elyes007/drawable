@@ -26,6 +26,7 @@ public class PreviewScene {
         previewController.getRoot().setLayoutY(30);
 
         CameraController cameraController = new CameraController(webcamIndex);
+        cameraController.setPreviewController(previewController);
         root.getChildren().add(cameraController.getRoot());
         cameraController.getRoot().setLayoutX(0);
         cameraController.getRoot().setLayoutY(0);
@@ -34,7 +35,7 @@ public class PreviewScene {
     }
 
     public void start() {
-        previewController.start();
+        //previewController.start();
     }
 
     public Scene getScene() {

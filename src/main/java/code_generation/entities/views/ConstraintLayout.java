@@ -3,6 +3,7 @@ package code_generation.entities.views;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
 import java.util.List;
 
 @XmlRootElement(name = "android.support.constraint.ConstraintLayout")
@@ -10,9 +11,9 @@ public class ConstraintLayout {
 
     private String width;
     private String height;
-    private List<Button> buttons;
-    private List<ImageView> imageViews;
-    private List<EditText> editTexts;
+    private List<Button> buttons = new ArrayList<>();
+    private List<ImageView> imageViews = new ArrayList<>();
+    private List<EditText> editTexts = new ArrayList<>();
     private String app;
     private String android;
     private String tools;
