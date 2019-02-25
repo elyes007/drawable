@@ -14,19 +14,19 @@ import java.util.List;
 
 public class CodeGenerator {
 
-    public static ParseResult parse(List<DetectedObject> objects) {
-        if (objects == null || objects.isEmpty()) {
+    public static ParseResult parse(List<DetectedObject> detectedObjects) {
+        if (detectedObjects == null || detectedObjects.isEmpty()) {
             return null;
         }
         //find frame and remove it from list
         List<DetectedObject> frames = new ArrayList<>();
-        for (DetectedObject object : objects) {
+        List<DetectedObject> objects = new ArrayList<>();
+        for (DetectedObject object : detectedObjects) {
             if (object.getClasse() == DetectedObject.FRAME) {
                 frames.add(object);
+            } else {
+                objects.add(object);
             }
-        }
-        for (DetectedObject frame : frames) {
-            objects.remove(frame);
         }
         if (frames.isEmpty() || objects.isEmpty()) {
             return null;
