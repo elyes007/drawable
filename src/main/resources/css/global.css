@@ -14,19 +14,6 @@
     -fx-text-fill: rgba(175, 177, 179, 255);
 }
 
-.preview_button {
-    -fx-background-color: rgba(175, 177, 179, 255);
-}
-
-.preview_edit_text {
-    -fx-border-color: transparent;
-    -fx-focus-color: transparent;
-}
-
-.selected {
-    -fx-effect: innershadow(three-pass-box, #4285F4, 10, 0, 0, 0);
-}
-
 ScrollPane {
     -fx-background-color: transparent;
 }

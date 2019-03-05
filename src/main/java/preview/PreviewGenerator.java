@@ -5,9 +5,12 @@ import code_generation.entities.views.EditText;
 import code_generation.entities.views.ImageView;
 import code_generation.entities.views.View;
 import code_generation.service.CodeGenerator;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import org.eclipse.jgit.diff.Edit;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -47,6 +50,7 @@ public class PreviewGenerator {
                 ((TextField) node).setPromptText(((EditText) view).getHint());
                 ((TextField) node).setPrefHeight(TEXTFIELD_HEIGHT);
                 ((TextField) node).setPrefWidth(MAX_WIDTH * Double.parseDouble(view.getWidthPercent()));
+                ((TextField) node).setEditable(false);
                 node.getStyleClass().add("preview_edit_text");
             } else if (view instanceof ImageView) {
                 node = new javafx.scene.image.ImageView();

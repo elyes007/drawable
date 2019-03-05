@@ -49,7 +49,8 @@ public class TestPane implements Initializable {
             loader.load();
             loader.getLocation().openStream();
             PreviewController previewController = loader.getController();
-            previewPane.getChildren().add(previewController.getRoot());
+            Node root = previewController.getRoot();
+            previewPane.getChildren().add(root);
             for(Node node : previewController.start()){
                 node.setOnMouseClicked(event -> {
                     settingsViewController.setComponent(node);

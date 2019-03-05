@@ -1,0 +1,19 @@
+.preview_button {
+    -fx-background-color: #D6D7D7;
+    -fx-text-fill: #2C2C2C;
+}
+
+.preview_edit_text {
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #e3e4e3;
+    -fx-focus-color: transparent;
+    -fx-background-color: transparent;
+}
+
+.selected {
+    -fx-effect: innershadow(three-pass-box, #4285F4, 10, 0, 0, 0);
+}
+
+.preview_background {
+    -fx-background-color: #F7FAF6
+}
