@@ -8,7 +8,7 @@
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="preview.PreviewController">
     <children>
         <ImageView fitHeight="600.0" fitWidth="300.0" pickOnBounds="true">
-            <Image url="@../pictures/pixel2_frame.png"/>
+            <Image url="@../drawable/detectionDrawables/pixel2_frame.png"/>
         </ImageView>
         <AnchorPane fx:id="preview" layoutX="18.0" layoutY="51.0" prefHeight="500.0" prefWidth="260.0"/>
     </children>
