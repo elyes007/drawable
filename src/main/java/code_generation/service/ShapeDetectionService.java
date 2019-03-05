@@ -45,6 +45,7 @@ public class ShapeDetectionService {
                 if (response != null && response.getStatusLine().getStatusCode() == 200) {
                     System.out.println(response.getStatusLine().getStatusCode());
                     String jsonString = EntityUtils.toString(response.getEntity());
+                    System.out.println(jsonString);
                     List<DetectedObject> objects = new Gson().fromJson(jsonString, new TypeToken<List<DetectedObject>>() {
                     }.getType());
                     callback.onUploaded(objects);

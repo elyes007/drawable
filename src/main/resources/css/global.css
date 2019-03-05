@@ -1,0 +1,32 @@
+.root {
+    -fx-base: rgba(60, 63, 65, 255); // dark
+}
+
+.separator {
+    -fx-border-color: rgba(113, 118, 121, 255);
+}
+
+.light_separator {
+    -fx-border-color: rgba(97, 102, 105, 255);
+}
+
+.screen_message {
+    -fx-text-fill: rgba(175, 177, 179, 255);
+}
+
+.preview_button {
+    -fx-background-color: rgba(175, 177, 179, 255);
+}
+
+.preview_edit_text {
+    -fx-border-color: transparent;
+    -fx-focus-color: transparent;
+}
+
+.selected {
+    -fx-effect: innershadow(three-pass-box, #4285F4, 10, 0, 0, 0);
+}
+
+ScrollPane {
+    -fx-background-color: transparent;
+}

@@ -40,11 +40,14 @@ public class PreviewGenerator {
                 ((javafx.scene.control.Button) node).setText(((Button) view).getText());
                 ((javafx.scene.control.Button) node).setPrefHeight(BUTTON_HEIGHT);
                 ((javafx.scene.control.Button) node).setPrefWidth(MAX_WIDTH * Double.parseDouble(view.getWidthPercent()));
+                node.getStyleClass().add("preview_button");
+                node.setFocusTraversable(false);
             } else if (view instanceof EditText) {
                 node = new TextField();
                 ((TextField) node).setPromptText(((EditText) view).getHint());
                 ((TextField) node).setPrefHeight(TEXTFIELD_HEIGHT);
                 ((TextField) node).setPrefWidth(MAX_WIDTH * Double.parseDouble(view.getWidthPercent()));
+                node.getStyleClass().add("preview_edit_text");
             } else if (view instanceof ImageView) {
                 node = new javafx.scene.image.ImageView();
                 File file = new File("./placeholder.png");

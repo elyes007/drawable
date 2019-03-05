@@ -315,7 +315,7 @@ public class CodeGenerator {
         @Override
         public String toString() {
             return "ObjectWrapper{" +
-                    "view=" + view +
+                    "views=" + view +
                     "}\n";
         }
     }
