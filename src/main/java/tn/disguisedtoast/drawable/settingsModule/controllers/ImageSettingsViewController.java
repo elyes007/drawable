@@ -41,7 +41,8 @@ public class ImageSettingsViewController implements Initializable {
         filePath.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                imageView.setImage(new Image("file:///"+newValue));
+                File file = new File((newValue.isEmpty()?"./placeholder.png":newValue));
+                imageView.setImage(new Image(file.toURI().toString()));
             }
         });
     }
