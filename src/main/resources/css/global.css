@@ -14,6 +14,16 @@
     -fx-text-fill: rgba(175, 177, 179, 255);
 }
 
+.icon_button{
+    -fx-background-color: transparent;
+}
+
+.icon_button:selected {
+    -fx-background-color: #353839;
+}
+
+
+
 ScrollPane {
     -fx-background-color: transparent;
 }

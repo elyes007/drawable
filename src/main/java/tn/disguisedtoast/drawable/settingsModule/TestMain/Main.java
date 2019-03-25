@@ -18,7 +18,7 @@ public class Main extends Application {
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/SettingsView.fxml"));
         primaryStage.setScene(new Scene(loader.load()));
-        primaryStage.setResizable(false);
+        //primaryStage.setResizable(false);
         primaryStage.show();
     }
 }
