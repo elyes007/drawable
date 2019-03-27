@@ -1,9 +1,5 @@
 package test;
 
-import code_generation.entities.DetectedObject;
-import code_generation.entities.views.ConstraintLayout;
-import code_generation.service.CodeGenerator;
-import code_generation.service.ShapeDetectionService;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
@@ -22,6 +18,10 @@ import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.VideoInputFrameGrabber;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.generation.CodeGenerator;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.DetectedObject;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.ConstraintLayout;
+import tn.disguisedtoast.drawable.codeGenerationModule.shapeDetection.ShapeDetectionService;
 
 import javax.imageio.ImageIO;
 import javax.xml.bind.JAXBException;

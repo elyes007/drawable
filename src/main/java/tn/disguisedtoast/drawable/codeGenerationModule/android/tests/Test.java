@@ -1,9 +1,9 @@
-package code_generation;
+package tn.disguisedtoast.drawable.codeGenerationModule.android.tests;
 
-import code_generation.entities.Box;
-import code_generation.entities.DetectedObject;
-import code_generation.entities.views.ConstraintLayout;
-import code_generation.service.CodeGenerator;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.generation.CodeGenerator;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.Box;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.DetectedObject;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.ConstraintLayout;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;

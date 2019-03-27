@@ -1,6 +1,5 @@
-package code_generation.service;
+package tn.disguisedtoast.drawable.codeGenerationModule.shapeDetection;
 
-import code_generation.entities.DetectedObject;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.http.HttpResponse;
@@ -11,6 +10,7 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.DetectedObject;
 
 import javax.ws.rs.core.MediaType;
 import java.io.File;

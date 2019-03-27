@@ -1,4 +1,4 @@
-package code_generation.entities;
+package tn.disguisedtoast.drawable.codeGenerationModule.ionic.models;
 
 import com.google.gson.annotations.SerializedName;
 

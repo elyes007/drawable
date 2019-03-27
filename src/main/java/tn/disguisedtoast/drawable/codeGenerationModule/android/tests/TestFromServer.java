@@ -1,10 +1,10 @@
-package code_generation;
+package tn.disguisedtoast.drawable.codeGenerationModule.android.tests;
 
-import code_generation.entities.DetectedObject;
-import code_generation.entities.views.ConstraintLayout;
-import code_generation.service.CodeGenerator;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.generation.CodeGenerator;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.DetectedObject;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.ConstraintLayout;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;

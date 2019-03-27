@@ -1,7 +1,7 @@
-package code_generation.service;
+package tn.disguisedtoast.drawable.codeGenerationModule.android.generation;
 
-import code_generation.entities.DetectedObject;
-import code_generation.entities.views.*;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.DetectedObject;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.*;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;

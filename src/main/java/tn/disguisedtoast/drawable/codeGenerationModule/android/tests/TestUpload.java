@@ -1,8 +1,8 @@
-package code_generation;
+package tn.disguisedtoast.drawable.codeGenerationModule.android.tests;
 
-import code_generation.entities.views.ConstraintLayout;
-import code_generation.service.CodeGenerator;
-import code_generation.service.ShapeDetectionService;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.generation.CodeGenerator;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.ConstraintLayout;
+import tn.disguisedtoast.drawable.codeGenerationModule.shapeDetection.ShapeDetectionService;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;

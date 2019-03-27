@@ -1,15 +1,15 @@
 package preview;
 
-import code_generation.entities.DetectedObject;
-import code_generation.entities.views.ConstraintLayout;
-import code_generation.entities.views.View;
-import code_generation.service.CodeGenerator;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.generation.CodeGenerator;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.DetectedObject;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.ConstraintLayout;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.View;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;

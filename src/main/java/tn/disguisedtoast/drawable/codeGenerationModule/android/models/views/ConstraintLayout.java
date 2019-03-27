@@ -1,4 +1,4 @@
-package code_generation.entities.views;
+package tn.disguisedtoast.drawable.codeGenerationModule.android.models.views;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;

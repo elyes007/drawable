@@ -1,9 +1,5 @@
 package preview;
 
-import code_generation.entities.Box;
-import code_generation.entities.DetectedObject;
-import code_generation.service.CodeGenerator;
-import code_generation.service.ShapeDetectionService;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -25,6 +21,10 @@ import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.VideoInputFrameGrabber;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.generation.CodeGenerator;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.Box;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.DetectedObject;
+import tn.disguisedtoast.drawable.codeGenerationModule.shapeDetection.ShapeDetectionService;
 
 import javax.imageio.ImageIO;
 import javax.xml.bind.JAXBException;
@@ -33,7 +33,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.Stack;
 
 public class CameraController {
     public class RectAttributes{

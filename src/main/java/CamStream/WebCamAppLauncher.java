@@ -1,10 +1,6 @@
 package CamStream;
 
 
-import code_generation.entities.DetectedObject;
-import code_generation.entities.views.ConstraintLayout;
-import code_generation.service.CodeGenerator;
-import code_generation.service.ShapeDetectionService;
 import com.github.sarxos.webcam.Webcam;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -29,6 +25,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.generation.CodeGenerator;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.DetectedObject;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.ConstraintLayout;
+import tn.disguisedtoast.drawable.codeGenerationModule.shapeDetection.ShapeDetectionService;
 
 import javax.imageio.ImageIO;
 import javax.xml.bind.JAXBException;
