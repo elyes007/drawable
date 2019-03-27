@@ -24,7 +24,7 @@
                 <ion-col size-md="6" offset-md="3">
                     <ion-card>
                         <ion-card-header>
-                            <ion-card-title onclick="clicked(event, this);" onmouseenter="onHover(event, this)" onmouseleave="onQuit(event, this)" style="display: table;"><span style="display: table-cell">New Expense</span></ion-card-title>
+                            <ion-card-title style="display: table;"><ion-label style="position: relative; display: table-cell" onclick="clicked(event, this);" onmouseenter="onHover(event, this)" onmouseleave="onQuit(event, this)">New Expense</ion-label></ion-card-title>
                         </ion-card-header>
                         <ion-card-content>
                             <ion-item style="position: relative; left: 20%; top: 30%;" onclick="clicked(event, this);" onmouseenter="onHover(event, this)" onmouseleave="onQuit(event, this)">
@@ -54,9 +54,7 @@
             </ion-row>
             <ion-row>
                 <ion-col size-md="6" offset-md="3">
-                    <span padding style="display: table;" onclick="clicked(event, this);" onmouseenter="onHover(event, this)" onmouseleave="onQuit(event, this)">
-                        <span style="display: table-cell;">Total Expenses: <span id="total-expenses"></span></span>
-                    </span>
+                    <ion-label onclick="clicked(event, this);" onmouseenter="onHover(event, this)" onmouseleave="onQuit(event, this)" style="position: relative; display: table-cell;">Total Expenses:</ion-label>
                     <ion-img style="left: 70%; top: 30%; position: relative;" src="assets/drawable/placeholder.png" onclick="clicked(event, this);" onmouseenter="onHover(event, this)" onmouseleave="onQuit(event, this)"/>
                 </ion-col>
             </ion-row>

@@ -54,6 +54,7 @@ public class SettingsViewController implements Initializable {
     public void setComponent(GeneratedElement element){
         settingsPane.getChildren().clear();
         try{
+            System.out.println(element.getElement().getTagName());
             if(element.getElement().getTagName().equals(SupportedComponents.ION_BUTTON.toString())){
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/ButtonSettingsView.fxml"));
                 Pane pane = loader.load();
@@ -79,6 +80,14 @@ public class SettingsViewController implements Initializable {
                 AnchorPane.setRightAnchor(pane, 0.0);
                 settingsPane.getChildren().add(pane);
                 ((EditTextSettingsViewController)loader.getController()).setTextField(element);
+            } else if(element.getElement().getTagName().equals(SupportedComponents.ION_LABEL.toString())) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/LabelSettingsView.fxml"));
+                Pane pane = loader.load();
+                AnchorPane.setTopAnchor(pane, 0.0);
+                AnchorPane.setLeftAnchor(pane, 0.0);
+                AnchorPane.setRightAnchor(pane, 0.0);
+                settingsPane.getChildren().add(pane);
+                ((LabelSettingsViewController)loader.getController()).setLabel(element);
             }
 
             /*else{
