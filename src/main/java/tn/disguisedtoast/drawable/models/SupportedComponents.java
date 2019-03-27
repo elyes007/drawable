@@ -4,7 +4,10 @@ public enum SupportedComponents {
     ION_TOOLBAR("ION-TOOLBAR"),
     ION_BUTTON("ION-BUTTON"),
     ION_IMG("ION-IMG"),
-    SPAN("SPAN");
+    SPAN("SPAN"),
+    ION_ITEM("ION-ITEM"),
+    ION_INPUT("ION-INPUT"),
+    ION_LABEL("ION-LABEL");
 
     private String value;
 

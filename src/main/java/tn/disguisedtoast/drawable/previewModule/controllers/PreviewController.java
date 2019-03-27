@@ -6,8 +6,11 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Worker;
 import javafx.scene.Node;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ComboBox;
+import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
 import org.w3c.dom.Element;
@@ -118,5 +121,11 @@ public class PreviewController {
 
     public interface PreviewCallBack {
         void clicked(GeneratedElement element);
+    }
+
+    public Image snapshot() {
+        SnapshotParameters snapshotParameters = new SnapshotParameters();
+        snapshotParameters.setFill(Color.TRANSPARENT);
+        return this.webView.snapshot(snapshotParameters, null);
     }
 }

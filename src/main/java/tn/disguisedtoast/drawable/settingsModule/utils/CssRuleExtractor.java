@@ -16,4 +16,14 @@ public final class CssRuleExtractor {
         }
         throw new NullPointerException("Property does not exist.");
     }
+
+    public static CSSDeclarationList getCssRules(Element element) {
+        CSSDeclarationList cssRules;
+        try {
+            cssRules = CSSReaderDeclarationList.readFromString(element.getAttribute("style"), ECSSVersion.CSS30);
+        } catch (NullPointerException e) {
+            cssRules = new CSSDeclarationList();
+        }
+        return cssRules;
+    }
 }

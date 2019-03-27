@@ -27,19 +27,19 @@
                             <ion-card-title onclick="clicked(event, this);" onmouseenter="onHover(event, this)" onmouseleave="onQuit(event, this)" style="display: table;"><span style="display: table-cell">New Expense</span></ion-card-title>
                         </ion-card-header>
                         <ion-card-content>
-                            <ion-item onclick="clicked(event, this);" onmouseenter="onHover(event, this)" onmouseleave="onQuit(event, this)">
-                                <ion-label position="floating">Expense Reason</ion-label>
-                                <ion-input type="text" id="input-reason"></ion-input>
+                            <ion-item style="position: relative; left: 20%; top: 30%;" onclick="clicked(event, this);" onmouseenter="onHover(event, this)" onmouseleave="onQuit(event, this)">
+                                <ion-label style="color: red;">Expense Reason</ion-label>
+                                <ion-input readonly id="input-reason" value="Yess" style="color: #0cd1e8; font-style: italic; font-weight: bold; text-decoration: underline; font-size: 20px;"></ion-input>
                             </ion-item>
                             <ion-item  onclick="clicked(event, this);" onmouseenter="onHover(event, this)" onmouseleave="onQuit(event, this)">
                                 <ion-label position="floating">Expense Amount</ion-label>
-                                <ion-input type="number" id="input-amount"></ion-input>
+                                <ion-input placeholder="Hello" type="number" id="input-amount" readonly></ion-input>
                             </ion-item>
                             <div margin-vertical text-right>
-                                <ion-button fill="solid" color="danger" id="button-cancel" onclick="clicked(event, this);" onmouseenter="onHover(event, this)" onmouseleave="onQuit(event, this)">
+                                <ion-button style="position: relative;" fill="solid" color="danger" id="button-cancel" onclick="clicked(event, this);" onmouseenter="onHover(event, this)" onmouseleave="onQuit(event, this)">
                                     <ion-icon slot="start" name="close"></ion-icon>Clear
                                 </ion-button>
-                                <ion-button style="font-style: italic; font-weight: bold; text-decoration: underline;" fill="solid" onclick="clicked(event, this);" onmouseenter="onHover(event, this)" onmouseleave="onQuit(event, this)">
+                                <ion-button style="position: relative; font-style: italic; font-weight: bold; text-decoration: underline;" fill="solid" onclick="clicked(event, this);" onmouseenter="onHover(event, this)" onmouseleave="onQuit(event, this)">
                                     <ion-icon name="add"></ion-icon>Add Expense
                                 </ion-button>
                             </div>
@@ -57,7 +57,7 @@
                     <span padding style="display: table;" onclick="clicked(event, this);" onmouseenter="onHover(event, this)" onmouseleave="onQuit(event, this)">
                         <span style="display: table-cell;">Total Expenses: <span id="total-expenses"></span></span>
                     </span>
-                    <ion-img src="assets/drawable/placeholder.png" onclick="clicked(event, this);" onmouseenter="onHover(event, this)" onmouseleave="onQuit(event, this)"/>
+                    <ion-img style="left: 70%; top: 30%; position: relative;" src="assets/drawable/placeholder.png" onclick="clicked(event, this);" onmouseenter="onHover(event, this)" onmouseleave="onQuit(event, this)"/>
                 </ion-col>
             </ion-row>
         </ion-grid>

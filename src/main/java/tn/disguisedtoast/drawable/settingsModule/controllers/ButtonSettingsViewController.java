@@ -27,6 +27,7 @@ import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
 import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
 import tn.disguisedtoast.drawable.settingsModule.utils.DomUtils;
+import tn.disguisedtoast.drawable.settingsModule.utils.FxUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -52,6 +53,8 @@ public class ButtonSettingsViewController implements Initializable {
     @FXML public ToggleButton leftSlot;
     @FXML public ToggleButton rightSlot;
     @FXML public ToggleButton iconOnlySlot;
+    @FXML public Slider horizontalPosition;
+    @FXML public Slider verticalPosition;
 
     public CustomColorPicker textColor;
     public CustomColorPicker backgroundColor;
@@ -73,6 +76,7 @@ public class ButtonSettingsViewController implements Initializable {
         initThemeView();
         initBackgroundColorView();
         initIcon();
+        setUpPosition();
 
         this.buttonAction.getItems().addAll(Arrays.asList(actions));
         this.buttonAction.getSelectionModel().selectFirst();
@@ -160,7 +164,7 @@ public class ButtonSettingsViewController implements Initializable {
                 button.getCssRules().removeDeclaration(declaration);
             }catch (NullPointerException e) {}
             if(!newValue.equals(Color.TRANSPARENT)) {
-                button.getCssRules().addDeclaration(new CSSDeclaration("color", CSSExpression.createSimple("#" + Integer.toHexString(newValue.hashCode())+" !important")));
+                button.getCssRules().addDeclaration(new CSSDeclaration("color", CSSExpression.createSimple(FxUtils.toRGBCode(newValue) +" !important")));
             }
             button.getElement().setAttribute("style", aWriter.getCSSAsString (button.getCssRules()));
         });
@@ -254,7 +258,7 @@ public class ButtonSettingsViewController implements Initializable {
                 System.out.println(e);
             }
             if(!newValue.equals(Color.TRANSPARENT)) {
-                button.getCssRules().addDeclaration(new CSSDeclaration("background-color", CSSExpression.createSimple("#" + Integer.toHexString(newValue.hashCode())+" !important")));
+                button.getCssRules().addDeclaration(new CSSDeclaration("background-color", CSSExpression.createSimple(FxUtils.toRGBCode(newValue)+" !important")));
             }
             button.getElement().setAttribute("style", aWriter.getCSSAsString (button.getCssRules()));
         });
@@ -274,7 +278,7 @@ public class ButtonSettingsViewController implements Initializable {
             if(newValue) {
                 this.rightSlot.setSelected(false);
                 this.iconOnlySlot.setSelected(false);
-                DomUtils.getChildNode("ION-ICON", this.button.getElement()).setAttribute("slot", "start");
+                ((Element)DomUtils.getChildNode("ION-ICON", this.button.getElement())).setAttribute("slot", "start");
             }
         });
 
@@ -282,7 +286,7 @@ public class ButtonSettingsViewController implements Initializable {
             if(newValue) {
                 this.leftSlot.setSelected(false);
                 this.iconOnlySlot.setSelected(false);
-                DomUtils.getChildNode("ION-ICON", this.button.getElement()).setAttribute("slot", "end");
+                ((Element)DomUtils.getChildNode("ION-ICON", this.button.getElement())).setAttribute("slot", "end");
             }
         });
 
@@ -290,8 +294,32 @@ public class ButtonSettingsViewController implements Initializable {
             if(newValue) {
                 this.leftSlot.setSelected(false);
                 this.rightSlot.setSelected(false);
-                DomUtils.getChildNode("ION-ICON", this.button.getElement()).setAttribute("slot", "icon-only");
+                ((Element)DomUtils.getChildNode("ION-ICON", this.button.getElement())).setAttribute("slot", "icon-only");
             }
+        });
+    }
+
+    private void setUpPosition() {
+        horizontalPosition.valueProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                CSSDeclaration declaration = button.getCssRules().getDeclarationOfPropertyName("left");
+                button.getCssRules().removeDeclaration(declaration);
+            }catch (NullPointerException e) {
+                System.out.println(e);
+            }
+            button.getCssRules().addDeclaration(new CSSDeclaration("left", CSSExpression.createSimple(newValue+"%")));
+            button.getElement().setAttribute("style", aWriter.getCSSAsString (button.getCssRules()));
+        });
+
+        verticalPosition.valueProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                CSSDeclaration declaration = button.getCssRules().getDeclarationOfPropertyName("top");
+                button.getCssRules().removeDeclaration(declaration);
+            }catch (NullPointerException e) {
+                System.out.println(e);
+            }
+            button.getCssRules().addDeclaration(new CSSDeclaration("top", CSSExpression.createSimple(newValue+"%")));
+            button.getElement().setAttribute("style", aWriter.getCSSAsString (button.getCssRules()));
         });
     }
 
@@ -326,6 +354,8 @@ public class ButtonSettingsViewController implements Initializable {
 
         //Setting the button icon
         getButtonIcon();
+
+        setButtonPosition();
     }
 
     private void getButtonFontSize() {
@@ -406,7 +436,7 @@ public class ButtonSettingsViewController implements Initializable {
     }
 
     private void getButtonIcon() {
-        if((iconElement = DomUtils.getChildNode("ION-ICON", this.button.getElement())) != null) {
+        if((iconElement = ((Element)DomUtils.getChildNode("ION-ICON", this.button.getElement()))) != null) {
             this.iconName.setText(iconElement.getAttribute("name"));
             if(!iconElement.hasAttribute("slot") || iconElement.getAttribute("slot").equals("start")) {
                 this.leftSlot.setSelected(true);
@@ -421,6 +451,24 @@ public class ButtonSettingsViewController implements Initializable {
                 this.rightSlot.setSelected(false);
                 this.leftSlot.setSelected(false);
             }
+        }
+    }
+
+    private void setButtonPosition() {
+        try {
+            String horizontalString = CssRuleExtractor.extractValue(button.getCssRules(), "left");
+            double hPos = Double.parseDouble(horizontalString.substring(0,horizontalString.length()-1));
+            this.horizontalPosition.setValue(hPos);
+        }catch (Exception e){
+            this.horizontalPosition.setValue(0);
+        }
+
+        try {
+            String verticalString = CssRuleExtractor.extractValue(button.getCssRules(), "top");
+            double vPos = Double.parseDouble(verticalString.substring(0, verticalString.length()-1));
+            this.verticalPosition.setValue(vPos);
+        }catch (Exception e){
+            this.verticalPosition.setValue(0);
         }
     }
 }
