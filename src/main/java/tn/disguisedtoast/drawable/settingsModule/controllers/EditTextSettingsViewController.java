@@ -68,19 +68,6 @@ public class EditTextSettingsViewController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         aWriter.setContentCharset (StandardCharsets.UTF_8.name ());
-        /*placeholder.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                textField.setPromptText(newValue);
-            }
-        });
-
-        value.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                textField.setText(newValue);
-            }
-        });*/
 
         initInputTextView();
         initInputTypesView();

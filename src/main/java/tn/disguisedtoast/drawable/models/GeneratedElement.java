@@ -36,7 +36,7 @@ public class GeneratedElement {
     }
 
     public CSSDeclarationList getCssRules() {
-        return cssRules;
+        return this.cssRules;
     }
 
     public void setCssRules(CSSDeclarationList cssRules) {

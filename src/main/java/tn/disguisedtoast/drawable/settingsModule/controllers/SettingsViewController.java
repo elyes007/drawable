@@ -88,6 +88,14 @@ public class SettingsViewController implements Initializable {
                 AnchorPane.setRightAnchor(pane, 0.0);
                 settingsPane.getChildren().add(pane);
                 ((LabelSettingsViewController)loader.getController()).setLabel(element);
+            } else if(element.getElement().getTagName().equals(SupportedComponents.ION_TOOLBAR.toString())) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/ToolbarSettingsView.fxml"));
+                Pane pane = loader.load();
+                AnchorPane.setTopAnchor(pane, 0.0);
+                AnchorPane.setLeftAnchor(pane, 0.0);
+                AnchorPane.setRightAnchor(pane, 0.0);
+                settingsPane.getChildren().add(pane);
+                ((ToolbarSettingsViewController)loader.getController()).setToolbarElement(element);
             }
 
             /*else{

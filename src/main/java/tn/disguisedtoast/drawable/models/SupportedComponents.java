@@ -7,7 +7,10 @@ public enum SupportedComponents {
     SPAN("SPAN"),
     ION_ITEM("ION-ITEM"),
     ION_INPUT("ION-INPUT"),
-    ION_LABEL("ION-LABEL");
+    ION_LABEL("ION-LABEL"),
+    ION_TITLE("ION-TITLE"),
+    ION_BUTTONS("ION-BUTTONS"),
+    ION_BACK_BUTTON("ION-BACK-BUTTON");
 
     private String value;
 

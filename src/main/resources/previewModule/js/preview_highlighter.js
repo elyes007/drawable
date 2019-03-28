@@ -1,42 +1,49 @@
 var hoveredElement;
 var selectedElement;
-var isSetting = false;
+var isSetting = true;
+
+window.onload = function () {
+    document.getElementsByTagName("body")[0].onclick = unfocus;
+    var elements = document.getElementsByClassName("clickable");
+    Array.prototype.forEach.call(elements, function(element) {
+        element.onclick = clicked;
+        element.onmouseenter = onHover;
+        element.onmouseleave = onQuit;
+    });
+}
 
 function setIsSetting(boolValue) {
     isSetting = boolValue;
-    console.log(boolValue);
 }
 
-function clicked(e, dom) {
+function clicked(event) {
     if (isSetting) {
-        e.stopPropagation();
-        console.log(dom);
+        event.stopPropagation();
         if(selectedElement) {
             selectedElement.classList.remove("selected");
         }
-        selectedElement = dom;
-        dom.classList.add("selected");
-        app.setEelement(dom);
-        console.log("After");
+        selectedElement = this;
+        this.classList.add("selected");
+        app.setEelement(this);
     }
 }
 
-function unfocus() {
+function unfocus(event) {
     if(selectedElement) {
         selectedElement.classList.remove("selected");
     }
 }
 
-function onHover(e, dom) {
+function onHover(event) {
     if (isSetting) {
         if(hoveredElement) {
             hoveredElement.classList.remove("hovered");
         }
-        hoveredElement = dom;
-        dom.classList.add("hovered");
+        hoveredElement = this;
+        this.classList.add("hovered");
     }
 }
 
-function onQuit(e, dom) {
-    dom.classList.remove("hovered");
+function onQuit(event) {
+    this.classList.remove("hovered");
 }

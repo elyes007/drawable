@@ -5,8 +5,10 @@
     border: dashed blue 1px;
 }
 
-ion-toolbar.hovered {
-    --ion-color-base: rgba(183, 226, 243, 0.8) !important;
+.unhoverable {
+    background-color: transparent !important;
+    --ion-background-color: transparent !important;
+    border: none !important;
 }
 
 .selected {
