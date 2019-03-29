@@ -5,14 +5,33 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import preview.PreviewScene;
+import preview.StartScene;
+import tn.disguisedtoast.drawable.detectionModule.controllers.CamStreamViewController;
 
-public class Main extends Application {
+import java.io.IOException;
+
+public class Main extends Application implements StartScene.CameraButtonCallback {
+    private  Stage primaryStage;
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Parent root = (new FXMLLoader(getClass().getResource("/layouts/detectionViews/CamStreamView.fxml"))).load();
-        primaryStage.setTitle("Drawable");
-        primaryStage.setScene(new Scene(root));
+        this.primaryStage = primaryStage;
+        primaryStage.setTitle("CamStarter");
+        primaryStage.setScene(new StartScene(this).getScene());primaryStage.setHeight(200);
+        primaryStage.setWidth(400);
+        primaryStage.setResizable(false);
         primaryStage.show();
+
+    }
+
+    @Override
+    public void onButtonClicked(int webcamIndex) {
+        if (webcamIndex != -1) {
+            CamStreamViewController camStreamViewController = new CamStreamViewController();
+            camStreamViewController.setIndex(webcamIndex);
+            CamStreamViewController.showStage();
+
+        }
 
     }
 }
