@@ -7,12 +7,22 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement
 @XmlTransient
 public abstract class IonView {
+    private String id;
     private String position = "absolute";
     private String top;
     private String left;
     private String width;
     private String height;
     private String style;
+
+    @XmlAttribute(name = "id")
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     @XmlAttribute(name = "style")
     public String getStyle() {
@@ -71,4 +81,5 @@ public abstract class IonView {
     public void setPosition(String position) {
         this.position = position;
     }
+
 }

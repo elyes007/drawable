@@ -77,3 +77,6 @@ crashlytics-build.properties
 # Maven
 log/
 target/
+
+#generated pages
+src/main/RelatedFiles/*

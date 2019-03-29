@@ -19,7 +19,7 @@ import java.util.Locale;
 
 public class CodeGenerator {
 
-    public static File parse(List<DetectedObject> detectedObjects) throws NoDetectedObjects, NoFramesDetected, FailedToCreateHtmlFromIonApp {
+    public static String parse(List<DetectedObject> detectedObjects) throws NoDetectedObjects, NoFramesDetected, FailedToCreateHtmlFromIonApp {
         if (detectedObjects == null || detectedObjects.isEmpty()) {
             throw new NoDetectedObjects("No detected objects");
         }
@@ -58,7 +58,7 @@ public class CodeGenerator {
         }
     }
 
-    private static File parseWithDoubleFrames(DetectedObject topFrame, DetectedObject bottomFrame, List<DetectedObject> objects) throws FailedToCreateHtmlFromIonApp {
+    private static String parseWithDoubleFrames(DetectedObject topFrame, DetectedObject bottomFrame, List<DetectedObject> objects) throws FailedToCreateHtmlFromIonApp {
         List<IonView> views = new ArrayList<>();
         int i = 1;
         int j = 1;
@@ -66,16 +66,19 @@ public class CodeGenerator {
         for (DetectedObject object : objects) {
             IonView view = getViewInstance(object);
             if (view == null) continue;
-            //view.setId(view.getClass().getSimpleName() + i);
             if (view instanceof IonButton) {
+                view.setId("Button " + j);
                 ((IonButton) view).setText("Button " + j);
                 j++;
             }
             if (view instanceof IonItem) {
+                view.setId("Input" + k);
                 ((IonItem) view).getLabel().setLabel("Input " + k);
                 k++;
             }
             if (view instanceof IonImg) {
+                view.setId("Image" + i);
+                i++;
                 double heightPercent = object.getBox().getHeight() / (bottomFrame.getBox().getyMin() - topFrame.getBox().getyMax()) > 1 ? 100 : 100 * object.getBox().getHeight() / (bottomFrame.getBox().getyMin() - topFrame.getBox().getyMax());
                 view.setHeight(String.format(Locale.US, "%.2f", heightPercent) + "%");
                 ((IonImg) view).setSrc(CodeGenerator.class.getResource("/codeGenerationModule/placeholder.png").getPath());
@@ -92,11 +95,10 @@ public class CodeGenerator {
             view.setLeft(String.format(Locale.US, "%.2f", left * 100) + "%");
 
             views.add(view);
-            i++;
         }
 
         try {
-            return getHtml(buildLayout(views));
+            return generateHtml(buildLayout(views));
         } catch (JAXBException | IOException | URISyntaxException e) {
             e.printStackTrace();
             throw new FailedToCreateHtmlFromIonApp("Exception occurred while creating html file");
@@ -142,7 +144,20 @@ public class CodeGenerator {
         return new IonApp(ionContent);
     }
 
-    public static File getHtml(IonApp app) throws JAXBException, IOException, URISyntaxException {
+    public static String generateHtml(IonApp app) throws JAXBException, IOException, URISyntaxException {
+        //setting page name
+        String pagesPath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\pages\\";
+        File idFile = new File(pagesPath + "\\.last_id");
+        int id = 1;
+        //in case last_id file doesn't exist
+        try {
+            id = Integer.parseInt(FileUtils.readFileToString(idFile)) + 1;
+        } catch (IOException ignored) {
+            //
+        }
+        String pageName = "Page" + id;
+        app.getHeader().getToolbar().setTitle(pageName);
+
         //serializing IonApp to string
         JAXBContext jc = JAXBContext.newInstance(IonApp.class);
         Marshaller marshaller = jc.createMarshaller();
@@ -158,9 +173,19 @@ public class CodeGenerator {
         String title = app.getHeader().getToolbar().getTitle();
         htmlString = htmlString.replace("$title", title);
         htmlString = htmlString.replace("$body", body);
-        File newHtmlFile = new File(CodeGenerator.class.getResource("/codeGenerationModule/").toURI().getPath() + "result.html");
+
+        //writing html file
+        File newHtmlFile = new File(pagesPath + "\\" + pageName + "\\" + pageName + ".html");
         FileUtils.writeStringToFile(newHtmlFile, htmlString);
 
-        return newHtmlFile;
+        //writing config file
+        String configString = String.format("{\n\t\"html\": \"%s\"\n}", pageName);
+        File configFile = new File(pagesPath + "\\" + pageName + "\\" + "conf.json");
+        FileUtils.writeStringToFile(configFile, configString);
+
+        //updating id file
+        FileUtils.writeStringToFile(idFile, id + "");
+
+        return pageName;
     }
 }

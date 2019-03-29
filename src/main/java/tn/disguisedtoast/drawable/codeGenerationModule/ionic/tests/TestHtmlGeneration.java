@@ -46,6 +46,6 @@ public class TestHtmlGeneration {
         app.setContent(ionContent);
         app.setHeader(ionHeader);
 
-        CodeGenerator.getHtml(app);
+        CodeGenerator.generateHtml(app);
     }
 }

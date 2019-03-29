@@ -9,6 +9,7 @@ public class IonToolbar {
 
     private String title = "Page Name";
     private String color = "primary";
+    private String id = "toolbar";
 
     public IonToolbar() {
     }
@@ -33,5 +34,14 @@ public class IonToolbar {
 
     public void setColor(String color) {
         this.color = color;
+    }
+
+    @XmlAttribute(name = "id")
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }
