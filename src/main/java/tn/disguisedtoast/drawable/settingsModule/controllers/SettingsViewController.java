@@ -97,6 +97,14 @@ public class SettingsViewController implements Initializable {
                 AnchorPane.setRightAnchor(pane, 0.0);
                 settingsPane.getChildren().add(pane);
                 ((ToolbarSettingsViewController)loader.getController()).setToolbarElement(element);
+            } else if(element.getElement().tagName().equals(SupportedComponents.BODY.toString())) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/GlobalPageSettingsView.fxml"));
+                Pane pane = loader.load();
+                AnchorPane.setTopAnchor(pane, 0.0);
+                AnchorPane.setLeftAnchor(pane, 0.0);
+                AnchorPane.setRightAnchor(pane, 0.0);
+                settingsPane.getChildren().add(pane);
+                ((GlobalPageSettingsViewController)loader.getController()).setBodyGeneratedElement(element);
             }
 
             this.settingsStage.sizeToScene();

@@ -61,6 +61,7 @@ public class PreviewController {
                     JSObject win = (JSObject) webView.getEngine().executeScript("window");
                     win.setMember("app", appInterface);
                     webView.getEngine().executeScript("setIsSetting("+(PreviewController.callBack!=null)+");");
+                    webView.getScene().getWindow().sizeToScene();
                     try {
                         Files.delete(Paths.get(webView.getEngine().getDocument().getDocumentURI().substring(8)));
                     } catch (IOException e) {

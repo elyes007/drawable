@@ -11,7 +11,8 @@ public enum SupportedComponents {
     ION_TITLE("ion-title"),
     ION_BUTTONS("ion-buttons"),
     ION_BACK_BUTTON("ion-back-button"),
-    ION_ICON("ion-icon");
+    ION_ICON("ion-icon"),
+    BODY("body");
 
     private String value;
 

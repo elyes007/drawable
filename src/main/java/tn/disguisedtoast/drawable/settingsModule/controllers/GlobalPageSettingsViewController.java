@@ -1,0 +1,151 @@
+package tn.disguisedtoast.drawable.settingsModule.controllers;
+
+import com.helger.css.ECSSVersion;
+import com.helger.css.decl.CSSDeclaration;
+import com.helger.css.decl.CSSExpression;
+import com.helger.css.writer.CSSWriter;
+import com.helger.css.writer.CSSWriterSettings;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
+import javafx.scene.paint.Color;
+import org.jsoup.nodes.Element;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import tn.disguisedtoast.drawable.models.*;
+import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
+import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
+import tn.disguisedtoast.drawable.settingsModule.utils.DomUtils;
+import tn.disguisedtoast.drawable.settingsModule.utils.FxUtils;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.ResourceBundle;
+
+public class GlobalPageSettingsViewController implements Initializable {
+    @FXML public TextField pageNameField;
+    @FXML public CheckBox hasToolbarButton;
+    @FXML public Label backgroundColorLabelPane;
+    private CustomColorPicker customColorPicker;
+
+    private GeneratedElement bodyGeneratedElement;
+    private final CSSWriter aWriter = new CSSWriter (new CSSWriterSettings(ECSSVersion.CSS30, false));
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        aWriter.setContentCharset (StandardCharsets.UTF_8.name ());
+
+        initBackgroundColor();
+        initToolbar();
+    }
+
+    private void initBackgroundColor(){
+        this.customColorPicker = new CustomColorPicker();
+        this.customColorPicker.setValue(Color.TRANSPARENT);
+        this.customColorPicker.setTooltip(new Tooltip("Select button background color."));
+        this.backgroundColorLabelPane.setGraphic(customColorPicker);
+
+        this.customColorPicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                CSSDeclaration declaration = this.bodyGeneratedElement.getCssRules().getDeclarationOfPropertyName("background-color");
+                this.bodyGeneratedElement.getCssRules().removeDeclaration(declaration);
+            }catch (NullPointerException e) {
+                System.out.println(e);
+            }
+            if(!newValue.equals(Color.TRANSPARENT)) {
+                this.bodyGeneratedElement.getCssRules().addDeclaration(new CSSDeclaration("background-color", CSSExpression.createSimple(FxUtils.toRGBCode(newValue)+" !important")));
+            }
+            String cssRules = aWriter.getCSSAsString (this.bodyGeneratedElement.getCssRules());
+            this.bodyGeneratedElement.getElement().attr("style", cssRules);
+            this.bodyGeneratedElement.getDomElement().setAttribute("style", cssRules);
+        });
+    }
+
+    private void initToolbar(){
+        this.hasToolbarButton.setOnAction(event -> {
+            if(this.hasToolbarButton.isSelected() && this.bodyGeneratedElement.getElement().selectFirst("#toolbar") == null) {
+                addJsoupToolbar();
+
+                Document document = this.bodyGeneratedElement.getDomElement().getOwnerDocument();
+                Node ionHeader = this.bodyGeneratedElement.getDomElement().getElementsByTagName("ION-HEADER").item(0);
+
+                org.w3c.dom.Element toolbar = document.createElement(SupportedComponents.ION_TOOLBAR.toString().toUpperCase());
+                toolbar.setAttribute("color", "primary");
+                toolbar.setAttribute("id", "toolbar");
+
+                org.w3c.dom.Element buttons = document.createElement(SupportedComponents.ION_BUTTONS.toString().toUpperCase());
+                buttons.setAttribute("slot", "start");
+
+                org.w3c.dom.Element backButton = document.createElement(SupportedComponents.ION_BACK_BUTTON.toString().toUpperCase());
+                backButton.setAttribute("default-href", "");
+
+                buttons.appendChild(backButton);
+
+                org.w3c.dom.Element title = document.createElement(SupportedComponents.ION_TITLE.toString().toUpperCase());
+                title.setTextContent("Hello");
+
+                toolbar.appendChild(buttons);
+                toolbar.appendChild(title);
+
+                ionHeader.appendChild(toolbar);
+
+            }else{
+                this.bodyGeneratedElement.getElement().selectFirst("#toolbar").remove();
+                Node toolbarNode = this.bodyGeneratedElement.getDomElement().getElementsByTagName(SupportedComponents.ION_TOOLBAR.toString().toUpperCase()).item(0);
+                toolbarNode.getParentNode().removeChild(toolbarNode);
+            }
+        });
+    }
+
+    private void addJsoupToolbar(){
+        Element toolbar = new Element(SupportedComponents.ION_TOOLBAR.toString());
+        toolbar.attr("color", "primary");
+        toolbar.attr("id", "toolbar");
+
+        Element buttons = new Element(SupportedComponents.ION_BUTTONS.toString());
+        buttons.attr("slot", "start");
+
+        Element backButton = new Element(SupportedComponents.ION_BACK_BUTTON.toString());
+        backButton.attr("default-href", "");
+        buttons.appendChild(backButton);
+
+        Element title = new Element(SupportedComponents.ION_TITLE.toString());
+        title.text("Hello");
+
+        toolbar.appendChild(buttons);
+        toolbar.appendChild(title);
+        this.bodyGeneratedElement.getElement().selectFirst("ion-header").appendChild(toolbar);
+    }
+
+    private void addDomToolbar(){
+
+    }
+
+    public void setBodyGeneratedElement(GeneratedElement bodyGeneratedElement){
+        this.bodyGeneratedElement = bodyGeneratedElement;
+
+        checkHasToolbar();
+        getBackgroundColor();
+    }
+
+    private void getBackgroundColor(){
+        try {
+            String backgroundString = CssRuleExtractor.extractValue(this.bodyGeneratedElement.getCssRules(), "background-color");
+            this.customColorPicker.setValue(Color.valueOf(backgroundString));
+        }catch (NullPointerException e){
+            this.customColorPicker.setValue(Color.TRANSPARENT);
+        }
+    }
+
+    private void checkHasToolbar(){
+        this.hasToolbarButton.setSelected(this.bodyGeneratedElement.getElement().selectFirst("#toolbar") != null);
+    }
+
+
+
+    private void getPageName() {
+
+    }
+}

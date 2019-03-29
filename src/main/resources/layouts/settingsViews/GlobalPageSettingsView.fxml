@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+
+  <BorderPane xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.disguisedtoast.drawable.settingsModule.controllers.GlobalPageSettingsViewController">
+      <center>
+          <GridPane hgap="20.0" vgap="20.0">
+              <BorderPane.margin>
+                  <Insets bottom="10.0" left="40.0" right="40.0" top="20.0" />
+              </BorderPane.margin>
+              <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="140.0" minWidth="140.0" prefWidth="140.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" />
+              </columnConstraints>
+              <rowConstraints>
+                  <RowConstraints vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+              <children>
+                    <TextField fx:id="pageNameField" GridPane.columnIndex="1" />
+                  <Label minWidth="118.0" text="Page name">
+                      <font>
+                          <Font size="14.0" />
+                      </font>
+                  </Label>
+            <Label text="Has navigation bar" GridPane.rowIndex="1">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <CheckBox fx:id="hasToolbarButton" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label text="Background color" GridPane.rowIndex="2">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Label fx:id="backgroundColorLabelPane" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+              </children>
+          </GridPane>
+      </center>
+      <top>
+          <BorderPane minWidth="780.0" BorderPane.alignment="CENTER">
+              <left>
+                  <Label styleClass="screen_message" text="Page Settings" BorderPane.alignment="CENTER">
+                      <font>
+                          <Font size="14.0" />
+                      </font>
+                  </Label>
+              </left>
+              <center>
+                  <VBox alignment="CENTER" BorderPane.alignment="CENTER">
+                      <children>
+                          <Pane prefHeight="0.5" styleClass="light_separator" />
+                      </children>
+                      <BorderPane.margin>
+                          <Insets left="10.0" />
+                      </BorderPane.margin>
+                  </VBox>
+              </center>
+              <BorderPane.margin>
+                  <Insets left="10.0" />
+              </BorderPane.margin>
+          </BorderPane>
+      </top>
+      <padding>
+          <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+      </padding>
+  </BorderPane>
