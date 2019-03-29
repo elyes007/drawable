@@ -11,6 +11,15 @@ public class IonApp {
     private IonHeader header;
     private IonContent content;
 
+    public IonApp() {
+        header = new IonHeader();
+    }
+
+    public IonApp(IonContent ionContent) {
+        header = new IonHeader();
+        this.content = ionContent;
+    }
+
     @XmlElement(name = "ion-header")
     public IonHeader getHeader() {
         return header;

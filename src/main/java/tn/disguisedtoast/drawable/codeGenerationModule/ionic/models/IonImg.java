@@ -18,6 +18,11 @@ public class IonImg extends IonView {
         this.src = src;
     }
 
+    @XmlAttribute(name = "style")
+    public String getStyle() {
+        return "object-fit: cover; " + super.getStyle();
+    }
+
     @XmlValue
     public String getContent() {
         return "";

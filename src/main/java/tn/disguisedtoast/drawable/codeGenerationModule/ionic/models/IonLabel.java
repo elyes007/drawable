@@ -11,6 +11,7 @@ public class IonLabel extends IonView {
     private String positionAttr = "floating";
 
     public IonLabel() {
+        setPosition(null);
     }
 
     public IonLabel(String label) {

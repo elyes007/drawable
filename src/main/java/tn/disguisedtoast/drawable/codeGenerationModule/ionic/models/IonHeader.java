@@ -9,6 +9,7 @@ public class IonHeader {
     private IonToolbar toolbar;
 
     public IonHeader() {
+        toolbar = new IonToolbar();
     }
 
     public IonHeader(IonToolbar toolbar) {

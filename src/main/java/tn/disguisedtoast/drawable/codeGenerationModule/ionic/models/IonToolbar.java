@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "ion-toolbar")
 public class IonToolbar {
 
-    private String title;
+    private String title = "Page Name";
     private String color = "primary";
 
     public IonToolbar() {

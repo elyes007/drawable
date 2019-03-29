@@ -11,6 +11,11 @@ public class IonItem extends IonView {
     private IonLabel label;
     private IonInput input;
 
+    public IonItem() {
+        label = new IonLabel();
+        input = new IonInput();
+    }
+
     @XmlElement(name = "ion-label")
     public IonLabel getLabel() {
         return label;
