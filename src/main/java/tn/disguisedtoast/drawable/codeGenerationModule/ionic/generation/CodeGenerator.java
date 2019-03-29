@@ -13,9 +13,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class CodeGenerator {
 
@@ -77,19 +77,19 @@ public class CodeGenerator {
             }
             if (view instanceof IonImg) {
                 double heightPercent = object.getBox().getHeight() / (bottomFrame.getBox().getyMin() - topFrame.getBox().getyMax()) > 1 ? 100 : 100 * object.getBox().getHeight() / (bottomFrame.getBox().getyMin() - topFrame.getBox().getyMax());
-                view.setHeight(new DecimalFormat("#0.00").format(heightPercent));
+                view.setHeight(String.format(Locale.US, "%.2f", heightPercent) + "%");
                 ((IonImg) view).setSrc(CodeGenerator.class.getResource("/codeGenerationModule/placeholder.png").getPath());
             }
             double widthPercent = object.getBox().getWidth() / topFrame.getBox().getWidth() > 1 ? 100 : 100 * object.getBox().getWidth() / topFrame.getBox().getWidth();
-            view.setWidth(new DecimalFormat("#0.00").format(widthPercent) + "%");
+            view.setWidth(String.format(Locale.US, "%.2f", widthPercent) + "%");
 
             double top = Math.min(1, Math.max(0, object.getBox().getyMin() - topFrame.getBox().getyMax()) /
                     Math.max(0, bottomFrame.getBox().getyMin() - topFrame.getBox().getyMax() - object.getBox().getHeight()));
             double left = Math.max(0, object.getBox().getxMin() - topFrame.getBox().getxMin()) /
                     Math.max(0, topFrame.getBox().getWidth() - object.getBox().getWidth());
 
-            view.setTop(new DecimalFormat("#0.00").format(top * 100) + "%");
-            view.setLeft(new DecimalFormat("#0.00").format(left * 100) + "%");
+            view.setTop(String.format(Locale.US, "%.2f", top * 100) + "%");
+            view.setLeft(String.format(Locale.US, "%.2f", left * 100) + "%");
 
             views.add(view);
             i++;
