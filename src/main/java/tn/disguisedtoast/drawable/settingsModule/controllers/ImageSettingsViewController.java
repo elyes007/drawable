@@ -7,34 +7,22 @@ import com.helger.css.writer.CSSWriter;
 import com.helger.css.writer.CSSWriterSettings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.InputMethodEvent;
-import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.w3c.dom.Element;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.settingsModule.TestMain.Main;
 import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.ParseException;
 import java.util.ResourceBundle;
 
 public class ImageSettingsViewController implements Initializable {
@@ -52,7 +40,7 @@ public class ImageSettingsViewController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         aWriter.setContentCharset (StandardCharsets.UTF_8.name ());
-        generatedViewsPath = getClass().getResource("/generated_views").getPath();
+        generatedViewsPath = System.getProperty("user.dir")+"/src/main/RelatedFiles/generated_views";
 
         browseButton.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
@@ -77,13 +65,14 @@ public class ImageSettingsViewController implements Initializable {
                         System.out.println(path);
                         File file = new File(path);
                         if (!file.exists()) {
-                            String oldImagePath = imageView.getElement().getAttribute("src");
+                            String oldImagePath = imageView.getElement().attr("src");
                             if(!oldImagePath.equals("assets/drawable/placeholder.png")){
                                 new File(generatedViewsPath + "/" + oldImagePath).delete();
                             }
                             String newImagePath = "assets/drawable/"+RandomStringUtils.randomAlphanumeric(8)+".png";
                             FileUtils.copyFile(new File(newValue), new File(generatedViewsPath + "/" + newImagePath));
-                            imageView.getElement().setAttribute("src", newImagePath);
+                            imageView.getElement().attr("src", newImagePath);
+                            imageView.getDomElement().setAttribute("src", newImagePath);
                         }
                     }catch (IOException e) {
                         e.printStackTrace();
@@ -104,7 +93,9 @@ public class ImageSettingsViewController implements Initializable {
                 System.out.println(e);
             }
             imageView.getCssRules().addDeclaration(new CSSDeclaration("left", CSSExpression.createSimple(newValue+"%")));
-            imageView.getElement().setAttribute("style", aWriter.getCSSAsString (imageView.getCssRules()));
+            String cssString = aWriter.getCSSAsString (imageView.getCssRules());
+            imageView.getElement().attr("style", cssString);
+            imageView.getDomElement().setAttribute("style", cssString);
         });
 
         verticalPosition.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -115,13 +106,15 @@ public class ImageSettingsViewController implements Initializable {
                 System.out.println(e);
             }
             imageView.getCssRules().addDeclaration(new CSSDeclaration("top", CSSExpression.createSimple(newValue+"%")));
-            imageView.getElement().setAttribute("style", aWriter.getCSSAsString (imageView.getCssRules()));
+            String cssString = aWriter.getCSSAsString (imageView.getCssRules());
+            imageView.getElement().attr("style", cssString);
+            imageView.getDomElement().setAttribute("style", cssString);
         });
     }
 
     public void setImageView(GeneratedElement imageView){
         this.imageView = imageView;
-        filePath.setText(this.imageView.getElement().getAttribute("src"));
+        filePath.setText(this.imageView.getElement().attr("src"));
 
         setImagePosition();
     }

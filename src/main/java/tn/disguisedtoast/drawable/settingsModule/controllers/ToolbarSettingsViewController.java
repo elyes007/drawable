@@ -11,7 +11,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-import org.w3c.dom.Element;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.select.Elements;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.models.SupportedComponents;
 import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
@@ -53,11 +55,19 @@ public class ToolbarSettingsViewController implements Initializable {
         initTextView();
 
         this.hasBackButton.setOnAction(event -> {
-            DomUtils.removeAllChilds(this.buttonsElement.getElement());
+            if(this.buttonsElement.getElement().children().size() != 0) {
+                this.buttonsElement.getElement().children().remove();
+                DomUtils.removeAllChilds(this.buttonsElement.getDomElement());
+            }
             if(this.hasBackButton.isSelected()) {
-                Element backButtonElement = this.buttonsElement.getElement().getOwnerDocument().createElement(SupportedComponents.ION_BACK_BUTTON.toString());
-                backButtonElement.setAttribute("default-href", "");
+                Element backButtonElement = new Element(SupportedComponents.ION_BACK_BUTTON.toString());
+                org.w3c.dom.Element backButtonDomElement = this.buttonsElement.getDomElement().getOwnerDocument().createElement(SupportedComponents.ION_BACK_BUTTON.toString());
+
+                backButtonElement.attr("default-href", "");
+                backButtonDomElement.setAttribute("default-href", "");
+
                 this.buttonsElement.getElement().appendChild(backButtonElement);
+                this.buttonsElement.getDomElement().appendChild(backButtonDomElement);
             }
         });
     }
@@ -72,10 +82,12 @@ public class ToolbarSettingsViewController implements Initializable {
             String selectedTheme = (String)this.toolbarTheme.getValue();
             this.toolbarColorPicker.setValue(Color.TRANSPARENT);
             if(selectedTheme.equals("Custom")) {
-                this.toolbarElement.getElement().removeAttribute("color");
+                this.toolbarElement.getElement().removeAttr("color");
+                this.toolbarElement.getDomElement().removeAttribute("color");
                 this.toolbarColorPicker.setDisable(false);
             }else {
-                this.toolbarElement.getElement().setAttribute("color", selectedTheme.toLowerCase());
+                this.toolbarElement.getElement().attr("color", selectedTheme.toLowerCase());
+                this.toolbarElement.getDomElement().setAttribute("color", selectedTheme.toLowerCase());
                 this.toolbarColorPicker.setDisable(true);
             }
         });
@@ -89,7 +101,9 @@ public class ToolbarSettingsViewController implements Initializable {
             if(!this.toolbarColorPicker.getValue().equals(Color.TRANSPARENT)) {
                 cssRules.addDeclaration(new CSSDeclaration("--ion-background-color", CSSExpression.createSimple(FxUtils.toRGBCode(this.toolbarColorPicker.getValue())+" !important")));
             }
-            this.toolbarElement.getElement().setAttribute("style", aWriter.getCSSAsString (cssRules));
+            String cssString = aWriter.getCSSAsString (cssRules);
+            this.toolbarElement.getElement().attr("style", cssString);
+            this.toolbarElement.getDomElement().setAttribute("style", cssString);
         });
 
     }
@@ -104,7 +118,8 @@ public class ToolbarSettingsViewController implements Initializable {
         this.titleFontColorPane.setGraphic(this.titleColorPicker);
 
         this.titleText.setOnKeyReleased(event -> {
-            this.titleElement.getElement().setTextContent(this.titleText.getText());
+            this.titleElement.getElement().text(this.titleText.getText());
+            this.titleElement.getDomElement().setTextContent(this.titleText.getText());
         });
 
         this.titleSize.setOnAction(event -> {
@@ -120,7 +135,9 @@ public class ToolbarSettingsViewController implements Initializable {
                 } else {
                     titleSize.getSelectionModel().selectFirst();
                 }
-                this.titleElement.getElement().setAttribute("style", aWriter.getCSSAsString (this.titleElement.getCssRules()));
+                String cssString = aWriter.getCSSAsString (this.titleElement.getCssRules());
+                this.titleElement.getElement().attr("style", cssString);
+                this.titleElement.getDomElement().setAttribute("style", cssString);
             }catch (NumberFormatException ex){
                 ex.printStackTrace();
                 //textSize.setValue((int)button.getFont().getSize());
@@ -135,7 +152,9 @@ public class ToolbarSettingsViewController implements Initializable {
             if(!newValue.equals(Color.TRANSPARENT)) {
                 this.titleElement.getCssRules().addDeclaration(new CSSDeclaration("color", CSSExpression.createSimple(FxUtils.toRGBCode(newValue) +" !important")));
             }
-            this.titleElement.getElement().setAttribute("style", aWriter.getCSSAsString (this.titleElement.getCssRules()));
+            String cssString = aWriter.getCSSAsString (this.titleElement.getCssRules());
+            this.titleElement.getElement().attr("style", cssString);
+            this.titleElement.getDomElement().setAttribute("style", cssString);
         });
 
         this.titleBold.setOnAction(event -> {
@@ -146,7 +165,9 @@ public class ToolbarSettingsViewController implements Initializable {
             if(this.titleBold.isSelected()) {
                 this.titleElement.getCssRules().addDeclaration(new CSSDeclaration("font-weight", CSSExpression.createSimple("bold")));
             }
-            this.titleElement.getElement().setAttribute("style", aWriter.getCSSAsString (this.titleElement.getCssRules()));
+            String cssString = aWriter.getCSSAsString (this.titleElement.getCssRules());
+            this.titleElement.getElement().attr("style", cssString);
+            this.titleElement.getDomElement().setAttribute("style", cssString);
         });
 
         this.titleItalic.setOnAction(event -> {
@@ -157,7 +178,9 @@ public class ToolbarSettingsViewController implements Initializable {
             if(this.titleItalic.isSelected()) {
                 this.titleElement.getCssRules().addDeclaration(new CSSDeclaration("font-style", CSSExpression.createSimple("italic")));
             }
-            this.titleElement.getElement().setAttribute("style", aWriter.getCSSAsString (this.titleElement.getCssRules()));
+            String cssString = aWriter.getCSSAsString (this.titleElement.getCssRules());
+            this.titleElement.getElement().attr("style", cssString);
+            this.titleElement.getDomElement().setAttribute("style", cssString);
         });
 
         this.titleUnderlined.setOnAction(event -> {
@@ -168,20 +191,26 @@ public class ToolbarSettingsViewController implements Initializable {
             if(this.titleUnderlined.isSelected()) {
                 this.titleElement.getCssRules().addDeclaration(new CSSDeclaration("text-decoration", CSSExpression.createSimple("underline")));
             }
-            this.titleElement.getElement().setAttribute("style", aWriter.getCSSAsString (this.titleElement.getCssRules()));
+            String cssString = aWriter.getCSSAsString (this.titleElement.getCssRules());
+            this.titleElement.getElement().attr("style", cssString);
+            this.titleElement.getDomElement().setAttribute("style", cssString);
         });
     }
 
     public void setToolbarElement(GeneratedElement element) {
         this.toolbarElement = element;
 
-        this.titleElement = new GeneratedElement((Element) DomUtils.getChildNode(SupportedComponents.ION_TITLE.toString(), this.toolbarElement.getElement()));
+        this.titleElement = new GeneratedElement(
+                this.toolbarElement.getElement().selectFirst(SupportedComponents.ION_TITLE.toString()),
+                (org.w3c.dom.Element) DomUtils.getChildNode(SupportedComponents.ION_TITLE.toString().toUpperCase(), this.toolbarElement.getDomElement()));
 
-        this.buttonsElement = new GeneratedElement((Element) DomUtils.getChildNode(SupportedComponents.ION_BUTTONS.toString(), this.toolbarElement.getElement()));
+        this.buttonsElement = new GeneratedElement(
+                this.toolbarElement.getElement().selectFirst(SupportedComponents.ION_BUTTONS.toString()),
+                (org.w3c.dom.Element) DomUtils.getChildNode(SupportedComponents.ION_BUTTONS.toString().toUpperCase(), this.toolbarElement.getDomElement()));
 
-        this.hasBackButton.setSelected(DomUtils.getChildNode(SupportedComponents.ION_BACK_BUTTON.toString(), this.buttonsElement.getElement()) != null);
+        this.hasBackButton.setSelected(this.buttonsElement.getElement().select(SupportedComponents.ION_BACK_BUTTON.toString()).size() != 0);
 
-        this.titleText.setText(this.titleElement.getElement().getTextContent());
+        this.titleText.setText(this.titleElement.getElement().text());
 
         getToolbarColor();
         getTitleFontSize();
@@ -192,8 +221,8 @@ public class ToolbarSettingsViewController implements Initializable {
     }
 
     private void getToolbarColor() {
-        if(this.toolbarElement.getElement().hasAttribute("color")) {
-            String theme = this.toolbarElement.getElement().getAttribute("color");
+        if(this.toolbarElement.getElement().hasAttr("color")) {
+            String theme = this.toolbarElement.getElement().attr("color");
             this.toolbarTheme.setValue(theme.substring(0, 1).toUpperCase() + theme.substring(1));
             this.toolbarColorPicker.setDisable(true);
             return;

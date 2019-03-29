@@ -58,11 +58,11 @@ public class EditTextSettingsViewController implements Initializable {
 
     private GeneratedElement generatedElement;
 
-    private CSSDeclarationList inputElementCssRules;
-    private Element inputElement;
+    private GeneratedElement inputGeneratedElement;
 
-    private CSSDeclarationList labelElementCssRules;
-    private Element labelElement;
+    private GeneratedElement labeleGeneratedElement;
+    /*private CSSDeclarationList labelElementCssRules;
+    private Element labelElement;*/
     private final CSSWriter aWriter = new CSSWriter (new CSSWriterSettings(ECSSVersion.CSS30, false));
 
     @Override
@@ -91,12 +91,13 @@ public class EditTextSettingsViewController implements Initializable {
         this.inputFontColorPane.setGraphic(this.inputColor);
 
         this.inputText.setOnKeyReleased(event -> {
-            inputElement.setAttribute("value", inputText.getText());
+            this.inputGeneratedElement.getElement().attr("value", inputText.getText());
+            this.inputGeneratedElement.getDomElement().setAttribute("value", inputText.getText());
         });
 
         this.inputSize.setOnAction(event -> {
             try {
-                CSSDeclarationList cssRules = CssRuleExtractor.getCssRules(inputElement);
+                CSSDeclarationList cssRules = CssRuleExtractor.getCssRules(inputGeneratedElement.getElement());
                 try {
                     CSSDeclaration declaration = cssRules.getDeclarationOfPropertyName("font-size");
                     cssRules.removeDeclaration(declaration);
@@ -108,7 +109,9 @@ public class EditTextSettingsViewController implements Initializable {
                 } else {
                     inputSize.getSelectionModel().selectFirst();
                 }
-                inputElement.setAttribute("style", aWriter.getCSSAsString (cssRules));
+                String cssString = aWriter.getCSSAsString(cssRules);
+                this.inputGeneratedElement.getElement().attr("style", cssString);
+                this.inputGeneratedElement.getDomElement().setAttribute("style", cssString);
             }catch (NumberFormatException ex){
                 ex.printStackTrace();
                 //textSize.setValue((int)button.getFont().getSize());
@@ -116,7 +119,7 @@ public class EditTextSettingsViewController implements Initializable {
         });
 
         this.inputColor.valueProperty().addListener((observable, oldValue, newValue) -> {
-            CSSDeclarationList cssRules = CssRuleExtractor.getCssRules(inputElement);
+            CSSDeclarationList cssRules = CssRuleExtractor.getCssRules(this.inputGeneratedElement.getElement());
             try {
                 CSSDeclaration declaration = cssRules.getDeclarationOfPropertyName("color");
                 cssRules.removeDeclaration(declaration);
@@ -124,11 +127,13 @@ public class EditTextSettingsViewController implements Initializable {
             if(!this.inputColor.getValue().equals(Color.TRANSPARENT)) {
                 cssRules.addDeclaration(new CSSDeclaration("color", CSSExpression.createSimple(FxUtils.toRGBCode(this.inputColor.getValue())+" !important")));
             }
-            inputElement.setAttribute("style", aWriter.getCSSAsString (cssRules));
+            String cssString = aWriter.getCSSAsString (cssRules);
+            this.inputGeneratedElement.getElement().attr("style", cssString);
+            this.inputGeneratedElement.getDomElement().setAttribute("style", cssString);
         });
 
         this.inputBold.setOnAction(event -> {
-            CSSDeclarationList cssRules = CssRuleExtractor.getCssRules(inputElement);
+            CSSDeclarationList cssRules = CssRuleExtractor.getCssRules(this.inputGeneratedElement.getElement());
             try {
                 CSSDeclaration declaration = cssRules.getDeclarationOfPropertyName("font-weight");
                 cssRules.removeDeclaration(declaration);
@@ -136,11 +141,13 @@ public class EditTextSettingsViewController implements Initializable {
             if(this.inputBold.isSelected()) {
                 cssRules.addDeclaration(new CSSDeclaration("font-weight", CSSExpression.createSimple("bold")));
             }
-            inputElement.setAttribute("style", aWriter.getCSSAsString (cssRules));
+            String cssString = aWriter.getCSSAsString (cssRules);
+            this.inputGeneratedElement.getElement().attr("style", cssString);
+            this.inputGeneratedElement.getDomElement().setAttribute("style", cssString);
         });
 
         this.inputItalic.setOnAction(event -> {
-            CSSDeclarationList cssRules = CssRuleExtractor.getCssRules(inputElement);
+            CSSDeclarationList cssRules = CssRuleExtractor.getCssRules(this.inputGeneratedElement.getElement());
             try {
                 CSSDeclaration declaration = cssRules.getDeclarationOfPropertyName("font-style");
                 cssRules.removeDeclaration(declaration);
@@ -148,11 +155,13 @@ public class EditTextSettingsViewController implements Initializable {
             if(this.inputItalic.isSelected()) {
                 cssRules.addDeclaration(new CSSDeclaration("font-style", CSSExpression.createSimple("italic")));
             }
-            inputElement.setAttribute("style", aWriter.getCSSAsString (cssRules));
+            String cssString = aWriter.getCSSAsString (cssRules);
+            this.inputGeneratedElement.getElement().attr("style", cssString);
+            this.inputGeneratedElement.getDomElement().setAttribute("style", cssString);
         });
 
         this.inputUnderlined.setOnAction(event -> {
-            CSSDeclarationList cssRules = CssRuleExtractor.getCssRules(inputElement);
+            CSSDeclarationList cssRules = CssRuleExtractor.getCssRules(this.inputGeneratedElement.getElement());
             try {
                 CSSDeclaration declaration = cssRules.getDeclarationOfPropertyName("text-decoration");
                 cssRules.removeDeclaration(declaration);
@@ -160,7 +169,9 @@ public class EditTextSettingsViewController implements Initializable {
             if(inputUnderlined.isSelected()) {
                 cssRules.addDeclaration(new CSSDeclaration("text-decoration", CSSExpression.createSimple("underline")));
             }
-            inputElement.setAttribute("style", aWriter.getCSSAsString (cssRules));
+            String cssString = aWriter.getCSSAsString (cssRules);
+            this.inputGeneratedElement.getElement().attr("style", cssString);
+            this.inputGeneratedElement.getDomElement().setAttribute("style", cssString);
         });
     }
     private void initInputTypesView() {
@@ -168,12 +179,14 @@ public class EditTextSettingsViewController implements Initializable {
         this.inputType.getSelectionModel().selectFirst();
 
         this.inputType.setOnAction(event -> {
-            this.inputElement.setAttribute("type", this.inputType.getValue().toString());
+            this.inputGeneratedElement.getElement().attr("type", this.inputType.getValue().toString());
+            this.inputGeneratedElement.getDomElement().setAttribute("type", this.inputType.getValue().toString());
         });
     }
     private void initInputPlaceholderView() {
         this.inputPlaceholder.setOnKeyReleased(event -> {
-            this.inputElement.setAttribute("placeholder", this.inputPlaceholder.getText());
+            this.inputGeneratedElement.getElement().attr("placeholder", this.inputPlaceholder.getText());
+            this.inputGeneratedElement.getDomElement().setAttribute("placeholder", this.inputPlaceholder.getText());
         });
     }
 
@@ -188,12 +201,13 @@ public class EditTextSettingsViewController implements Initializable {
         this.labelFontColorPane.setGraphic(this.labelColor);
 
         this.labelText.setOnKeyReleased(event -> {
-            labelElement.setTextContent(this.labelText.getText());
+            labeleGeneratedElement.getElement().text(this.labelText.getText());
+            labeleGeneratedElement.getDomElement().setTextContent(this.labelText.getText());
         });
 
         this.labelSize.setOnAction(event -> {
             try {
-                CSSDeclarationList cssRules = CssRuleExtractor.getCssRules(labelElement);
+                CSSDeclarationList cssRules = CssRuleExtractor.getCssRules(this.labeleGeneratedElement.getElement());
                 try {
                     CSSDeclaration declaration = cssRules.getDeclarationOfPropertyName("font-size");
                     cssRules.removeDeclaration(declaration);
@@ -205,14 +219,16 @@ public class EditTextSettingsViewController implements Initializable {
                 } else {
                     labelSize.getSelectionModel().selectFirst();
                 }
-                labelElement.setAttribute("style", aWriter.getCSSAsString (cssRules));
+                String cssString = aWriter.getCSSAsString (cssRules);
+                this.labeleGeneratedElement.getElement().attr("style", cssString);
+                this.labeleGeneratedElement.getDomElement().setAttribute("style", cssString);
             }catch (NumberFormatException ex){
                 ex.printStackTrace();
             }
         });
 
         this.labelColor.valueProperty().addListener((observable, oldValue, newValue) -> {
-            CSSDeclarationList cssRules = CssRuleExtractor.getCssRules(labelElement);
+            CSSDeclarationList cssRules = CssRuleExtractor.getCssRules(this.labeleGeneratedElement.getElement());
             try {
                 CSSDeclaration declaration = cssRules.getDeclarationOfPropertyName("color");
                 cssRules.removeDeclaration(declaration);
@@ -220,11 +236,13 @@ public class EditTextSettingsViewController implements Initializable {
             if(!newValue.equals(Color.TRANSPARENT)) {
                 cssRules.addDeclaration(new CSSDeclaration("color", CSSExpression.createSimple(FxUtils.toRGBCode(newValue)+" !important")));
             }
-            labelElement.setAttribute("style", aWriter.getCSSAsString (cssRules));
+            String cssString = aWriter.getCSSAsString (cssRules);
+            this.labeleGeneratedElement.getElement().attr("style", cssString);
+            this.labeleGeneratedElement.getDomElement().setAttribute("style", cssString);
         });
 
         this.labelBold.setOnAction(event -> {
-            CSSDeclarationList cssRules = CssRuleExtractor.getCssRules(labelElement);
+            CSSDeclarationList cssRules = CssRuleExtractor.getCssRules(this.labeleGeneratedElement.getElement());
             try {
                 CSSDeclaration declaration = cssRules.getDeclarationOfPropertyName("font-weight");
                 cssRules.removeDeclaration(declaration);
@@ -232,11 +250,13 @@ public class EditTextSettingsViewController implements Initializable {
             if(this.labelBold.isSelected()) {
                 cssRules.addDeclaration(new CSSDeclaration("font-weight", CSSExpression.createSimple("bold")));
             }
-            labelElement.setAttribute("style", aWriter.getCSSAsString (cssRules));
+            String cssString = aWriter.getCSSAsString (cssRules);
+            this.labeleGeneratedElement.getElement().attr("style", cssString);
+            this.labeleGeneratedElement.getDomElement().setAttribute("style", cssString);
         });
 
         this.labelItalic.setOnAction(event -> {
-            CSSDeclarationList cssRules = CssRuleExtractor.getCssRules(labelElement);
+            CSSDeclarationList cssRules = CssRuleExtractor.getCssRules(this.labeleGeneratedElement.getElement());
             try {
                 CSSDeclaration declaration = cssRules.getDeclarationOfPropertyName("font-style");
                 cssRules.removeDeclaration(declaration);
@@ -244,11 +264,13 @@ public class EditTextSettingsViewController implements Initializable {
             if(this.labelItalic.isSelected()) {
                 cssRules.addDeclaration(new CSSDeclaration("font-style", CSSExpression.createSimple("italic")));
             }
-            labelElement.setAttribute("style", aWriter.getCSSAsString (cssRules));
+            String cssString = aWriter.getCSSAsString (cssRules);
+            this.labeleGeneratedElement.getElement().attr("style", cssString);
+            this.labeleGeneratedElement.getDomElement().setAttribute("style", cssString);
         });
 
         this.labelUnderlined.setOnAction(event -> {
-            CSSDeclarationList cssRules = CssRuleExtractor.getCssRules(labelElement);
+            CSSDeclarationList cssRules = CssRuleExtractor.getCssRules(this.labeleGeneratedElement.getElement());
             try {
                 CSSDeclaration declaration = cssRules.getDeclarationOfPropertyName("text-decoration");
                 cssRules.removeDeclaration(declaration);
@@ -256,7 +278,9 @@ public class EditTextSettingsViewController implements Initializable {
             if(labelUnderlined.isSelected()) {
                 cssRules.addDeclaration(new CSSDeclaration("text-decoration", CSSExpression.createSimple("underline")));
             }
-            labelElement.setAttribute("style", aWriter.getCSSAsString (cssRules));
+            String cssString = aWriter.getCSSAsString (cssRules);
+            this.labeleGeneratedElement.getElement().attr("style", cssString);
+            this.labeleGeneratedElement.getDomElement().setAttribute("style", cssString);
         });
     }
     private void initLabelPosition() {
@@ -264,7 +288,9 @@ public class EditTextSettingsViewController implements Initializable {
         this.labelPosition.getSelectionModel().selectFirst();
 
         this.labelPosition.setOnAction(event -> {
-            this.labelElement.setAttribute("position", this.labelPosition.getValue().toString().toLowerCase());
+            String positionString = this.labelPosition.getValue().toString().toLowerCase();
+            this.labeleGeneratedElement.getElement().attr("position", positionString);
+            this.labeleGeneratedElement.getDomElement().setAttribute("position", positionString);
         });
     }
     private void initHasLabelView() {
@@ -272,9 +298,11 @@ public class EditTextSettingsViewController implements Initializable {
             disable_enableLabelParams(!this.hasLabel.isSelected());
             if(!this.hasLabel.isSelected()){
                 resetLabelParams();
-                labelElement.setTextContent("");
+                this.labeleGeneratedElement.getElement().text("");
+                this.labeleGeneratedElement.getDomElement().setTextContent("");
             }else{
-                labelElement.setTextContent("Input Label");
+                this.labeleGeneratedElement.getElement().text("Input Label");
+                this.labeleGeneratedElement.getDomElement().setTextContent("Input Label");
                 labelText.setText("Input Label");
             }
         });
@@ -293,13 +321,15 @@ public class EditTextSettingsViewController implements Initializable {
     private void setUpPosition() {
         horizontalPosition.valueProperty().addListener((observable, oldValue, newValue) -> {
             try {
-                CSSDeclaration declaration = generatedElement.getCssRules().getDeclarationOfPropertyName("left");
-                generatedElement.getCssRules().removeDeclaration(declaration);
+                CSSDeclaration declaration = this.generatedElement.getCssRules().getDeclarationOfPropertyName("left");
+                this.generatedElement.getCssRules().removeDeclaration(declaration);
             }catch (NullPointerException e) {
                 System.out.println(e);
             }
-            generatedElement.getCssRules().addDeclaration(new CSSDeclaration("left", CSSExpression.createSimple(newValue+"%")));
-            generatedElement.getElement().setAttribute("style", aWriter.getCSSAsString (generatedElement.getCssRules()));
+            this.generatedElement.getCssRules().addDeclaration(new CSSDeclaration("left", CSSExpression.createSimple(newValue+"%")));
+            String cssString = aWriter.getCSSAsString (generatedElement.getCssRules());
+            this.generatedElement.getElement().attr("style", cssString);
+            this.generatedElement.getDomElement().setAttribute("style", cssString);
         });
 
         verticalPosition.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -310,21 +340,28 @@ public class EditTextSettingsViewController implements Initializable {
                 System.out.println(e);
             }
             generatedElement.getCssRules().addDeclaration(new CSSDeclaration("top", CSSExpression.createSimple(newValue+"%")));
-            generatedElement.getElement().setAttribute("style", aWriter.getCSSAsString (generatedElement.getCssRules()));
+            String cssString = aWriter.getCSSAsString (generatedElement.getCssRules());
+            generatedElement.getElement().attr("style", cssString);
+            generatedElement.getDomElement().setAttribute("style", cssString);
         });
     }
 
 
     public void setTextField(GeneratedElement element){
         this.generatedElement = element;
-        this.inputElement = (Element)DomUtils.getChildNode(SupportedComponents.ION_INPUT.toString(), generatedElement.getElement());
-        this.inputElementCssRules = CssRuleExtractor.getCssRules(this.inputElement);
 
-        this.labelElement = (Element)DomUtils.getChildNode(SupportedComponents.ION_LABEL.toString(), generatedElement.getElement());
-        this.labelElementCssRules = CssRuleExtractor.getCssRules(this.labelElement);
+        this.inputGeneratedElement = new GeneratedElement(
+                this.generatedElement.getElement().selectFirst(SupportedComponents.ION_INPUT.toString()),
+                (Element) DomUtils.getChildNode(SupportedComponents.ION_INPUT.toString().toUpperCase(), this.generatedElement.getDomElement())
+        );
 
-        this.inputText.setText(this.inputElement.getAttribute("value"));
-        this.labelText.setText(this.labelElement.getTextContent());
+        this.labeleGeneratedElement = new GeneratedElement(
+                this.generatedElement.getElement().selectFirst(SupportedComponents.ION_LABEL.toString()),
+                (Element) DomUtils.getChildNode(SupportedComponents.ION_LABEL.toString().toUpperCase(), this.generatedElement.getDomElement())
+        );
+
+        this.inputText.setText(this.inputGeneratedElement.getElement().attr("value"));
+        this.labelText.setText(this.labeleGeneratedElement.getElement().text());
         //System.out.println(DomUtils.getChildNode("#text", this.labelElement).getNodeValue());
 
         /* INPUT PARAMS */
@@ -349,13 +386,13 @@ public class EditTextSettingsViewController implements Initializable {
     }
 
     private void getHasLabel() {
-        boolean withLabel = this.labelElement != null;
+        boolean withLabel = this.labeleGeneratedElement.getElement() != null;
         this.hasLabel.setSelected(withLabel);
         disable_enableLabelParams(!withLabel);
     }
 
     private void getLabelPosition() {
-        String labelPositionString = this.labelElement.getAttribute("position");
+        String labelPositionString = this.labeleGeneratedElement.getElement().attr("position");
         if(labelPositionString == null || labelPositionString.isEmpty()) {
             this.labelPosition.getSelectionModel().selectFirst();
             return;
@@ -376,7 +413,7 @@ public class EditTextSettingsViewController implements Initializable {
     }
 
     private void getInputType() {
-        String type = this.inputElement.getAttribute("type");
+        String type = this.inputGeneratedElement.getElement().attr("type");
         if(type == null || type.isEmpty()) {
             type = "text";
         }
@@ -384,12 +421,12 @@ public class EditTextSettingsViewController implements Initializable {
     }
 
     private void getInputPlaceholder() {
-        this.inputPlaceholder.setText(this.inputElement.getAttribute("placeholder"));
+        this.inputPlaceholder.setText(this.inputGeneratedElement.getElement().attr("placeholder"));
     }
 
     private void getEditTextFontSize() {
         try{
-            String fontSizeString = CssRuleExtractor.extractValue(inputElementCssRules, "font-size");
+            String fontSizeString = CssRuleExtractor.extractValue(this.inputGeneratedElement.getCssRules(), "font-size");
             this.inputSize.setValue(Integer.parseInt(fontSizeString.replaceAll("\\D+","")));
         } catch (NullPointerException e){
         }
@@ -397,7 +434,7 @@ public class EditTextSettingsViewController implements Initializable {
 
     private void getEditTextFontColor() {
         try {
-            String fontColorString = CssRuleExtractor.extractValue(inputElementCssRules, "color");
+            String fontColorString = CssRuleExtractor.extractValue(this.inputGeneratedElement.getCssRules(), "color");
             System.out.println(fontColorString);
             this.inputColor.setValue(Color.valueOf(fontColorString));
         }catch (NullPointerException e){
@@ -407,7 +444,7 @@ public class EditTextSettingsViewController implements Initializable {
 
     private void getEditTextIsBold() {
         try {
-            String fontWeightString = CssRuleExtractor.extractValue(inputElementCssRules, "font-weight");
+            String fontWeightString = CssRuleExtractor.extractValue(this.inputGeneratedElement.getCssRules(), "font-weight");
             if(fontWeightString.equals("bold")) {
                 this.inputBold.setSelected(true);
                 return;
@@ -419,7 +456,7 @@ public class EditTextSettingsViewController implements Initializable {
 
     private void getEditTextIsItalic() {
         try {
-            String fontWeightString = CssRuleExtractor.extractValue(inputElementCssRules, "font-style");
+            String fontWeightString = CssRuleExtractor.extractValue(this.inputGeneratedElement.getCssRules(), "font-style");
             if(fontWeightString.equals("italic")) {
                 this.inputItalic.setSelected(true);
                 return;
@@ -431,7 +468,7 @@ public class EditTextSettingsViewController implements Initializable {
 
     private void getEditTextIsUnderlined() {
         try {
-            String fontWeightString = CssRuleExtractor.extractValue(inputElementCssRules, "text-decoration");
+            String fontWeightString = CssRuleExtractor.extractValue(this.inputGeneratedElement.getCssRules(), "text-decoration");
             if(fontWeightString.equals("underline")) {
                 this.inputUnderlined.setSelected(true);
                 return;
@@ -443,7 +480,7 @@ public class EditTextSettingsViewController implements Initializable {
 
     private void getLabelFontSize() {
         try{
-            String fontSizeString = CssRuleExtractor.extractValue(labelElementCssRules, "font-size");
+            String fontSizeString = CssRuleExtractor.extractValue(labeleGeneratedElement.getCssRules(), "font-size");
             this.labelSize.setValue(Integer.parseInt(fontSizeString.replaceAll("\\D+","")));
         } catch (NullPointerException e){
         }
@@ -451,7 +488,7 @@ public class EditTextSettingsViewController implements Initializable {
 
     private void getLabelFontColor() {
         try {
-            String fontColorString = CssRuleExtractor.extractValue(labelElementCssRules, "color");
+            String fontColorString = CssRuleExtractor.extractValue(labeleGeneratedElement.getCssRules(), "color");
             this.labelColor.setValue(Color.valueOf(fontColorString));
         }catch (NullPointerException e){
             this.labelColor.setValue(Color.TRANSPARENT);
@@ -460,7 +497,7 @@ public class EditTextSettingsViewController implements Initializable {
 
     private void getLabelIsBold() {
         try {
-            String fontWeightString = CssRuleExtractor.extractValue(labelElementCssRules, "font-weight");
+            String fontWeightString = CssRuleExtractor.extractValue(labeleGeneratedElement.getCssRules(), "font-weight");
             if(fontWeightString.equals("bold")) {
                 this.labelBold.setSelected(true);
                 return;
@@ -472,7 +509,7 @@ public class EditTextSettingsViewController implements Initializable {
 
     private void getLabelIsItalic() {
         try {
-            String fontWeightString = CssRuleExtractor.extractValue(labelElementCssRules, "font-style");
+            String fontWeightString = CssRuleExtractor.extractValue(labeleGeneratedElement.getCssRules(), "font-style");
             if(fontWeightString.equals("italic")) {
                 this.labelItalic.setSelected(true);
                 return;
@@ -484,7 +521,7 @@ public class EditTextSettingsViewController implements Initializable {
 
     private void getLabelIsUnderlined() {
         try {
-            String fontWeightString = CssRuleExtractor.extractValue(labelElementCssRules, "text-decoration");
+            String fontWeightString = CssRuleExtractor.extractValue(labeleGeneratedElement.getCssRules(), "text-decoration");
             if(fontWeightString.equals("underline")) {
                 this.labelUnderlined.setSelected(true);
                 return;

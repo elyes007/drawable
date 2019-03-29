@@ -1,12 +1,8 @@
 package tn.disguisedtoast.drawable.settingsModule.controllers;
 
 import com.helger.css.ECSSVersion;
-import com.helger.css.ICSSWriterSettings;
 import com.helger.css.decl.CSSDeclaration;
-import com.helger.css.decl.CSSDeclarationList;
 import com.helger.css.decl.CSSExpression;
-import com.helger.css.decl.CSSExpressionMemberTermSimple;
-import com.helger.css.reader.CSSReaderDeclarationList;
 import com.helger.css.writer.CSSWriter;
 import com.helger.css.writer.CSSWriterSettings;
 import javafx.event.ActionEvent;
@@ -15,22 +11,21 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import org.eclipse.jgit.util.StringUtils;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
+import tn.disguisedtoast.drawable.models.SupportedComponents;
 import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
 import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
 import tn.disguisedtoast.drawable.settingsModule.utils.DomUtils;
 import tn.disguisedtoast.drawable.settingsModule.utils.FxUtils;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -66,7 +61,7 @@ public class ButtonSettingsViewController implements Initializable {
     private String[] fills = {"Solid", "Outline", "Clear", "None"};
     private String[] actions = {"Select an action", "Navigation", "Login Facebook", "Login Google"};
     private GeneratedElement button;
-    private Element iconElement;
+    private GeneratedElement iconElement;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -129,13 +124,14 @@ public class ButtonSettingsViewController implements Initializable {
                 this.rightSlot.setDisable(false);
                 this.leftSlot.setDisable(false);
                 this.iconOnlySlot.setDisable(true);
-                if(iconElement.getAttribute("slot").equals("end")) {
+                if(iconElement.getElement().attr("slot").equals("end")) {
                     this.rightSlot.setSelected(true);
                 }else{
                     this.leftSlot.setSelected(true);
                 }
             }
-            button.getElement().getLastChild().setNodeValue(textValue.getText());
+            ((TextNode)this.button.getElement().childNodes().get(this.button.getElement().childNodeSize()-1)).text(this.textValue.getText());
+            this.button.getDomElement().getLastChild().setTextContent(this.textValue.getText());
         });
 
         this.textSize.setOnAction(event -> {
@@ -151,7 +147,9 @@ public class ButtonSettingsViewController implements Initializable {
                 } else {
                     textSize.getSelectionModel().selectFirst();
                 }
-                button.getElement().setAttribute("style", aWriter.getCSSAsString (button.getCssRules()));
+                String cssRules = aWriter.getCSSAsString (button.getCssRules());
+                button.getElement().attr("style", cssRules);
+                this.button.getDomElement().setAttribute("style", cssRules);
             }catch (NumberFormatException ex){
                 ex.printStackTrace();
                 //textSize.setValue((int)button.getFont().getSize());
@@ -166,7 +164,9 @@ public class ButtonSettingsViewController implements Initializable {
             if(!newValue.equals(Color.TRANSPARENT)) {
                 button.getCssRules().addDeclaration(new CSSDeclaration("color", CSSExpression.createSimple(FxUtils.toRGBCode(newValue) +" !important")));
             }
-            button.getElement().setAttribute("style", aWriter.getCSSAsString (button.getCssRules()));
+            String cssRules = aWriter.getCSSAsString (button.getCssRules());
+            button.getElement().attr("style", cssRules);
+            button.getDomElement().setAttribute("style", cssRules);
         });
 
         this.boldButton.setOnAction(event -> {
@@ -177,7 +177,9 @@ public class ButtonSettingsViewController implements Initializable {
             if(this.boldButton.isSelected()) {
                 button.getCssRules().addDeclaration(new CSSDeclaration("font-weight", CSSExpression.createSimple("bold")));
             }
-            button.getElement().setAttribute("style", aWriter.getCSSAsString (button.getCssRules()));
+            String cssRules = aWriter.getCSSAsString (button.getCssRules());
+            button.getElement().attr("style", cssRules);
+            button.getDomElement().setAttribute("style", cssRules);
         });
 
         this.italicButton.setOnAction(event -> {
@@ -188,7 +190,9 @@ public class ButtonSettingsViewController implements Initializable {
             if(this.italicButton.isSelected()) {
                 button.getCssRules().addDeclaration(new CSSDeclaration("font-style", CSSExpression.createSimple("italic")));
             }
-            button.getElement().setAttribute("style", aWriter.getCSSAsString (button.getCssRules()));
+            String cssRules = aWriter.getCSSAsString (button.getCssRules());
+            button.getElement().attr("style", cssRules);
+            button.getDomElement().setAttribute("style", cssRules);
         });
 
         this.underlinedButton.setOnAction(event -> {
@@ -199,7 +203,9 @@ public class ButtonSettingsViewController implements Initializable {
             if(this.underlinedButton.isSelected()) {
                 button.getCssRules().addDeclaration(new CSSDeclaration("text-decoration", CSSExpression.createSimple("underline")));
             }
-            button.getElement().setAttribute("style", aWriter.getCSSAsString (button.getCssRules()));
+            String cssRules = aWriter.getCSSAsString (button.getCssRules());
+            button.getElement().attr("style", cssRules);
+            button.getDomElement().setAttribute("style", cssRules);
         });
     }
 
@@ -214,7 +220,9 @@ public class ButtonSettingsViewController implements Initializable {
             } else {
                 this.fillTheme.setDisable(false);
             }
-            this.button.getElement().setAttribute("fill", this.fillType.getValue().toString().toLowerCase());
+            String fill = this.fillType.getValue().toString().toLowerCase();
+            this.button.getElement().attr("fill", fill);
+            this.button.getDomElement().setAttribute("fill", fill);
         });
 
         this.fillType.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -228,9 +236,12 @@ public class ButtonSettingsViewController implements Initializable {
 
         this.fillTheme.setOnAction(event -> {
             if(this.fillTheme.getValue() != "Default") {
-                this.button.getElement().setAttribute("color", this.fillTheme.getValue().toString().toLowerCase());
+                String fillTheme = this.fillTheme.getValue().toString().toLowerCase();
+                this.button.getElement().attr("color", fillTheme);
+                this.button.getDomElement().setAttribute("color", fillTheme);
             } else {
-                this.button.getElement().removeAttribute("color");
+                this.button.getElement().removeAttr("color");
+                this.button.getDomElement().removeAttribute("color");
             }
         });
 
@@ -260,17 +271,23 @@ public class ButtonSettingsViewController implements Initializable {
             if(!newValue.equals(Color.TRANSPARENT)) {
                 button.getCssRules().addDeclaration(new CSSDeclaration("background-color", CSSExpression.createSimple(FxUtils.toRGBCode(newValue)+" !important")));
             }
-            button.getElement().setAttribute("style", aWriter.getCSSAsString (button.getCssRules()));
+            String cssRules = aWriter.getCSSAsString (button.getCssRules());
+            button.getElement().attr("style", cssRules);
+            button.getDomElement().setAttribute("style", cssRules);
         });
     }
 
     private void initIcon() {
 
-        this.iconName.setOnAction(event -> iconElement.setAttribute("name", this.iconName.getText()));
+        this.iconName.setOnAction(event -> {
+            iconElement.getElement().attr("name", this.iconName.getText());
+            iconElement.getDomElement().setAttribute("name", this.iconName.getText());
+        });
 
         this.iconName.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if(!newValue) {
-                iconElement.setAttribute("name", this.iconName.getText());
+                iconElement.getElement().attr("name", this.iconName.getText());
+                iconElement.getDomElement().setAttribute("name", this.iconName.getText());
             }
         });
 
@@ -278,7 +295,8 @@ public class ButtonSettingsViewController implements Initializable {
             if(newValue) {
                 this.rightSlot.setSelected(false);
                 this.iconOnlySlot.setSelected(false);
-                ((Element)DomUtils.getChildNode("ION-ICON", this.button.getElement())).setAttribute("slot", "start");
+                iconElement.getElement().attr("slot", "start");
+                iconElement.getDomElement().setAttribute("slot", "start");
             }
         });
 
@@ -286,7 +304,8 @@ public class ButtonSettingsViewController implements Initializable {
             if(newValue) {
                 this.leftSlot.setSelected(false);
                 this.iconOnlySlot.setSelected(false);
-                ((Element)DomUtils.getChildNode("ION-ICON", this.button.getElement())).setAttribute("slot", "end");
+                iconElement.getElement().attr("slot", "end");
+                iconElement.getDomElement().setAttribute("slot", "end");
             }
         });
 
@@ -294,7 +313,8 @@ public class ButtonSettingsViewController implements Initializable {
             if(newValue) {
                 this.leftSlot.setSelected(false);
                 this.rightSlot.setSelected(false);
-                ((Element)DomUtils.getChildNode("ION-ICON", this.button.getElement())).setAttribute("slot", "icon-only");
+                iconElement.getElement().attr("slot", "icon-only");
+                this.button.getDomElement().setAttribute("slot", "icon-only");
             }
         });
     }
@@ -308,7 +328,9 @@ public class ButtonSettingsViewController implements Initializable {
                 System.out.println(e);
             }
             button.getCssRules().addDeclaration(new CSSDeclaration("left", CSSExpression.createSimple(newValue+"%")));
-            button.getElement().setAttribute("style", aWriter.getCSSAsString (button.getCssRules()));
+            String cssRules = aWriter.getCSSAsString (button.getCssRules());
+            button.getElement().attr("style", cssRules);
+            button.getDomElement().setAttribute("style", cssRules);
         });
 
         verticalPosition.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -319,7 +341,9 @@ public class ButtonSettingsViewController implements Initializable {
                 System.out.println(e);
             }
             button.getCssRules().addDeclaration(new CSSDeclaration("top", CSSExpression.createSimple(newValue+"%")));
-            button.getElement().setAttribute("style", aWriter.getCSSAsString (button.getCssRules()));
+            String cssRules = aWriter.getCSSAsString (button.getCssRules());
+            button.getElement().attr("style", cssRules);
+            button.getDomElement().setAttribute("style", cssRules);
         });
     }
 
@@ -328,7 +352,7 @@ public class ButtonSettingsViewController implements Initializable {
         this.button = button;
 
         //Setting the botton text
-        String buttonText = button.getElement().getLastChild().getNodeValue().trim();
+        String buttonText = button.getElement().text();
         this.textValue.setText(buttonText);
         if(buttonText.isEmpty()) {
             this.leftSlot.setDisable(true);
@@ -409,8 +433,8 @@ public class ButtonSettingsViewController implements Initializable {
 
     //Fill type: outline, fill, clear, ...
     private void getButtonThemeFill() {
-        if(button.getElement().hasAttribute("fill")) {
-            this.fillType.getSelectionModel().select(StringUtils.capitalize(button.getElement().getAttribute("fill")));
+        if(button.getElement().hasAttr("fill")) {
+            this.fillType.getSelectionModel().select(StringUtils.capitalize(button.getElement().attr("fill")));
         }else {
             this.fillType.getSelectionModel().select("Default");
         }
@@ -418,8 +442,8 @@ public class ButtonSettingsViewController implements Initializable {
 
     //Color: primary, secondary, danger, ...
     private void getButtonThemeColor() {
-        if(button.getElement().hasAttribute("color")) {
-            this.fillTheme.getSelectionModel().select(StringUtils.capitalize(button.getElement().getAttribute("color")));
+        if(button.getElement().hasAttr("color")) {
+            this.fillTheme.getSelectionModel().select(StringUtils.capitalize(button.getElement().attr("color")));
         }else {
             this.fillTheme.getSelectionModel().select("Default");
         }
@@ -436,13 +460,16 @@ public class ButtonSettingsViewController implements Initializable {
     }
 
     private void getButtonIcon() {
-        if((iconElement = ((Element)DomUtils.getChildNode("ION-ICON", this.button.getElement()))) != null) {
-            this.iconName.setText(iconElement.getAttribute("name"));
-            if(!iconElement.hasAttribute("slot") || iconElement.getAttribute("slot").equals("start")) {
+        Element iconJsoupElement = this.button.getElement().selectFirst(SupportedComponents.ION_ICON.toString());
+        if(iconJsoupElement != null) {
+            iconElement = new GeneratedElement(iconJsoupElement,
+                    (org.w3c.dom.Element) DomUtils.getChildNode(SupportedComponents.ION_ICON.toString().toUpperCase(), this.button.getDomElement()));
+            this.iconName.setText(iconElement.getElement().attr("name"));
+            if(!iconElement.getElement().hasAttr("slot") || iconElement.getElement().attr("slot").equals("start")) {
                 this.leftSlot.setSelected(true);
                 this.rightSlot.setSelected(false);
                 this.iconOnlySlot.setSelected(false);
-            }else if(iconElement.getAttribute("slot").equals("right")) {
+            }else if(iconElement.getElement().attr("slot").equals("right")) {
                 this.rightSlot.setSelected(true);
                 this.leftSlot.setSelected(false);
                 this.iconOnlySlot.setSelected(false);

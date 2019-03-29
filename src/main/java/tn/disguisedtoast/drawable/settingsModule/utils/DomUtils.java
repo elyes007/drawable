@@ -1,7 +1,13 @@
 package tn.disguisedtoast.drawable.settingsModule.utils;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.StringWriter;
 
 public final class DomUtils {
 
@@ -41,6 +47,24 @@ public final class DomUtils {
             else
                 node.removeChild(n);
         }
+    }
+
+    public static String getDocumentHtml(Document document) {
+        try{
+            TransformerFactory tf = TransformerFactory.newInstance();
+            Transformer trans = tf.newTransformer();
+            StringWriter sw = new StringWriter();
+            trans.setOutputProperty(OutputKeys.METHOD, "html");
+            trans.transform(new DOMSource(document), new StreamResult(sw));
+            return sw.toString();
+        } catch (TransformerConfigurationException e) {
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
 }

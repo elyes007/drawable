@@ -54,7 +54,8 @@ public class LabelSettingsViewController implements Initializable {
         this.fontColorPane.setGraphic(this.textColor);
 
         this.textValue.setOnKeyReleased(event -> {
-            element.getElement().setTextContent(this.textValue.getText());
+            element.getElement().text(this.textValue.getText());
+            element.getDomElement().setTextContent(this.textValue.getText());
         });
 
         this.textSize.setOnAction(event -> {
@@ -70,7 +71,9 @@ public class LabelSettingsViewController implements Initializable {
                 } else {
                     textSize.getSelectionModel().selectFirst();
                 }
-                element.getElement().setAttribute("style", aWriter.getCSSAsString (element.getCssRules()));
+                String cssString = aWriter.getCSSAsString (element.getCssRules());
+                element.getElement().attr("style", cssString);
+                element.getDomElement().setAttribute("style", cssString);
             }catch (NumberFormatException ex){
                 ex.printStackTrace();
                 //textSize.setValue((int)button.getFont().getSize());
@@ -85,7 +88,9 @@ public class LabelSettingsViewController implements Initializable {
             if(!newValue.equals(Color.TRANSPARENT)) {
                 element.getCssRules().addDeclaration(new CSSDeclaration("color", CSSExpression.createSimple(FxUtils.toRGBCode(newValue) +" !important")));
             }
-            element.getElement().setAttribute("style", aWriter.getCSSAsString (element.getCssRules()));
+            String cssString = aWriter.getCSSAsString (element.getCssRules());
+            element.getElement().attr("style", cssString);
+            element.getDomElement().setAttribute("style", cssString);
         });
 
         this.boldButton.setOnAction(event -> {
@@ -96,7 +101,9 @@ public class LabelSettingsViewController implements Initializable {
             if(this.boldButton.isSelected()) {
                 element.getCssRules().addDeclaration(new CSSDeclaration("font-weight", CSSExpression.createSimple("bold")));
             }
-            element.getElement().setAttribute("style", aWriter.getCSSAsString (element.getCssRules()));
+            String cssString = aWriter.getCSSAsString (element.getCssRules());
+            element.getElement().attr("style", cssString);
+            element.getDomElement().setAttribute("style", cssString);
         });
 
         this.italicButton.setOnAction(event -> {
@@ -107,7 +114,9 @@ public class LabelSettingsViewController implements Initializable {
             if(this.italicButton.isSelected()) {
                 element.getCssRules().addDeclaration(new CSSDeclaration("font-style", CSSExpression.createSimple("italic")));
             }
-            element.getElement().setAttribute("style", aWriter.getCSSAsString (element.getCssRules()));
+            String cssString = aWriter.getCSSAsString (element.getCssRules());
+            element.getElement().attr("style", cssString);
+            element.getDomElement().setAttribute("style", cssString);
         });
 
         this.underlinedButton.setOnAction(event -> {
@@ -118,7 +127,9 @@ public class LabelSettingsViewController implements Initializable {
             if(this.underlinedButton.isSelected()) {
                 element.getCssRules().addDeclaration(new CSSDeclaration("text-decoration", CSSExpression.createSimple("underline")));
             }
-            element.getElement().setAttribute("style", aWriter.getCSSAsString (element.getCssRules()));
+            String cssString = aWriter.getCSSAsString (element.getCssRules());
+            element.getElement().attr("style", cssString);
+            element.getDomElement().setAttribute("style", cssString);
         });
     }
 
@@ -131,7 +142,9 @@ public class LabelSettingsViewController implements Initializable {
                 System.out.println(e);
             }
             element.getCssRules().addDeclaration(new CSSDeclaration("left", CSSExpression.createSimple(newValue+"%")));
-            element.getElement().setAttribute("style", aWriter.getCSSAsString (element.getCssRules()));
+            String cssString = aWriter.getCSSAsString (element.getCssRules());
+            element.getElement().attr("style", cssString);
+            element.getDomElement().setAttribute("style", cssString);
         });
 
         verticalPosition.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -142,14 +155,16 @@ public class LabelSettingsViewController implements Initializable {
                 System.out.println(e);
             }
             element.getCssRules().addDeclaration(new CSSDeclaration("top", CSSExpression.createSimple(newValue+"%")));
-            element.getElement().setAttribute("style", aWriter.getCSSAsString (element.getCssRules()));
+            String cssString = aWriter.getCSSAsString (element.getCssRules());
+            element.getElement().attr("style", cssString);
+            element.getDomElement().setAttribute("style", cssString);
         });
     }
 
     public void setLabel(GeneratedElement element) {
         this.element = element;
         System.out.println(this.element);
-        this.textValue.setText(element.getElement().getTextContent().trim());
+        this.textValue.setText(element.getElement().text().trim());
 
         getLabelFontSize();
         getLabelFontColor();

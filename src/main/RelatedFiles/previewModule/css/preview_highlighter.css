@@ -1,0 +1,16 @@
+
+.hovered {
+    background-color: rgba(183, 226, 243, 0.8) !important;
+    --ion-background-color: rgba(183, 226, 243, 0.8) !important;
+    border: dashed blue 1px;
+}
+
+.unhoverable {
+    background-color: transparent !important;
+    --ion-background-color: transparent !important;
+    border: none !important;
+}
+
+.selected {
+    border: dashed darkgreen 1px;
+}

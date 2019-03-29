@@ -13,15 +13,24 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.w3c.dom.Element;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.previewModule.models.Device;
 
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class PreviewController {
 
@@ -31,6 +40,7 @@ public class PreviewController {
     private static String url;
 
     private final float BUTTON_SIZE = 20;
+    public static Document ionicDocument;
     private AppInterface appInterface;
 
     private PreviewController() {
@@ -51,6 +61,11 @@ public class PreviewController {
                     JSObject win = (JSObject) webView.getEngine().executeScript("window");
                     win.setMember("app", appInterface);
                     webView.getEngine().executeScript("setIsSetting("+(PreviewController.callBack!=null)+");");
+                    try {
+                        Files.delete(Paths.get(webView.getEngine().getDocument().getDocumentURI().substring(8)));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
 
@@ -61,10 +76,10 @@ public class PreviewController {
             }
         });
 
-        ComboBox<Device> cameraOptions = new ComboBox<>();
-        cameraOptions.setItems(FXCollections.observableArrayList(Device.devices));
-        cameraOptions.setPromptText("Choose a device");
-        cameraOptions.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Device>() {
+        ComboBox<Device> previewDevice = new ComboBox<>();
+        previewDevice.setItems(FXCollections.observableArrayList(Device.devices));
+        previewDevice.setPromptText("Choose a device");
+        previewDevice.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Device>() {
             @Override
             public void changed(ObservableValue<? extends Device> observable, Device oldValue, Device newValue) {
                 if(newValue != null){
@@ -75,31 +90,49 @@ public class PreviewController {
                     webView.setPrefWidth(newValue.getWidth());
 
                     webView.getEngine().setUserAgent(newValue.getUserAgent());
-                    webView.getEngine().reload();
+                    refresh();
                 }
             }
         });
 
-        root.getChildren().add(cameraOptions);
+        root.getChildren().add(previewDevice);
         root.getChildren().add(webView);
     }
 
     public static Node getView(String url, PreviewCallBack callBack) {
-        PreviewController.callBack = callBack;
-        PreviewController.url = url;
-        if( root == null || webView == null ) {
-            new PreviewController();
+        try{
+            PreviewController.callBack = callBack;
+            PreviewController.url = url;
+            File input = new File(url);
+            PreviewController.ionicDocument = Jsoup.parse(input, "UTF-8");
+            if( root == null || webView == null ) {
+                new PreviewController();
+            }
+            refresh();
+            return root;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        webView.getEngine().load(url);
-        return root;
+        return null;
+    }
+
+    public static void refresh(){
+        try{
+            Path path = Paths.get(System.getProperty("user.dir")+"/src/main/RelatedFiles/generated_views/temp_"+ RandomStringUtils.randomAlphanumeric(8)+".html");
+            Files.write(path, ionicDocument.html().getBytes());
+            webView.getEngine().load("file:///"+path.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public class AppInterface {
 
         public void setEelement(Object dom) {
             if(dom instanceof Element) {
-                GeneratedElement element = new GeneratedElement((Element) dom);
-                callBack.clicked(element);
+                org.jsoup.nodes.Element element = PreviewController.ionicDocument.select("#"+((Element) dom).getAttribute("id")).first();
+                GeneratedElement generatedElement = new GeneratedElement(element, (Element)dom);
+                callBack.clicked(generatedElement);
             }else{
                 System.out.println("Not Element");
             }
@@ -107,15 +140,24 @@ public class PreviewController {
     }
 
     public static void saveDocument() {
+        try{
+            Path path = Paths.get(url);
+            Document document = Jsoup.parse(ionicDocument.html());
+            document.outputSettings(new Document.OutputSettings().prettyPrint(false));
+            Files.write(path, document.html().getBytes());
+            System.out.println("Hi " + url);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void saveWebView(String url) {
         try {
-            DOMSource domSource = new DOMSource(webView.getEngine().getDocument());
-            StreamResult result = new StreamResult(url);
-            TransformerFactory tf = TransformerFactory.newInstance();
-            Transformer transformer = tf.newTransformer();
-            transformer.setOutputProperty(OutputKeys.METHOD, "html");
-            transformer.transform(domSource, result);
-        }catch (Exception e) {
-            System.out.println(e);
+            Path path = Paths.get(url);
+            String html = (String) webView.getEngine().executeScript("document.documentElement.outerHTML");
+            Files.write(path, html.getBytes());
+        }catch(IOException e){
+            e.printStackTrace();
         }
     }
 
