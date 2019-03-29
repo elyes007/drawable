@@ -1,6 +1,5 @@
 package tn.disguisedtoast.drawable.detectionModule.controllers;
 
-import code_generation.service.ShapeDetectionService;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
@@ -8,10 +7,8 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import org.bytedeco.javacv.Frame;
@@ -24,7 +21,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Date;
 import java.util.ResourceBundle;
 
 public class WebCamController implements Initializable {
@@ -61,8 +57,8 @@ public class WebCamController implements Initializable {
 
     }
 
-    public  WebCamController(int index){
-
+    public void init(int index) {
+        this.webcamIndex = index;
         imgWebCamCapturedImage = new ImageView();
         imgWebCamCapturedImage.setFitWidth(355);
         imgWebCamCapturedImage.setFitHeight(412);

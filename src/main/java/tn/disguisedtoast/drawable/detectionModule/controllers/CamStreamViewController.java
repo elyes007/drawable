@@ -4,16 +4,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import preview.CameraController;
 
 import java.io.IOException;
 import java.net.URL;
@@ -82,19 +78,17 @@ public class CamStreamViewController implements Initializable {
     }
 
     public  void setWebCamHolder(){
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/detectionViews/WebCamHolder.fxml"));
         try {
-            WebCamController webCamController = new WebCamController(index);
-            webCamController.setindex(index);
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("/layouts/detectionViews/WebCamHolder.fxml"));
             Pane pane = loader.load();
-
+            loader.getLocation().openStream();
+            WebCamController webCamController = loader.getController();
+            webCamController.init(index);
             camHolder.getChildren().add(pane);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
     private void StartCamera() {
 
