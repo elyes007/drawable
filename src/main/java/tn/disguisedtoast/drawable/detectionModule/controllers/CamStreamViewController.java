@@ -1,11 +1,10 @@
 package tn.disguisedtoast.drawable.detectionModule.controllers;
 
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
@@ -13,7 +12,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import preview.CameraController;
 
 import java.io.IOException;
 import java.net.URL;
@@ -47,69 +45,56 @@ public class CamStreamViewController implements Initializable {
     @FXML
     private StackPane camHolder;
 
-    @FXML
-    private ImageView camera;
 
-    @FXML
-    private Button back;
 
-    @FXML
-    private Button confirm;
 
-    @FXML
-    private ImageView record_img;
 
-    @FXML
-    private ImageView stop_img;
 
-    @FXML
-    void BackAction(ActionEvent event) {
-
-    }
-
-    @FXML
-    void ConfirmAction(ActionEvent event) {
-
-    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setWebCamHolder();
 
 
-
-
     }
 
     public  void setWebCamHolder(){
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/detectionViews/WebCamHolder.fxml"));
         try {
-            WebCamController webCamController = new WebCamController(index);
-            webCamController.setindex(index);
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("/layouts/detectionViews/WebCamHolder.fxml"));
             Pane pane = loader.load();
-
+            loader.getLocation().openStream();
+            WebCamController webCamController = loader.getController();
+            webCamController.init(index);
             camHolder.getChildren().add(pane);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    private void StartCamera() throws IOException {
+
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/layouts/detectionViews/WebCamHolder.fxml"));
+        Pane pane = loader.load();
+        loader.getLocation().openStream();
+        WebCamController webCamController = loader.getController();
+
+       webCamController.startWebCamCamera();
+
 
 
     }
-    private void StartCamera() {
 
-        stopcamera = false;
-        record_img.setVisible(false);
-        stop_img.setVisible(true);
+    private void StopCamera() throws IOException {
+
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/layouts/detectionViews/WebCamHolder.fxml"));
+        Pane pane = loader.load();
+        loader.getLocation().openStream();
+        WebCamController webCamController = loader.getController();
+        webCamController.stopWebCamCamera();
 
 
-    }
-
-    private void StopCamera() {
-
-        stopcamera = false;
-        record_img.setVisible(true);
-        stop_img.setVisible(false);
 
 
     }
@@ -126,6 +111,14 @@ public class CamStreamViewController implements Initializable {
         this.index = index;
     }
 
+    public void setStopCamera(boolean stop){
+        this.stopcamera = stop;
+
+    }
+
+
+
+
+
 
 }
-
