@@ -48,11 +48,13 @@ private BorderPane drawingPane;
     @FXML
     private ImageView stop_img1;
 
+    //go back to home
     @FXML
     void Back(ActionEvent event) {
 
     }
 
+    // go to settings
     @FXML
     void Confirm(ActionEvent event) {
 
@@ -66,8 +68,6 @@ private BorderPane drawingPane;
 
     private Frame frame;
     private Thread thread;
-    private Scene scene;
-    private BorderPane root;
     private int webcamIndex = 0 ;
     private FrameGrabber grabber;
     private BufferedImage bufferedFrame;
@@ -113,24 +113,15 @@ private BorderPane drawingPane;
         } catch (FrameGrabber.Exception e) {
             e.printStackTrace();
         }
+
+
         setCameraControls();
         startWebCamStream();
 
     }
-    public  void setImageStream(){
-
-        this.ImageHolder.getChildren().add(imgWebCamCapturedImage);
-        System.out.println("setting");
 
 
-
-
-
-    }
-    public BorderPane getRoot() {
-        return root;
-    }
-
+    //method used to start stream
     protected void startWebCamStream() {
         System.out.println("started");
         stopCamera = false;
@@ -168,10 +159,7 @@ private BorderPane drawingPane;
 
 
 
-    public  void setindex(int index){
 
-        this.webcamIndex = index;
-    }
 
     protected void startWebCamCamera() {
         stopCamera = false;
@@ -182,6 +170,7 @@ private BorderPane drawingPane;
 
     }
 
+
     protected void stopWebCamCamera() {
         stopCamera = true;
         stop_img1.setVisible(false);
@@ -189,6 +178,8 @@ private BorderPane drawingPane;
 
 
     }
+
+    //method used to handle on record and stop on click events
     public void setCameraControls(){
         record_img.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
             @Override

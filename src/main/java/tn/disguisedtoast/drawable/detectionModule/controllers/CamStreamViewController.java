@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -20,13 +21,15 @@ import java.util.ResourceBundle;
 public class CamStreamViewController implements Initializable {
 
     private Stage camStream;
-    private boolean stopcamera;
     private Scene scene;
-    private    WebCamController webCamController;
     private int index;
+    @FXML
+    private StackPane camHolder;
 
 
 
+    @FXML
+    private AnchorPane previewHolder;
     public static void showStage(){
 
         try{
@@ -42,12 +45,6 @@ public class CamStreamViewController implements Initializable {
             e.printStackTrace();
         }
     }
-    @FXML
-    private StackPane camHolder;
-
-
-
-
 
 
 
@@ -58,6 +55,7 @@ public class CamStreamViewController implements Initializable {
 
     }
 
+    //used to call webcamstream into preview holder
     public  void setWebCamHolder(){
         try {
             FXMLLoader loader = new FXMLLoader();
@@ -71,33 +69,13 @@ public class CamStreamViewController implements Initializable {
             e.printStackTrace();
         }
     }
-    private void StartCamera() throws IOException {
 
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/layouts/detectionViews/WebCamHolder.fxml"));
-        Pane pane = loader.load();
-        loader.getLocation().openStream();
-        WebCamController webCamController = loader.getController();
-
-       webCamController.startWebCamCamera();
-
+    //used to call preview into preview holder
+    public void setPreviewHolder(){
 
 
     }
 
-    private void StopCamera() throws IOException {
-
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/layouts/detectionViews/WebCamHolder.fxml"));
-        Pane pane = loader.load();
-        loader.getLocation().openStream();
-        WebCamController webCamController = loader.getController();
-        webCamController.stopWebCamCamera();
-
-
-
-
-    }
 
     public Scene getScene() {
         return scene;
@@ -111,10 +89,6 @@ public class CamStreamViewController implements Initializable {
         this.index = index;
     }
 
-    public void setStopCamera(boolean stop){
-        this.stopcamera = stop;
-
-    }
 
 
 
