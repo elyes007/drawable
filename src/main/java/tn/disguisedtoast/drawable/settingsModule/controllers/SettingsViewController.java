@@ -52,13 +52,14 @@ public class SettingsViewController implements Initializable {
         String path = pageFolder + "/" + htmlPath;
         Node previewRoot = PreviewController.getView(path, element -> setComponent(element));
         previewPane.getChildren().add(previewRoot);
+
+        this.saveButton.setDisable(true);
         this.saveButton.setOnAction(event -> currentController.save());
     }
 
     public void setComponent(GeneratedElement element){
         settingsPane.getChildren().clear();
         try{
-            System.out.println(element.getElement().tagName());
             if(element.getElement().tagName().equals(SupportedComponents.ION_BUTTON.toString())){
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/ButtonSettingsView.fxml"));
                 Pane pane = loader.load();
@@ -117,6 +118,11 @@ public class SettingsViewController implements Initializable {
             }
 
             this.settingsStage.sizeToScene();
+            if(currentController == null) {
+                this.saveButton.setDisable(true);
+            }else{
+                this.saveButton.setDisable(false);
+            }
         }catch (IOException e){
             e.printStackTrace();
         }

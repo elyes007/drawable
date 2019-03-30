@@ -1,5 +1,6 @@
 package tn.disguisedtoast.drawable.settingsModule.controllers;
 
+import com.google.gson.*;
 import com.helger.css.ECSSVersion;
 import com.helger.css.decl.CSSDeclaration;
 import com.helger.css.decl.CSSExpression;
@@ -21,8 +22,15 @@ import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
 import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
 import tn.disguisedtoast.drawable.settingsModule.utils.DomUtils;
 import tn.disguisedtoast.drawable.settingsModule.utils.FxUtils;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
 public class GlobalPageSettingsViewController implements Initializable, SettingsControllerInterface {
@@ -33,6 +41,7 @@ public class GlobalPageSettingsViewController implements Initializable, Settings
 
     private GeneratedElement bodyGeneratedElement;
     private final CSSWriter aWriter = new CSSWriter (new CSSWriterSettings(ECSSVersion.CSS30, false));
+    private JsonObject jsonObject;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -68,30 +77,7 @@ public class GlobalPageSettingsViewController implements Initializable, Settings
         this.hasToolbarButton.setOnAction(event -> {
             if(this.hasToolbarButton.isSelected() && this.bodyGeneratedElement.getElement().selectFirst("#toolbar") == null) {
                 addJsoupToolbar();
-
-                Document document = this.bodyGeneratedElement.getDomElement().getOwnerDocument();
-                Node ionHeader = this.bodyGeneratedElement.getDomElement().getElementsByTagName("ION-HEADER").item(0);
-
-                org.w3c.dom.Element toolbar = document.createElement(SupportedComponents.ION_TOOLBAR.toString().toUpperCase());
-                toolbar.setAttribute("color", "primary");
-                toolbar.setAttribute("id", "toolbar");
-
-                org.w3c.dom.Element buttons = document.createElement(SupportedComponents.ION_BUTTONS.toString().toUpperCase());
-                buttons.setAttribute("slot", "start");
-
-                org.w3c.dom.Element backButton = document.createElement(SupportedComponents.ION_BACK_BUTTON.toString().toUpperCase());
-                backButton.setAttribute("default-href", "");
-
-                buttons.appendChild(backButton);
-
-                org.w3c.dom.Element title = document.createElement(SupportedComponents.ION_TITLE.toString().toUpperCase());
-                title.setTextContent("Hello");
-
-                toolbar.appendChild(buttons);
-                toolbar.appendChild(title);
-
-                ionHeader.appendChild(toolbar);
-
+                addDomToolbar();
             }else{
                 this.bodyGeneratedElement.getElement().selectFirst("#toolbar").remove();
                 Node toolbarNode = this.bodyGeneratedElement.getDomElement().getElementsByTagName(SupportedComponents.ION_TOOLBAR.toString().toUpperCase()).item(0);
@@ -121,7 +107,28 @@ public class GlobalPageSettingsViewController implements Initializable, Settings
     }
 
     private void addDomToolbar(){
+        Document document = this.bodyGeneratedElement.getDomElement().getOwnerDocument();
+        Node ionHeader = this.bodyGeneratedElement.getDomElement().getElementsByTagName("ION-HEADER").item(0);
 
+        org.w3c.dom.Element toolbar = document.createElement(SupportedComponents.ION_TOOLBAR.toString().toUpperCase());
+        toolbar.setAttribute("color", "primary");
+        toolbar.setAttribute("id", "toolbar");
+
+        org.w3c.dom.Element buttons = document.createElement(SupportedComponents.ION_BUTTONS.toString().toUpperCase());
+        buttons.setAttribute("slot", "start");
+
+        org.w3c.dom.Element backButton = document.createElement(SupportedComponents.ION_BACK_BUTTON.toString().toUpperCase());
+        backButton.setAttribute("default-href", "");
+
+        buttons.appendChild(backButton);
+
+        org.w3c.dom.Element title = document.createElement(SupportedComponents.ION_TITLE.toString().toUpperCase());
+        title.setTextContent("Hello");
+
+        toolbar.appendChild(buttons);
+        toolbar.appendChild(title);
+
+        ionHeader.appendChild(toolbar);
     }
 
     public void setBodyGeneratedElement(GeneratedElement bodyGeneratedElement){
@@ -129,6 +136,7 @@ public class GlobalPageSettingsViewController implements Initializable, Settings
 
         checkHasToolbar();
         getBackgroundColor();
+        getPageName();
     }
 
     private void getBackgroundColor(){
@@ -147,11 +155,22 @@ public class GlobalPageSettingsViewController implements Initializable, Settings
 
 
     private void getPageName() {
-
+        try{
+            jsonObject = new JsonParser().parse(new FileReader(SettingsViewController.pageFolder+"/conf.json")).getAsJsonObject();
+            this.pageNameField.setText(jsonObject.get("page").getAsString());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void save() {
-        PreviewController.saveDocument();
+        try{
+            jsonObject.addProperty("page", this.pageNameField.getText());
+            Files.write(Paths.get(SettingsViewController.pageFolder + File.separator + "conf.json"), new Gson().toJson(jsonObject).getBytes());
+            PreviewController.saveDocument();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -22,6 +22,8 @@ import org.jsoup.nodes.TextNode;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.models.SupportedComponents;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
+import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.FacebookLoginSettingsViewController;
+import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.GoogleLoginSettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.NavigationSettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
 import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
@@ -105,11 +107,13 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
                             FXMLLoader facebookLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/FacebookLoginSettingsView.fxml"));
                             actionSettingsPane.setCenter(facebookLoader.load());
                             settingsControllerInterface = facebookLoader.getController();
+                            ((FacebookLoginSettingsViewController)settingsControllerInterface).setElement(button.getElement());
                             break;
                         case 3:
                             FXMLLoader googleLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/GoogleLoginSettingsView.fxml"));
                             actionSettingsPane.setCenter(googleLoader.load());
                             settingsControllerInterface = googleLoader.getController();
+                            ((GoogleLoginSettingsViewController)settingsControllerInterface).setElement(button.getElement());
                             break;
                     }
                 }catch (IOException ex){
@@ -398,6 +402,10 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
 
         if(NavigationSettingsViewController.getNavigationSetting(button.getElement())){
             this.buttonAction.getSelectionModel().select(1);
+        }else if(FacebookLoginSettingsViewController.getLogSetting(button.getElement())) {
+            this.buttonAction.getSelectionModel().select(2);
+        }else if(GoogleLoginSettingsViewController.getLogSetting(button.getElement())){
+            this.buttonAction.getSelectionModel().select(3);
         }
     }
 

@@ -12,7 +12,9 @@ import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class NavigationSettingsViewController implements Initializable, SettingsControllerInterface {
@@ -58,15 +60,21 @@ public class NavigationSettingsViewController implements Initializable, Settings
         try{
             jsonObject = new JsonParser().parse(new FileReader(SettingsViewController.pageFolder+"/conf.json")).getAsJsonObject();
             JsonArray actionsArray = jsonObject.get("actions").getAsJsonArray();
+            List<JsonObject> toDeleteObjects = new ArrayList<>();
 
             for(JsonElement element : actionsArray){
                 JsonObject object = (JsonObject)element;
                 if(object.get("button").getAsString().equals(this.element.attr("id")) && object.get("type").getAsString().equals("nav")){
                     buttonNavObject = object;
-                    return;
+                }else if(object.get("button").getAsString().equals(this.element.attr("id"))){
+                    toDeleteObjects.add(object);
                 }
             }
-        } catch (FileNotFoundException e) {
+            for(JsonObject jo : toDeleteObjects){
+                actionsArray.remove(jo);
+            }
+            save();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
