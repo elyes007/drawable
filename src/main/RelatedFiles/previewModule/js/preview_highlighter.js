@@ -47,3 +47,15 @@ function onHover(event) {
 function onQuit(event) {
     this.classList.remove("hovered");
 }
+
+function snapshot(){
+    var elements = document.getElementsByClassName("selected");
+    Array.prototype.forEach.call(elements, function(element) {
+        element.classList.remove("selected")
+    });
+    elements = document.getElementsByClassName("hovered");
+    Array.prototype.forEach.call(elements, function(element) {
+        element.classList.remove("hovered")
+    });
+    app.snapshot();
+}

@@ -1,10 +1,15 @@
 package tn.disguisedtoast.drawable.previewModule.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.sun.javafx.webkit.WebConsoleListener;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Worker;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ComboBox;
@@ -20,12 +25,15 @@ import org.w3c.dom.Element;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.previewModule.models.Device;
 
+import javax.imageio.ImageIO;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -41,6 +49,7 @@ public class PreviewController {
 
     private final float BUTTON_SIZE = 20;
     public static Document ionicDocument;
+    private static String snapshotDestination;
     private AppInterface appInterface;
 
     private PreviewController() {
@@ -138,6 +147,28 @@ public class PreviewController {
                 System.out.println("Not Element");
             }
         }
+
+        public void snapshot(){
+            Platform.runLater(() -> {
+                if(snapshotDestination != null && !snapshotDestination.isEmpty()) {
+                    SnapshotParameters snapshotParameters = new SnapshotParameters();
+                    snapshotParameters.setFill(Color.TRANSPARENT);
+                    Image image = webView.snapshot(snapshotParameters, null);
+
+                    File outputFile = new File(snapshotDestination);
+                    if(outputFile.exists()){
+                        outputFile.delete();
+                    }
+                    BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
+                    try {
+                        ImageIO.write(bImage, "png", outputFile);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    snapshotDestination = null;
+                }
+            });
+        }
     }
 
     public static void saveDocument() {
@@ -165,9 +196,8 @@ public class PreviewController {
         void clicked(GeneratedElement element);
     }
 
-    public Image snapshot() {
-        SnapshotParameters snapshotParameters = new SnapshotParameters();
-        snapshotParameters.setFill(Color.TRANSPARENT);
-        return this.webView.snapshot(snapshotParameters, null);
+    public static void saveSnapshot(String destination) {
+        snapshotDestination = destination;
+        webView.getEngine().executeScript("snapshot();");
     }
 }

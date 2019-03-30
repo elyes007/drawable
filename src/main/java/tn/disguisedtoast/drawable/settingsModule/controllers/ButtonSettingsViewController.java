@@ -101,19 +101,23 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
                             FXMLLoader navigationLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/NavigationSettingsView.fxml"));
                             actionSettingsPane.setCenter(navigationLoader.load());
                             settingsControllerInterface = navigationLoader.getController();
-                            ((NavigationSettingsViewController) settingsControllerInterface).setElement(button.getElement());
+                            ((NavigationSettingsViewController) settingsControllerInterface).setElement(button);
                             break;
                         case 2:
                             FXMLLoader facebookLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/FacebookLoginSettingsView.fxml"));
                             actionSettingsPane.setCenter(facebookLoader.load());
                             settingsControllerInterface = facebookLoader.getController();
                             ((FacebookLoginSettingsViewController)settingsControllerInterface).setElement(button.getElement());
+                            button.getElement().attr("[routerLink]", "");
+                            save();
                             break;
                         case 3:
                             FXMLLoader googleLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/GoogleLoginSettingsView.fxml"));
                             actionSettingsPane.setCenter(googleLoader.load());
                             settingsControllerInterface = googleLoader.getController();
                             ((GoogleLoginSettingsViewController)settingsControllerInterface).setElement(button.getElement());
+                            button.getElement().attr("[routerLink]", "");
+                            save();
                             break;
                     }
                 }catch (IOException ex){

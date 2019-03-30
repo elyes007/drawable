@@ -54,32 +54,19 @@ public class ImageSettingsViewController implements Initializable, SettingsContr
                     new FileChooser.ExtensionFilter("PNG", "*.png")
             );
             File image = fileChooser.showOpenDialog(Main.globalStage);
-            if(image != null) {
-                filePath.setText(image.getPath());
-            }
-        });
-
-        filePath.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                if(!newValue.equals(oldValue)) {
-                    try {
-                        File file = new File(Paths.get(newValue).toUri());
-                        if (file.exists()) {
-                            Path oldImagePath = Paths.get(generatedViewsPath + imageView.getElement().attr("src").substring(5));
-                            if(!oldImagePath.getFileName().toString().equals("placeholder.png")){
-                                new File(oldImagePath.toUri()).delete();
-                            }
-                            if(!oldImagePath.equals(Paths.get(newValue))){
-                                String newImagePath = "../../assets/drawable/"+RandomStringUtils.randomAlphanumeric(8)+".png";
-                                FileUtils.copyFile(new File(newValue), new File(generatedViewsPath + newImagePath.substring(5)));
-                                imageView.getElement().attr("src", newImagePath);
-                                imageView.getDomElement().setAttribute("src", newImagePath);
-                            }
-                        }
-                    }catch (IOException e) {
-                        e.printStackTrace();
+            if(image != null && image.exists()) {
+                try {
+                    filePath.setText(image.getPath());
+                    Path oldImagePath = Paths.get(generatedViewsPath + imageView.getElement().attr("src").substring(5));
+                    String newImagePath = "assets/drawable/"+RandomStringUtils.randomAlphanumeric(8)+".png";
+                    FileUtils.copyFile(new File(image.getPath()), new File(generatedViewsPath + "/" + newImagePath));
+                    imageView.getElement().attr("src", "../../"+newImagePath);
+                    imageView.getDomElement().setAttribute("src", "../../" + newImagePath);
+                    if(!oldImagePath.getFileName().toString().equals("placeholder.png")){
+                        new File(oldImagePath.toUri()).delete();
                     }
+                }catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         });

@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import org.jsoup.nodes.Element;
+import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsControllerInterface;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
 
@@ -22,7 +23,7 @@ public class NavigationSettingsViewController implements Initializable, Settings
 
     private JsonObject jsonObject;
     private JsonObject buttonNavObject;
-    private Element element;
+    private GeneratedElement buttonGeneratedElement;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -35,21 +36,22 @@ public class NavigationSettingsViewController implements Initializable, Settings
 
         this.pagesList.setOnAction(event -> {
             String pageName = (String)this.pagesList.getValue();
+
             if(this.buttonNavObject != null){
                 this.buttonNavObject.addProperty("dest", pageName);
             }else {
                 this.buttonNavObject = new JsonObject();
                 this.buttonNavObject.addProperty("type", "nav");
                 this.buttonNavObject.addProperty("dest", pageName);
-                this.buttonNavObject.addProperty("button", this.element.attr("id"));
+                this.buttonNavObject.addProperty("button", this.buttonGeneratedElement.getElement().attr("id"));
 
                 this.jsonObject.get("actions").getAsJsonArray().add(buttonNavObject);
             }
         });
     }
 
-    public void setElement(Element element) {
-        this.element = element;
+    public void setElement(GeneratedElement element) {
+        this.buttonGeneratedElement = element;
         getNavJsonObject();
         if(this.buttonNavObject != null){
             this.pagesList.setValue(buttonNavObject.get("dest").getAsString());
@@ -64,9 +66,9 @@ public class NavigationSettingsViewController implements Initializable, Settings
 
             for(JsonElement element : actionsArray){
                 JsonObject object = (JsonObject)element;
-                if(object.get("button").getAsString().equals(this.element.attr("id")) && object.get("type").getAsString().equals("nav")){
+                if(object.get("button").getAsString().equals(this.buttonGeneratedElement.getElement().attr("id")) && object.get("type").getAsString().equals("nav")){
                     buttonNavObject = object;
-                }else if(object.get("button").getAsString().equals(this.element.attr("id"))){
+                }else if(object.get("button").getAsString().equals(this.buttonGeneratedElement.getElement().attr("id"))){
                     toDeleteObjects.add(object);
                 }
             }
@@ -100,6 +102,7 @@ public class NavigationSettingsViewController implements Initializable, Settings
     public void save() {
         try{
             Files.write(Paths.get(SettingsViewController.pageFolder+"/conf.json"), new GsonBuilder().create().toJson(jsonObject).getBytes());
+            this.buttonGeneratedElement.getElement().attr("[routerLink]", (String)this.pagesList.getValue());
         } catch (IOException e) {
             e.printStackTrace();
         }
