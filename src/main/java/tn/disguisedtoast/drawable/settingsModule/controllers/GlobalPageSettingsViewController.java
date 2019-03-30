@@ -16,6 +16,7 @@ import org.jsoup.nodes.Element;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import tn.disguisedtoast.drawable.models.*;
+import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
 import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
 import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
 import tn.disguisedtoast.drawable.settingsModule.utils.DomUtils;
@@ -24,7 +25,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ResourceBundle;
 
-public class GlobalPageSettingsViewController implements Initializable {
+public class GlobalPageSettingsViewController implements Initializable, SettingsControllerInterface {
     @FXML public TextField pageNameField;
     @FXML public CheckBox hasToolbarButton;
     @FXML public Label backgroundColorLabelPane;
@@ -147,5 +148,10 @@ public class GlobalPageSettingsViewController implements Initializable {
 
     private void getPageName() {
 
+    }
+
+    @Override
+    public void save() {
+        PreviewController.saveDocument();
     }
 }

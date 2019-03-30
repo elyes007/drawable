@@ -16,6 +16,7 @@ import javafx.stage.FileChooser;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
+import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
 import tn.disguisedtoast.drawable.settingsModule.TestMain.Main;
 import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
 
@@ -23,9 +24,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
-public class ImageSettingsViewController implements Initializable {
+public class ImageSettingsViewController implements Initializable, SettingsControllerInterface {
     @FXML public TextField filePath;
     @FXML public Button browseButton;
     @FXML public Slider horizontalPosition;
@@ -61,18 +64,18 @@ public class ImageSettingsViewController implements Initializable {
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 if(!newValue.equals(oldValue)) {
                     try {
-                        String path = generatedViewsPath + "/" + newValue;
-                        System.out.println(path);
-                        File file = new File(path);
-                        if (!file.exists()) {
-                            String oldImagePath = imageView.getElement().attr("src");
-                            if(!oldImagePath.equals("assets/drawable/placeholder.png")){
-                                new File(generatedViewsPath + "/" + oldImagePath).delete();
+                        File file = new File(Paths.get(newValue).toUri());
+                        if (file.exists()) {
+                            Path oldImagePath = Paths.get(generatedViewsPath + imageView.getElement().attr("src").substring(5));
+                            if(!oldImagePath.getFileName().toString().equals("placeholder.png")){
+                                new File(oldImagePath.toUri()).delete();
                             }
-                            String newImagePath = "assets/drawable/"+RandomStringUtils.randomAlphanumeric(8)+".png";
-                            FileUtils.copyFile(new File(newValue), new File(generatedViewsPath + "/" + newImagePath));
-                            imageView.getElement().attr("src", newImagePath);
-                            imageView.getDomElement().setAttribute("src", newImagePath);
+                            if(!oldImagePath.equals(Paths.get(newValue))){
+                                String newImagePath = "../../assets/drawable/"+RandomStringUtils.randomAlphanumeric(8)+".png";
+                                FileUtils.copyFile(new File(newValue), new File(generatedViewsPath + newImagePath.substring(5)));
+                                imageView.getElement().attr("src", newImagePath);
+                                imageView.getDomElement().setAttribute("src", newImagePath);
+                            }
                         }
                     }catch (IOException e) {
                         e.printStackTrace();
@@ -114,7 +117,7 @@ public class ImageSettingsViewController implements Initializable {
 
     public void setImageView(GeneratedElement imageView){
         this.imageView = imageView;
-        filePath.setText(this.imageView.getElement().attr("src"));
+        filePath.setText(generatedViewsPath + this.imageView.getElement().attr("src").substring(5));
 
         setImagePosition();
     }
@@ -136,5 +139,10 @@ public class ImageSettingsViewController implements Initializable {
         }catch (Exception e){
             this.verticalPosition.setValue(0);
         }
+    }
+
+    @Override
+    public void save() {
+        PreviewController.saveDocument();
     }
 }

@@ -119,7 +119,7 @@ public class PreviewController {
 
     public static void refresh(){
         try{
-            Path path = Paths.get(System.getProperty("user.dir")+"/src/main/RelatedFiles/generated_views/temp_"+ RandomStringUtils.randomAlphanumeric(8)+".html");
+            Path path = Paths.get(Paths.get(ionicDocument.baseUri()).getParent() + "/temp_"+ RandomStringUtils.randomAlphanumeric(8)+".html");
             Files.write(path, ionicDocument.html().getBytes());
             webView.getEngine().load("file:///"+path.toString());
         } catch (IOException e) {
@@ -146,7 +146,6 @@ public class PreviewController {
             Document document = Jsoup.parse(ionicDocument.html());
             document.outputSettings(new Document.OutputSettings().prettyPrint(false));
             Files.write(path, document.html().getBytes());
-            System.out.println("Hi " + url);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,5 +1,6 @@
 package tn.disguisedtoast.drawable.settingsModule.controllers;
 
+import com.google.gson.*;
 import com.helger.css.ECSSVersion;
 import com.helger.css.decl.CSSDeclaration;
 import com.helger.css.decl.CSSExpression;
@@ -20,18 +21,26 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.models.SupportedComponents;
+import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
+import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.NavigationSettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
 import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
 import tn.disguisedtoast.drawable.settingsModule.utils.DomUtils;
 import tn.disguisedtoast.drawable.settingsModule.utils.FxUtils;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
 
-public class ButtonSettingsViewController implements Initializable {
+public class ButtonSettingsViewController implements Initializable, SettingsControllerInterface {
     @FXML public BorderPane actionSettingsPane;
     @FXML public TextField textValue;
     @FXML public ComboBox textSize;
@@ -62,6 +71,7 @@ public class ButtonSettingsViewController implements Initializable {
     private String[] actions = {"Select an action", "Navigation", "Login Facebook", "Login Google"};
     private GeneratedElement button;
     private GeneratedElement iconElement;
+    private SettingsControllerInterface settingsControllerInterface;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -83,18 +93,23 @@ public class ButtonSettingsViewController implements Initializable {
                     switch (index){
                         case 0:
                             actionSettingsPane.setCenter(noActionPane);
+                            settingsControllerInterface = null;
                             break;
                         case 1:
                             FXMLLoader navigationLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/NavigationSettingsView.fxml"));
                             actionSettingsPane.setCenter(navigationLoader.load());
+                            settingsControllerInterface = navigationLoader.getController();
+                            ((NavigationSettingsViewController) settingsControllerInterface).setElement(button.getElement());
                             break;
                         case 2:
                             FXMLLoader facebookLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/FacebookLoginSettingsView.fxml"));
                             actionSettingsPane.setCenter(facebookLoader.load());
+                            settingsControllerInterface = facebookLoader.getController();
                             break;
                         case 3:
                             FXMLLoader googleLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/GoogleLoginSettingsView.fxml"));
                             actionSettingsPane.setCenter(googleLoader.load());
+                            settingsControllerInterface = googleLoader.getController();
                             break;
                     }
                 }catch (IOException ex){
@@ -380,6 +395,10 @@ public class ButtonSettingsViewController implements Initializable {
         getButtonIcon();
 
         setButtonPosition();
+
+        if(NavigationSettingsViewController.getNavigationSetting(button.getElement())){
+            this.buttonAction.getSelectionModel().select(1);
+        }
     }
 
     private void getButtonFontSize() {
@@ -496,6 +515,38 @@ public class ButtonSettingsViewController implements Initializable {
             this.verticalPosition.setValue(vPos);
         }catch (Exception e){
             this.verticalPosition.setValue(0);
+        }
+    }
+
+    @Override
+    public void save() {
+        if(settingsControllerInterface != null) {
+            settingsControllerInterface.save();
+        }else{
+            deleteActionElement();
+        }
+        PreviewController.saveDocument();
+    }
+
+    private void deleteActionElement(){
+        try{
+            String configPath = SettingsViewController.pageFolder+"/conf.json";
+            JsonObject jsonObject = new JsonParser().parse(new FileReader(configPath)).getAsJsonObject();
+            JsonArray actionsArray = jsonObject.get("actions").getAsJsonArray();
+            List<JsonObject> toDeleteObjects = new ArrayList<>();
+
+            for(JsonElement element : actionsArray){
+                JsonObject object = (JsonObject)element;
+                if(object.get("button").getAsString().equals(button.getElement().attr("id"))){
+                    toDeleteObjects.add(object);
+                }
+            }
+            for(JsonObject o : toDeleteObjects) {
+                actionsArray.remove(o);
+            }
+            Files.write(Paths.get(configPath), new Gson().toJson(jsonObject).getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

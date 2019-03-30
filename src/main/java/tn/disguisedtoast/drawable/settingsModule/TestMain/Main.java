@@ -21,6 +21,6 @@ public class Main extends Application {
         primaryStage.setScene(new Scene(loader.load()));
         //primaryStage.setResizable(false);
         primaryStage.show();*/
-        SettingsViewController.showStage();
+        SettingsViewController.showStage(System.getProperty("user.dir") + "/src/main/RelatedFiles/generated_views/pages/page1");
     }
 }

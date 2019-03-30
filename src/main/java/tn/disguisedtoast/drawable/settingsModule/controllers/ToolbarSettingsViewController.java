@@ -16,6 +16,7 @@ import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.models.SupportedComponents;
+import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
 import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
 import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
 import tn.disguisedtoast.drawable.settingsModule.utils.DomUtils;
@@ -26,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
-public class ToolbarSettingsViewController implements Initializable {
+public class ToolbarSettingsViewController implements Initializable, SettingsControllerInterface {
     @FXML public CheckBox hasBackButton;
     @FXML public ComboBox toolbarTheme;
     @FXML public TextField titleText;
@@ -283,5 +284,10 @@ public class ToolbarSettingsViewController implements Initializable {
             }
         }catch (NullPointerException e){ }
         this.titleUnderlined.setSelected(false);
+    }
+
+    @Override
+    public void save() {
+        PreviewController.saveDocument();
     }
 }

@@ -10,6 +10,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
+import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
 import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
 import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
 import tn.disguisedtoast.drawable.settingsModule.utils.FxUtils;
@@ -19,7 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
-public class LabelSettingsViewController implements Initializable {
+public class LabelSettingsViewController implements Initializable, SettingsControllerInterface {
     @FXML public TextField textValue;
     @FXML public ToggleButton boldButton;
     @FXML public ToggleButton italicButton;
@@ -240,5 +241,10 @@ public class LabelSettingsViewController implements Initializable {
             }
         }catch (NullPointerException e){ }
         this.underlinedButton.setSelected(false);
+    }
+
+    @Override
+    public void save() {
+        PreviewController.saveDocument();
     }
 }
