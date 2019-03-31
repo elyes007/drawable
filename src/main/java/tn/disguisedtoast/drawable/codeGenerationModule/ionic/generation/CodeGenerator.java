@@ -146,7 +146,7 @@ public class CodeGenerator {
 
     public static String generateHtml(IonApp app) throws JAXBException, IOException, URISyntaxException {
         //setting page name
-        String pagesPath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\pages\\";
+        String pagesPath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages\\";
         File idFile = new File(pagesPath + "\\.last_id");
         int id = 1;
         //in case last_id file doesn't exist

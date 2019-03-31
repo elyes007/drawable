@@ -73,10 +73,10 @@ crashlytics-build.properties
  
 # Mac
 .DS_Store
- 
+
 # Maven
 log/
 target/
 
 #generated pages
-src/main/RelatedFiles/*
+src/main/RelatedFiles/generated_views/pages/*
