@@ -1,11 +1,12 @@
 package preview;
 
 import javafx.application.Application;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class App extends Application implements StartScene.CameraButtonCallback {
+public class App extends Application implements CamChooserController.CameraButtonCallback {
 
     private Stage primaryStage;
 
@@ -16,7 +17,7 @@ public class App extends Application implements StartScene.CameraButtonCallback 
     @Override
     public void start(Stage primaryStage) throws IOException {
         this.primaryStage = primaryStage;
-        primaryStage.setScene(new StartScene(this).getScene());
+        primaryStage.setScene(new Scene(new CamChooserController(this).getRoot()));
         primaryStage.setHeight(200);
         primaryStage.setWidth(400);
         primaryStage.setResizable(false);

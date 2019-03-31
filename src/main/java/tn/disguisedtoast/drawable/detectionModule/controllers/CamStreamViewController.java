@@ -1,69 +1,92 @@
 package tn.disguisedtoast.drawable.detectionModule.controllers;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import code_generation.entities.DetectedObject;
+import code_generation.service.CodeGenerator;
+import code_generation.service.ShapeDetectionService;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
+import tn.disguisedtoast.drawable.detectionModule.testMain.Main;
 
+import javax.xml.bind.JAXBException;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Date;
+import java.util.List;
 import java.util.ResourceBundle;
 
-public class CamStreamViewController implements Initializable {
+public class CamStreamViewController implements Initializable, UploadInterface {
 
-    private Stage camStream;
-    private Scene scene;
-    private int index;
+    @FXML
+    public BorderPane root;
     @FXML
     private StackPane camHolder;
-
-
-
     @FXML
     private AnchorPane previewHolder;
-    public static void showStage(){
 
-        try{
-            FXMLLoader loader = new FXMLLoader(CamStreamViewController.class.getResource("/layouts/detectionViews/CamStreamView.fxml"));
-            Pane pane = loader.load();
-            CamStreamViewController camStreamViewController = loader.getController();
+    private WebCamController webCamController;
+    private Date lastRequestDate;
+    private ShapeDetectionService.UploadCallback mUploadCallback = new ShapeDetectionService.UploadCallback() {
+        @Override
+        public void onUploaded(List<DetectedObject> objects) {
+            try {
+                webCamController.drawObjects(objects);
 
-            camStreamViewController.camStream = new Stage();
-            camStreamViewController.camStream.setScene(new Scene(pane));
-
-            camStreamViewController.camStream.show();
-        }catch (IOException e){
-            e.printStackTrace();
+                CodeGenerator.ParseResult result = CodeGenerator.parse(objects);
+                if (result != null) {
+                    //previewController.update(result);
+                    CodeGenerator.generateLayoutFile(result.getLayout());
+                }
+                File file = webCamController.getFileFromImage();
+                long timeDiff = new Date().getTime() - lastRequestDate.getTime();
+                if (!webCamController.isShouldUpload()) {
+                    return;
+                }
+                if (timeDiff < 2000) {
+                    Thread.sleep(2000 - timeDiff);
+                }
+                ShapeDetectionService.upload(file, mUploadCallback);
+                lastRequestDate = new Date();
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("creating file failed");
+            } catch (JAXBException e) {
+                e.printStackTrace();
+                System.out.println("marshalling layout failed");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                System.out.println("Sleeping interrupted");
+            }
         }
-    }
+    };
 
-
+    private BorderPane drawingPane;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        setWebCamHolder();
+    }
 
-
+    public void init(int camIndex) {
+        setWebCamHolder(camIndex);
+        Main.primaryStage.setScene(new Scene(root));
+        Main.primaryStage.sizeToScene();
     }
 
     //used to call webcamstream into preview holder
-    public  void setWebCamHolder(){
+    public void setWebCamHolder(int camIndex) {
         try {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("/layouts/detectionViews/WebCamHolder.fxml"));
             Pane pane = loader.load();
             loader.getLocation().openStream();
-            WebCamController webCamController = loader.getController();
-            webCamController.init(index);
+            webCamController = loader.getController();
+            webCamController.init(camIndex, this);
             camHolder.getChildren().add(pane);
         } catch (IOException e) {
             e.printStackTrace();
@@ -76,23 +99,15 @@ public class CamStreamViewController implements Initializable {
 
     }
 
-
-    public Scene getScene() {
-        return scene;
+    @Override
+    public void startUpload() {
+        try {
+            File file = webCamController.getFileFromImage();
+            ShapeDetectionService.upload(file, mUploadCallback);
+            lastRequestDate = new Date();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-
-    public void setScene(Scene scene) {
-        this.scene = scene;
-    }
-
-    public void  setIndex(int index){
-        this.index = index;
-    }
-
-
-
-
-
-
 
 }

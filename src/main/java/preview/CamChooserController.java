@@ -9,7 +9,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -17,14 +16,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import test.WebCamInfo;
 
-public class StartScene {
+public class CamChooserController {
     private FlowPane topPane;
     private BorderPane root;
     private int webcamIndex = -1;
     private String cameraListPromptText = "Choose Camera";
-    private Scene scene;
 
-    public StartScene(CameraButtonCallback callback) {
+    public CamChooserController(CameraButtonCallback callback) {
         root = new BorderPane();
         topPane = new FlowPane();
         topPane.setAlignment(Pos.CENTER);
@@ -51,7 +49,6 @@ public class StartScene {
         flowPane.getChildren().add(bottomPane);
 
         root.setCenter(flowPane);
-        scene = new Scene(root);
     }
 
     private void createTopPanel() {
@@ -82,11 +79,11 @@ public class StartScene {
         topPane.getChildren().add(cameraOptions);
     }
 
-    public Scene getScene() {
-        return scene;
-    }
-
     public interface CameraButtonCallback {
         void onButtonClicked(int webcamIndex);
+    }
+
+    public BorderPane getRoot() {
+        return root;
     }
 }
