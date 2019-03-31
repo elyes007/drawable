@@ -1,0 +1,86 @@
+<!doctype html><html lang="en"><head> 
+  <meta charset="UTF-8"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <meta http-equiv="X-UA-Compatible" content="ie=edge"> 
+  <title>Budget Planner</title> 
+  <!--<script type='text/javascript' src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>--> 
+  <script src="../../../previewModule/core/dist/ionic.js"></script> 
+  <link href="../../../previewModule/core/css/ionic.bundle.css" rel="stylesheet"> 
+  <link href="../../../previewModule/css/preview_highlighter.css" rel="stylesheet"> 
+ </head> 
+ <body id="body" class="clickable unhoverable"> 
+  <ion-app> 
+   <ion-header> 
+    <ion-toolbar style="--ion-background-color: #050fff;" class="clickable" id="toolbar"> 
+     <ion-buttons slot="start"> 
+      <ion-back-button default-href=""></ion-back-button> 
+     </ion-buttons> 
+     <ion-title style="color: #0ec254; font-weight: bold; text-decoration: underline; font-style: italic;">
+       Budget Planner 
+     </ion-title> 
+    </ion-toolbar> 
+   </ion-header> 
+   <ion-content> 
+    <ion-grid> 
+     <ion-row> 
+      <ion-col size-md="6" offset-md="3"> 
+       <ion-card> 
+        <ion-card-header> 
+         <ion-card-title style="display: table;"> 
+          <ion-label style="position: relative; display: table-cell" class="clickable" id="label1">
+            New Expense 
+          </ion-label> 
+         </ion-card-title> 
+        </ion-card-header> 
+        <ion-card-content> 
+         <ion-item style="position: relative; left: 20%; top: 30%;" class="clickable" id="item1"> 
+          <ion-label style="color: red;">
+            Expense Reason 
+          </ion-label> 
+          <ion-input readonly id="input-reason" value="Yess" style="color: #0cd1e8; font-style: italic; font-weight: bold; text-decoration: underline; font-size: 20px;"></ion-input> 
+         </ion-item> 
+         <ion-item class="clickable" id="item2"> 
+          <ion-label position="floating">
+            Expense Amount 
+          </ion-label> 
+          <ion-input placeholder="Hello" type="number" id="input-amount" readonly></ion-input> 
+         </ion-item> 
+         <div margin-vertical text-right> 
+          <ion-button style="position:relative;" fill="solid" color="danger" id="button1" class="clickable" [routerlink]=""> 
+           <ion-icon slot="start" name="close"></ion-icon>Clear 
+          </ion-button> 
+          <ion-button style="  position:relative;
+  font-style:italic;
+  font-weight:bold;
+  text-decoration:underline;
+" fill="solid" class="clickable" id="button2"> 
+           <ion-icon name="add" slot="start"></ion-icon>Add Expense 
+          </ion-button> 
+         </div> 
+        </ion-card-content> 
+       </ion-card> 
+      </ion-col> 
+     </ion-row> 
+     <ion-row> 
+      <ion-col size-md="6" offset-md="3"> 
+       <ion-list id="expenses-list"></ion-list> 
+      </ion-col> 
+     </ion-row> 
+     <ion-row> 
+      <ion-col size-md="6" offset-md="3"> 
+       <ion-label class="clickable" style="position: relative; display: table-cell;" id="label5">
+         Total Expenses: 
+       </ion-label> 
+       <ion-img style="  position:relative;
+  top:0.0%;
+  left:0.0%;
+" src="../../assets/drawable/Fl6hOTJI.png" class="clickable" id="img" /> 
+      </ion-col> 
+     </ion-row> 
+    </ion-grid> 
+   </ion-content> 
+   <ion-alert-controller></ion-alert-controller> 
+  </ion-app> 
+  <script src="../../../previewModule/js/preview_highlighter.js"></script> 
+ 
+</body></html>

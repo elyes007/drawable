@@ -2,7 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -32,8 +32,8 @@
                         <Font size="14.0" />
                     </font>
                 </Label>
-            <ChoiceBox minWidth="300.0" GridPane.columnIndex="1" />
-            <CheckBox mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <CheckBox fx:id="hasAnimation" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <ComboBox fx:id="pagesList" minWidth="250.0" GridPane.columnIndex="1" />
             </children>
             <BorderPane.margin>
                 <Insets left="40.0" right="40.0" />

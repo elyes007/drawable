@@ -31,8 +31,8 @@
                         <Font size="14.0" />
                     </font>
                 </Label>
-                <TextField minWidth="300.0" prefHeight="25.0" GridPane.columnIndex="1" />
-                <TextField layoutX="129.0" layoutY="10.0" minWidth="300.0" prefHeight="25.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <TextField fx:id="appUrl" minWidth="300.0" prefHeight="25.0" GridPane.columnIndex="1" />
+                <TextField fx:id="apiKey" layoutX="129.0" layoutY="10.0" minWidth="300.0" prefHeight="25.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             </children>
             <BorderPane.margin>
                 <Insets left="40.0" right="40.0" />
