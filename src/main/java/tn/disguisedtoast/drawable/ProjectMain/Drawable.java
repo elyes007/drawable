@@ -15,6 +15,8 @@ public class Drawable extends javafx.application.Application {
         primaryStage.setTitle("Drawable");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
+        //primaryStage.setWidth(1366);
+        //primaryStage.setHeight(768);
         primaryStage.setMaximized(true);
 
        /* File dir = new File("C:\\Users\\DELL\\Desktop\\4sim\\pim\\Drawable");

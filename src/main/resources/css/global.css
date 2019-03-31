@@ -22,7 +22,9 @@
     -fx-background-color: #353839;
 }
 
-
+.hoverable:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(255, 255, 255, 0.8), 10, 0, 0, 0);
+}
 
 ScrollPane {
     -fx-background-color: transparent;

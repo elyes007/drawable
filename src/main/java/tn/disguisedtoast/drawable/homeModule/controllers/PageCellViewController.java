@@ -5,19 +5,24 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import tn.disguisedtoast.drawable.homeModule.models.Page;
+import tn.disguisedtoast.drawable.utils.ImageViewPane;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class PageCellViewController implements Initializable {
     @FXML
+    private AnchorPane pageImagePane;
+    @FXML
     private ImageView pageImage;
     @FXML
     private Label pageName;
     @FXML
-    private VBox pagePane;
+    private BorderPane pagePane;
 
     private Page page;
 
@@ -27,9 +32,13 @@ public class PageCellViewController implements Initializable {
 
     public void setPage(Page page, PageClickCallback callback) {
         this.page = page;
-        System.out.println(page.getImage());
-        //this.pageImage.setBackground(new Background(new BackgroundImage(page.getImage(), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
-        this.pageImage.setImage(page.getImage());
+
+        ImageView imageView = new ImageView(page.getImage());
+        imageView.setPreserveRatio(true);
+        ImageViewPane imageViewPane = new ImageViewPane(imageView);
+
+        pagePane.setCenter(imageViewPane);
+
         this.pageName.setText(page.getName());
 
         this.pagePane.setOnMouseClicked(event -> {
@@ -41,7 +50,7 @@ public class PageCellViewController implements Initializable {
         void clicked(Page page);
     }
 
-    public VBox getPagePane() {
+    public Pane getPagePane() {
         return pagePane;
     }
 

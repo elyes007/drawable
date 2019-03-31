@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Font?>
-<VBox fx:id="pagePane" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-      minWidth="-Infinity" spacing="10.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="tn.disguisedtoast.drawable.homeModule.controllers.PageCellViewController">
-    <children>
-        <ImageView fx:id="pageImage" fitHeight="550.0" pickOnBounds="true" preserveRatio="true"/>
-        <Label fx:id="pageName" text="Label">
+<BorderPane fx:id="pagePane" styleClass="hoverable" xmlns="http://javafx.com/javafx/10.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.disguisedtoast.drawable.homeModule.controllers.PageCellViewController">
+    <bottom>
+        <Label fx:id="pageName" text="Label" BorderPane.alignment="CENTER">
             <font>
-                <Font name="System Bold" size="14.0"/>
+                <Font name="System Bold" size="24.0"/>
             </font>
         </Label>
-    </children>
-</VBox>
+    </bottom>
+    <cursor>
+        <Cursor fx:constant="HAND"/>
+    </cursor>
+</BorderPane>

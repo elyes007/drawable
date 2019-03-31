@@ -10,12 +10,16 @@
  </head> 
  <body id="body" class="clickable unhoverable"> 
   <ion-app> 
-   <ion-header> 
-    <ion-toolbar style="--ion-background-color: #050fff;" class="clickable" id="toolbar"> 
+   <ion-header>
+    <ion-toolbar style="--ion-background-color:#336633 !important;" class="clickable" id="toolbar">
      <ion-buttons slot="start"> 
       <ion-back-button default-href=""></ion-back-button> 
-     </ion-buttons> 
-     <ion-title style="color: #0ec254; font-weight: bold; text-decoration: underline; font-style: italic;">
+     </ion-buttons>
+     <ion-title style="  font-weight:bold;
+  text-decoration:underline;
+  font-style:italic;
+  color:#FFCCB3 !important;
+">
        Budget Planner 
      </ion-title> 
     </ion-toolbar> 
@@ -32,27 +36,42 @@
           </ion-label> 
          </ion-card-title> 
         </ion-card-header> 
-        <ion-card-content> 
-         <ion-item style="position: relative; left: 20%; top: 30%;" class="clickable" id="item1"> 
-          <ion-label style="color: red;">
+        <ion-card-content>
+         <ion-item style="  position:relative;
+  top:30.0%;
+  left:0.0%;
+" class="clickable" id="item1">
+          <ion-label style="  font-weight:bold;
+  color:#000000 !important;
+  font-size:14px;
+">
             Expense Reason 
-          </ion-label> 
-          <ion-input readonly id="input-reason" value="Yess" style="color: #0cd1e8; font-style: italic; font-weight: bold; text-decoration: underline; font-size: 20px;"></ion-input> 
+          </ion-label>
+          <ion-input readonly id="input-reason" value="Yess" style="  font-style:italic;
+  font-weight:bold;
+  text-decoration:underline;
+  font-size:20px;
+  color:#0CD1E8 !important;
+"></ion-input>
          </ion-item> 
-         <ion-item class="clickable" id="item2"> 
-          <ion-label position="floating">
+         <ion-item class="clickable" id="item2">
+          <ion-label position="fixed" style="">
             Expense Amount 
-          </ion-label> 
-          <ion-input placeholder="Hello" type="number" id="input-amount" readonly></ion-input> 
+          </ion-label>
+          <ion-input placeholder="Hello" type="number" id="input-amount" readonly
+                     style="color:#E6E64D !important;"></ion-input>
          </ion-item> 
-         <div margin-vertical text-right> 
-          <ion-button style="position:relative;" fill="solid" color="danger" id="button1" class="clickable" [routerlink]=""> 
+         <div margin-vertical text-right>
+          <ion-button style="  position:relative;
+  left:41.04477611940299%;
+" fill="solid" color="danger" id="button1" class="clickable" [routerlink]="">
            <ion-icon slot="start" name="close"></ion-icon>Clear 
           </ion-button> 
           <ion-button style="  position:relative;
   font-style:italic;
   font-weight:bold;
   text-decoration:underline;
+  left:34.88805970149254%;
 " fill="solid" class="clickable" id="button2"> 
            <ion-icon name="add" slot="start"></ion-icon>Add Expense 
           </ion-button> 
@@ -74,7 +93,7 @@
        <ion-img style="  position:relative;
   top:0.0%;
   left:0.0%;
-" src="../../assets/drawable/Fl6hOTJI.png" class="clickable" id="img" /> 
+" src="../../assets/drawable/z17lLz2A.png" class="clickable" id="img"/>
       </ion-col> 
      </ion-row> 
     </ion-grid> 

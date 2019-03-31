@@ -11,7 +11,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import preview.PreviewScene;
@@ -56,7 +56,7 @@ public class HomeController implements StartScene.CameraButtonCallback, Initiali
         for (Page page : pages) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/PageCellView.fxml"));
-                VBox pagePane = loader.load();
+                Pane pagePane = loader.load();
                 PageCellViewController pageCellViewController = loader.getController();
                 pageCellViewController.setPage(page, pageClickCallback);
                 pageCellViewControllers.add(pageCellViewController);

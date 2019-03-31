@@ -2,12 +2,12 @@
 
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<BorderPane maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="690.0" prefWidth="1366.0"
-            stylesheets="@../../css/global.css" xmlns="http://javafx.com/javafx/8.0.141"
+<BorderPane stylesheets="@../../css/global.css" xmlns="http://javafx.com/javafx/10.0.1"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="tn.disguisedtoast.drawable.homeModule.controllers.HomeController">
     <top>
@@ -54,28 +54,30 @@
                 <Insets/>
             </BorderPane.margin>
             <content>
-                <HBox fx:id="pagesPreviewHBox" spacing="20.0">
+                <HBox fx:id="pagesPreviewHBox" spacing="30.0">
                     <children>
-                        <AnchorPane fx:id="addButtonPane" maxHeight="-Infinity" prefHeight="550.0" prefWidth="311.0">
+                        <AnchorPane fx:id="addButtonPane">
                             <children>
                                 <Button contentDisplay="CENTER" mnemonicParsing="false" onAction="#New"
-                                        prefWidth="200.0"
                                         style="-fx-border-style: dashed; -fx-background-color: none; -fx-padding: 50; -fx-border-radius: 10;"
-                                        text="+" textAlignment="CENTER" textFill="#2ab250" AnchorPane.bottomAnchor="0.0"
+                                        text="+" textAlignment="CENTER" textFill="#0a744b" AnchorPane.bottomAnchor="0.0"
                                         AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                                         AnchorPane.topAnchor="0.0">
                                     <font>
-                                        <Font name="System Bold" size="49.0"/>
+                                        <Font name="System Bold" size="200.0"/>
                                     </font>
                                 </Button>
                             </children>
                             <HBox.margin>
                                 <Insets/>
                             </HBox.margin>
+                            <cursor>
+                                <Cursor fx:constant="HAND"/>
+                            </cursor>
                         </AnchorPane>
                     </children>
                     <padding>
-                        <Insets left="20.0" right="20.0" top="40.0"/>
+                        <Insets bottom="30.0" left="20.0" right="20.0" top="30.0"/>
                     </padding>
                 </HBox>
             </content>
