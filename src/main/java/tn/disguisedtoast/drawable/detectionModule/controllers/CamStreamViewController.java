@@ -3,11 +3,13 @@ package tn.disguisedtoast.drawable.detectionModule.controllers;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import org.apache.commons.io.FileUtils;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.generation.CodeGenerator;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.DetectedObject;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.FailedToCreateHtmlFromIonApp;
@@ -15,6 +17,7 @@ import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.N
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.NoFramesDetected;
 import tn.disguisedtoast.drawable.codeGenerationModule.shapeDetection.ShapeDetectionService;
 import tn.disguisedtoast.drawable.detectionModule.testMain.Main;
+import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -32,7 +35,7 @@ public class CamStreamViewController implements Initializable, UploadInterface {
     @FXML
     private StackPane camHolder;
     @FXML
-    private AnchorPane previewHolder;
+    private HBox previewHolder;
 
     private WebCamController webCamController;
     private Date lastRequestDate;
@@ -42,32 +45,43 @@ public class CamStreamViewController implements Initializable, UploadInterface {
             try {
                 webCamController.drawObjects(objects);
 
-                String htmlPath = CodeGenerator.generateTempHtml(CodeGenerator.parse(objects));
+                CodeGenerator.generateTempHtml(CodeGenerator.parse(objects));
+                PreviewController.refresh();
 
-                File file = webCamController.getFileFromImage();
-                long timeDiff = new Date().getTime() - lastRequestDate.getTime();
-                if (!webCamController.isShouldUpload()) {
-                    return;
-                }
-                if (timeDiff < 2000) {
-                    Thread.sleep(2000 - timeDiff);
-                }
-                ShapeDetectionService.upload(file, mUploadCallback);
-                lastRequestDate = new Date();
-            } catch (IOException | NoDetectedObjects | NoFramesDetected | FailedToCreateHtmlFromIonApp e) {
+                retry();
+            } catch (NoDetectedObjects | NoFramesDetected e) {
                 e.printStackTrace();
                 System.out.println("creating file failed");
+                retry();
             } catch (JAXBException e) {
                 e.printStackTrace();
                 System.out.println("marshalling layout failed");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                System.out.println("Sleeping interrupted");
             } catch (URISyntaxException e) {
                 e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (FailedToCreateHtmlFromIonApp failedToCreateHtmlFromIonApp) {
+                failedToCreateHtmlFromIonApp.printStackTrace();
             }
         }
     };
+
+    private void retry() {
+        try {
+            if (!webCamController.isShouldUpload()) {
+                return;
+            }
+            long timeDiff = new Date().getTime() - lastRequestDate.getTime();
+            if (timeDiff < 2000) {
+                Thread.sleep(2000 - timeDiff);
+            }
+            File file = webCamController.getFileFromImage();
+            ShapeDetectionService.upload(file, mUploadCallback);
+            lastRequestDate = new Date();
+        } catch (InterruptedException | IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private BorderPane drawingPane;
 
@@ -77,6 +91,7 @@ public class CamStreamViewController implements Initializable, UploadInterface {
 
     public void init(int camIndex) {
         setWebCamHolder(camIndex);
+        setPreviewHolder();
         Main.primaryStage.setScene(new Scene(root));
         Main.primaryStage.sizeToScene();
     }
@@ -98,8 +113,22 @@ public class CamStreamViewController implements Initializable, UploadInterface {
 
     //used to call preview into preview holder
     public void setPreviewHolder(){
+        String htmlString = null;
+        try {
+            String tempFilePath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages\\temp.html";
+            File htmlTemplateFile = new File(CodeGenerator.class.getResource("/codeGenerationModule/preview_template.html").toURI());
+            htmlString = FileUtils.readFileToString(htmlTemplateFile);
 
-
+            //writing html file
+            File newHtmlFile = new File(tempFilePath);
+            FileUtils.writeStringToFile(newHtmlFile, htmlString);
+            Node root = PreviewController.getView(tempFilePath, null);
+            previewHolder.getChildren().addAll(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

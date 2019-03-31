@@ -22,8 +22,8 @@ import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.VideoInputFrameGrabber;
 import tn.disguisedtoast.drawable.codeGenerationModule.android.generation.CodeGenerator;
-import tn.disguisedtoast.drawable.codeGenerationModule.android.models.Box;
-import tn.disguisedtoast.drawable.codeGenerationModule.android.models.DetectedObject;
+import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.Box;
+import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.DetectedObject;
 import tn.disguisedtoast.drawable.codeGenerationModule.shapeDetection.ShapeDetectionService;
 
 import javax.imageio.ImageIO;
@@ -104,7 +104,7 @@ public class CameraController {
                     }
                 });
 
-                CodeGenerator.ParseResult result = CodeGenerator.parse(objects);
+                CodeGenerator.ParseResult result = null; //= CodeGenerator.parse(objects);
                 if (result != null) {
                     previewController.update(result);
                     CodeGenerator.generateLayoutFile(result.getLayout());

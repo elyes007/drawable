@@ -1,9 +1,12 @@
 package tn.disguisedtoast.drawable.detectionModule.testMain;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import preview.CamChooserController;
 import tn.disguisedtoast.drawable.detectionModule.controllers.CamStreamViewController;
 
@@ -18,9 +21,15 @@ public class Main extends Application implements CamChooserController.CameraButt
         primaryStage.setScene(new Scene(new CamChooserController(this).getRoot()));
         primaryStage.setHeight(200);
         primaryStage.setWidth(400);
-        primaryStage.setResizable(false);
+        primaryStage.setResizable(true);
         primaryStage.show();
-
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent t) {
+                Platform.exit();
+                System.exit(0);
+            }
+        });
     }
 
     @Override

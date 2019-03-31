@@ -25,17 +25,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
-import tn.disguisedtoast.drawable.codeGenerationModule.android.generation.CodeGenerator;
-import tn.disguisedtoast.drawable.codeGenerationModule.android.models.DetectedObject;
-import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.ConstraintLayout;
-import tn.disguisedtoast.drawable.codeGenerationModule.shapeDetection.ShapeDetectionService;
 
 import javax.imageio.ImageIO;
-import javax.xml.bind.JAXBException;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
@@ -56,7 +50,7 @@ public class WebCamAppLauncher extends Application {
     private Button btnCamreaStart;
     private Button btnCameraDispose;
 
-    private ShapeDetectionService.UploadCallback mUploadCallback = new ShapeDetectionService.UploadCallback() {
+    /*private ShapeDetectionService.UploadCallback mUploadCallback = new ShapeDetectionService.UploadCallback() {
         @Override
         public void onUploaded(List<DetectedObject> objects) {
             try {
@@ -72,7 +66,7 @@ public class WebCamAppLauncher extends Application {
                 System.out.println("marshalling layout failed");
             }
         }
-    };
+    };*/
 
     private File getFileFromImage() throws IOException {
         File file = new File("frame.jpg");
@@ -219,7 +213,7 @@ public class WebCamAppLauncher extends Application {
                         if ((grabbedImage = webCam.getImage()) != null) {
 
                             if(!mDidUpload){
-                                ShapeDetectionService.upload(getFileFromImage(), mUploadCallback);
+                                //ShapeDetectionService.upload(getFileFromImage(), mUploadCallback);
                                 mDidUpload = true;
                             }
 

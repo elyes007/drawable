@@ -4,7 +4,7 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.*?>
 <BorderPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            prefHeight="562.0" style="-fx-background-color: #3A3E3B;" xmlns="http://javafx.com/javafx/8.0.171"
+            style="-fx-background-color: #3A3E3B;" xmlns="http://javafx.com/javafx/8.0.171"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="tn.disguisedtoast.drawable.detectionModule.controllers.CamStreamViewController">
    <center>
@@ -27,6 +27,10 @@
        </HBox>
    </center>
     <right>
-        <AnchorPane fx:id="previewHolder" BorderPane.alignment="CENTER"/>
+        <HBox fx:id="previewHolder" alignment="CENTER" BorderPane.alignment="CENTER">
+            <BorderPane.margin>
+                <Insets bottom="30.0" right="30.0" top="30.0"/>
+            </BorderPane.margin>
+        </HBox>
     </right>
 </BorderPane>
