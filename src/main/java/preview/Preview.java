@@ -1,17 +1,17 @@
 package preview;
 
-import code_generation.entities.DetectedObject;
-import code_generation.entities.views.Button;
-import code_generation.entities.views.EditText;
-import code_generation.entities.views.ImageView;
-import code_generation.entities.views.View;
-import code_generation.service.CodeGenerator;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.generation.CodeGenerator;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.DetectedObject;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.Button;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.EditText;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.ImageView;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.View;
 
 import javax.xml.bind.JAXBException;
 import java.io.FileNotFoundException;

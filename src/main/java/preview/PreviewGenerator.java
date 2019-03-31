@@ -1,13 +1,13 @@
 package preview;
 
-import code_generation.entities.views.Button;
-import code_generation.entities.views.EditText;
-import code_generation.entities.views.ImageView;
-import code_generation.entities.views.View;
-import code_generation.service.CodeGenerator;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.generation.CodeGenerator;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.Button;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.EditText;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.ImageView;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.View;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -40,11 +40,15 @@ public class PreviewGenerator {
                 ((javafx.scene.control.Button) node).setText(((Button) view).getText());
                 ((javafx.scene.control.Button) node).setPrefHeight(BUTTON_HEIGHT);
                 ((javafx.scene.control.Button) node).setPrefWidth(MAX_WIDTH * Double.parseDouble(view.getWidthPercent()));
+                node.getStyleClass().add("preview_button");
+                node.setFocusTraversable(false);
             } else if (view instanceof EditText) {
                 node = new TextField();
                 ((TextField) node).setPromptText(((EditText) view).getHint());
                 ((TextField) node).setPrefHeight(TEXTFIELD_HEIGHT);
                 ((TextField) node).setPrefWidth(MAX_WIDTH * Double.parseDouble(view.getWidthPercent()));
+                ((TextField) node).setEditable(false);
+                node.getStyleClass().add("preview_edit_text");
             } else if (view instanceof ImageView) {
                 node = new javafx.scene.image.ImageView();
                 File file = new File("./placeholder.png");

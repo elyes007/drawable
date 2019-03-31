@@ -1,0 +1,14 @@
+
+.hovered {
+    background-color: rgba(183, 226, 243, 0.8) !important;
+    --ion-background-color: rgba(183, 226, 243, 0.8) !important;
+    border: dashed blue 1px;
+}
+
+ion-toolbar.hovered {
+    --ion-color-base: rgba(183, 226, 243, 0.8) !important;
+}
+
+.selected {
+    border: dashed darkgreen 1px;
+}
