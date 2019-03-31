@@ -19,7 +19,7 @@ import java.util.Locale;
 
 public class CodeGenerator {
 
-    public static String parse(List<DetectedObject> detectedObjects) throws NoDetectedObjects, NoFramesDetected, FailedToCreateHtmlFromIonApp {
+    public static IonApp parse(List<DetectedObject> detectedObjects) throws NoDetectedObjects, NoFramesDetected, FailedToCreateHtmlFromIonApp {
         if (detectedObjects == null || detectedObjects.isEmpty()) {
             throw new NoDetectedObjects("No detected objects");
         }
@@ -58,7 +58,7 @@ public class CodeGenerator {
         }
     }
 
-    private static String parseWithDoubleFrames(DetectedObject topFrame, DetectedObject bottomFrame, List<DetectedObject> objects) throws FailedToCreateHtmlFromIonApp {
+    private static IonApp parseWithDoubleFrames(DetectedObject topFrame, DetectedObject bottomFrame, List<DetectedObject> objects) throws FailedToCreateHtmlFromIonApp {
         List<IonView> views = new ArrayList<>();
         int i = 1;
         int j = 1;
@@ -97,14 +97,8 @@ public class CodeGenerator {
             views.add(view);
         }
 
-        try {
-            return generateHtml(buildLayout(views));
-        } catch (JAXBException | IOException | URISyntaxException e) {
-            e.printStackTrace();
-            throw new FailedToCreateHtmlFromIonApp("Exception occurred while creating html file");
-        }
+        return buildLayout(views);
     }
-
 
     private static IonView getViewInstance(DetectedObject object) {
         switch ((int) object.getClasse()) {
@@ -144,7 +138,34 @@ public class CodeGenerator {
         return new IonApp(ionContent);
     }
 
-    public static String generateHtml(IonApp app) throws JAXBException, IOException, URISyntaxException {
+    public static String generateTempHtml(IonApp app) throws JAXBException, IOException, URISyntaxException {
+        app.getHeader().getToolbar().setTitle("Page");
+
+        //serializing IonApp to string
+        JAXBContext jc = JAXBContext.newInstance(IonApp.class);
+        Marshaller marshaller = jc.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(app, sw);
+        String body = sw.toString();
+
+        //reading template html string and replacing title and body
+        String pagesPath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages\\";
+        File htmlTemplateFile = new File(CodeGenerator.class.getResource("/codeGenerationModule/template.html").toURI());
+        String htmlString = FileUtils.readFileToString(htmlTemplateFile);
+        String title = app.getHeader().getToolbar().getTitle();
+        htmlString = htmlString.replace("$title", title);
+        htmlString = htmlString.replace("$body", body);
+
+        //writing html file
+        File newHtmlFile = new File(pagesPath + "temp.html");
+        FileUtils.writeStringToFile(newHtmlFile, htmlString);
+
+        return pagesPath + "temp.html";
+    }
+
+    public static String generatePageFolder(IonApp app) throws JAXBException, IOException, URISyntaxException {
         //setting page name
         String pagesPath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages\\";
         File idFile = new File(pagesPath + "\\.last_id");
@@ -175,7 +196,8 @@ public class CodeGenerator {
         htmlString = htmlString.replace("$body", body);
 
         //writing html file
-        File newHtmlFile = new File(pagesPath + "\\" + pageName + "\\" + pageName + ".html");
+        String htmlPath = pagesPath + "\\" + pageName + "\\" + pageName + ".html";
+        File newHtmlFile = new File(htmlPath);
         FileUtils.writeStringToFile(newHtmlFile, htmlString);
 
         //writing config file
@@ -186,6 +208,6 @@ public class CodeGenerator {
         //updating id file
         FileUtils.writeStringToFile(idFile, id + "");
 
-        return pageName;
+        return htmlPath;
     }
 }

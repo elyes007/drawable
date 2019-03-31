@@ -1,7 +1,5 @@
 package tn.disguisedtoast.drawable.detectionModule.controllers;
 
-import code_generation.entities.Box;
-import code_generation.entities.DetectedObject;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -28,6 +26,8 @@ import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.VideoInputFrameGrabber;
+import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.Box;
+import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.DetectedObject;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
