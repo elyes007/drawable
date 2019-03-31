@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<BorderPane maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="690.0" prefWidth="1366.0"
+            stylesheets="@../../css/global.css" xmlns="http://javafx.com/javafx/8.0.141"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.disguisedtoast.drawable.homeModule.controllers.HomeController">
+    <top>
+        <BorderPane style="-fx-background-color: #3c3f41;" BorderPane.alignment="CENTER">
+            <BorderPane.margin>
+                <Insets/>
+            </BorderPane.margin>
+            <right>
+                <HBox spacing="20.0" BorderPane.alignment="CENTER">
+                    <children>
+                        <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                                mnemonicParsing="false" style="-fx-background-image: Téléchargements/gear(1).png;">
+                            <graphic>
+                                <ImageView fx:id="settings" fitHeight="18.0" fitWidth="20.0">
+                                    <image>
+                                        <Image url="@../../drawable/homeDrawables/aaa.png"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                            <font>
+                                <Font size="14.0"/>
+                            </font>
+                        </Button>
+                        <Button fx:id="export" alignment="BASELINE_CENTER" contentDisplay="CENTER"
+                                mnemonicParsing="false" onAction="#exportProject" text="Export" textAlignment="CENTER">
+                            <font>
+                                <Font name="System Bold" size="14.0"/>
+                            </font>
+                        </Button>
+                    </children>
+                </HBox>
+            </right>
+            <left>
+                <TextField fx:id="search" prefWidth="300.0" promptText="Search" BorderPane.alignment="CENTER"/>
+            </left>
+            <padding>
+                <Insets bottom="5.0" left="10.0" right="10.0" top="5.0"/>
+            </padding>
+        </BorderPane>
+    </top>
+    <center>
+        <ScrollPane fitToHeight="true" focusTraversable="false" BorderPane.alignment="CENTER">
+            <BorderPane.margin>
+                <Insets/>
+            </BorderPane.margin>
+            <content>
+                <HBox fx:id="pagesPreviewHBox" spacing="20.0">
+                    <children>
+                        <AnchorPane fx:id="addButtonPane" maxHeight="-Infinity" prefHeight="550.0" prefWidth="311.0">
+                            <children>
+                                <Button contentDisplay="CENTER" mnemonicParsing="false" onAction="#New"
+                                        prefWidth="200.0"
+                                        style="-fx-border-style: dashed; -fx-background-color: none; -fx-padding: 50; -fx-border-radius: 10;"
+                                        text="+" textAlignment="CENTER" textFill="#2ab250" AnchorPane.bottomAnchor="0.0"
+                                        AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                        AnchorPane.topAnchor="0.0">
+                                    <font>
+                                        <Font name="System Bold" size="49.0"/>
+                                    </font>
+                                </Button>
+                            </children>
+                            <HBox.margin>
+                                <Insets/>
+                            </HBox.margin>
+                        </AnchorPane>
+                    </children>
+                    <padding>
+                        <Insets left="20.0" right="20.0" top="40.0"/>
+                    </padding>
+                </HBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

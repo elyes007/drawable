@@ -3,26 +3,20 @@ package tn.disguisedtoast.drawable.settingsModule.controllers;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.image.Image;
-import javafx.scene.layout.*;
-import javafx.stage.Stage;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.models.SupportedComponents;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
-import tn.disguisedtoast.drawable.settingsModule.utils.DomUtils;
 import tn.disguisedtoast.drawable.utils.JsonUtils;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -38,7 +32,6 @@ public class SettingsViewController implements Initializable {
     @FXML private Button saveButton;
     @FXML private Button finishButton;
 
-    private Stage settingsStage;
     private SettingsControllerInterface currentController;
     public static String pageFolder;
 
@@ -47,12 +40,12 @@ public class SettingsViewController implements Initializable {
             SettingsViewController.pageFolder = pageFolder;
             FXMLLoader loader = new FXMLLoader(SettingsViewController.class.getResource("/layouts/settingsViews/SettingsView.fxml"));
             Pane pane = loader.load();
-            SettingsViewController controller = loader.getController();
-            System.out.println(controller);
-            controller.settingsStage = new Stage();
+            Drawable.globalStage.setScene(new Scene(pane));
+            //SettingsViewController controller = loader.getController();
+            /*controller.settingsStage = new Stage();
             controller.settingsStage.setScene(new Scene(pane));
 
-            controller.settingsStage.show();
+            controller.settingsStage.show();*/
         }catch (IOException e){
             e.printStackTrace();
         }
@@ -142,7 +135,7 @@ public class SettingsViewController implements Initializable {
                 ((GlobalPageSettingsViewController)currentController).setBodyGeneratedElement(element);
             }
 
-            this.settingsStage.sizeToScene();
+            //HomeController.primaryStage.sizeToScene();
             if(currentController == null) {
                 this.saveButton.setDisable(true);
             }else{

@@ -1,1 +1,6 @@
-{"page":"page12","html":"ion-test.html","snapshot":"snapshot.png","actions":[]}
+{
+  "page": "page1",
+  "html": "ion-test.html",
+  "snapshot": "snapshot.png",
+  "actions": []
+}
