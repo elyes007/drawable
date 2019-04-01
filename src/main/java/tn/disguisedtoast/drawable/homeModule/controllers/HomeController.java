@@ -7,6 +7,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
@@ -14,8 +15,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import preview.CamChooserController;
-import preview.PreviewScene;
+import tn.disguisedtoast.drawable.detectionModule.controllers.CamChooserController;
+import tn.disguisedtoast.drawable.detectionModule.controllers.CamStreamViewController;
 import tn.disguisedtoast.drawable.homeModule.models.Page;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
 
@@ -43,11 +44,20 @@ public class HomeController implements CamChooserController.CameraButtonCallback
     private PageCellViewController.PageClickCallback pageClickCallback = page -> {
         SettingsViewController.showStage(page.getFolderName());
     };
+    private Stage chooserStage;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         ((Button) this.addButtonPane.getChildren().get(0)).setOnAction(event -> {
-            //TODO Go to stream page
+            System.out.println("new");
+            chooserStage = new Stage();
+            chooserStage.setTitle("Camera Chooser");
+            chooserStage.setScene(new Scene(new CamChooserController(this).getRoot()));
+            chooserStage.setHeight(200);
+            chooserStage.setWidth(500);
+            chooserStage.setResizable(false);
+            chooserStage.centerOnScreen();
+            chooserStage.show();
         });
 
         //Loading pages
@@ -107,26 +117,17 @@ public class HomeController implements CamChooserController.CameraButtonCallback
         });*/
     }
 
-    @FXML
-    public void New(ActionEvent event) {
-        /*primaryStage = new Stage();
-        primaryStage.setScene(new StartScene(this).getScene());
-        primaryStage.setHeight(200);
-        primaryStage.setWidth(400);
-        primaryStage.setResizable(false);
-        primaryStage.show();*/
-    }
-
     @Override
     public void onButtonClicked(int webcamIndex) {
+        chooserStage.close();
         if (webcamIndex != -1) {
             try {
-                PreviewScene previewScene = new PreviewScene(webcamIndex);
-                primaryStage.setScene(previewScene.getScene());
-                primaryStage.setHeight(700);
-                primaryStage.setWidth(1300);
-                primaryStage.centerOnScreen();
-                previewScene.start();
+                FXMLLoader loader = new FXMLLoader();
+                loader.setLocation(getClass().getResource("/layouts/detectionViews/CamStreamView.fxml"));
+                loader.load();
+                loader.getLocation().openStream();
+                CamStreamViewController controller = loader.getController();
+                controller.init(webcamIndex);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -192,6 +193,7 @@ public class HomeController implements CamChooserController.CameraButtonCallback
         String[] directories = root.list((dir, name) -> (new File(dir, name).isDirectory()));
         List<Page> pages = new ArrayList<>();
         for (String dir : directories) {
+            if (dir.equals("temp")) continue;
             try {
                 JsonObject jsonObject = new JsonParser().parse(new FileReader(pagesPath + "/" + dir + "/conf.json")).getAsJsonObject();
                 String pageName = jsonObject.get("page").getAsString();

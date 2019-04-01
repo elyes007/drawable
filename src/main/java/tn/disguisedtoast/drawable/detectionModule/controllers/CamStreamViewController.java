@@ -4,20 +4,23 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import org.apache.commons.io.FileUtils;
+import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.generation.CodeGenerator;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.DetectedObject;
+import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.IonApp;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.FailedToCreateHtmlFromIonApp;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.NoDetectedObjects;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.NoFramesDetected;
 import tn.disguisedtoast.drawable.codeGenerationModule.shapeDetection.ShapeDetectionService;
-import tn.disguisedtoast.drawable.detectionModule.testMain.Main;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
+import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -28,7 +31,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class CamStreamViewController implements Initializable, UploadInterface {
+public class CamStreamViewController implements Initializable, UploadInterface, WebCamController.NavigationCallback {
 
     @FXML
     public BorderPane root;
@@ -39,13 +42,15 @@ public class CamStreamViewController implements Initializable, UploadInterface {
 
     private WebCamController webCamController;
     private Date lastRequestDate;
+    private IonApp ionApp;
     private ShapeDetectionService.UploadCallback mUploadCallback = new ShapeDetectionService.UploadCallback() {
         @Override
         public void onUploaded(List<DetectedObject> objects) {
             try {
                 webCamController.drawObjects(objects);
 
-                CodeGenerator.generateTempHtml(CodeGenerator.parse(objects));
+                ionApp = CodeGenerator.parse(objects);
+                CodeGenerator.generateTempHtml(ionApp);
                 PreviewController.refreshForCamStream();
 
                 retry();
@@ -68,7 +73,7 @@ public class CamStreamViewController implements Initializable, UploadInterface {
 
     private void retry() {
         try {
-            if (!webCamController.isShouldUpload()) {
+            if (webCamController == null || !webCamController.isShouldUpload()) {
                 return;
             }
             long timeDiff = new Date().getTime() - lastRequestDate.getTime();
@@ -76,8 +81,12 @@ public class CamStreamViewController implements Initializable, UploadInterface {
                 Thread.sleep(2000 - timeDiff);
             }
             File file = webCamController.getFileFromImage();
-            ShapeDetectionService.upload(file, mUploadCallback);
-            lastRequestDate = new Date();
+            if (file != null) {
+                ShapeDetectionService.upload(file, mUploadCallback);
+                lastRequestDate = new Date();
+                return;
+            }
+            retry();
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
@@ -92,8 +101,7 @@ public class CamStreamViewController implements Initializable, UploadInterface {
     public void init(int camIndex) {
         setWebCamHolder(camIndex);
         setPreviewHolder();
-        Main.primaryStage.setScene(new Scene(root));
-        Main.primaryStage.sizeToScene();
+        Drawable.globalStage.setScene(new Scene(root));
     }
 
     //used to call webcamstream into preview holder
@@ -104,7 +112,7 @@ public class CamStreamViewController implements Initializable, UploadInterface {
             Pane pane = loader.load();
             loader.getLocation().openStream();
             webCamController = loader.getController();
-            webCamController.init(camIndex, this);
+            webCamController.init(camIndex, this, this);
             camHolder.getChildren().add(pane);
         } catch (IOException e) {
             e.printStackTrace();
@@ -115,7 +123,7 @@ public class CamStreamViewController implements Initializable, UploadInterface {
     public void setPreviewHolder(){
         String htmlString = null;
         try {
-            String tempFilePath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages\\temp.html";
+            String tempFilePath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages\\temp\\temp.html";
             File htmlTemplateFile = new File(CodeGenerator.class.getResource("/codeGenerationModule/preview_template.html").toURI());
             htmlString = FileUtils.readFileToString(htmlTemplateFile);
 
@@ -142,4 +150,28 @@ public class CamStreamViewController implements Initializable, UploadInterface {
         }
     }
 
+    @Override
+    public void finish() {
+        try {
+            webCamController.setShoudUpload(false);
+            webCamController.stopWebCamCamera();
+            String folderName = CodeGenerator.generatePageFolder(ionApp);
+            System.out.println(folderName);
+            SettingsViewController.showStage(folderName);
+        } catch (JAXBException | URISyntaxException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void back() {
+        try {
+            webCamController.setShoudUpload(false);
+            webCamController.stopWebCamCamera();
+            Parent root = (new FXMLLoader(getClass().getResource("/layouts/homeLayouts/HomeLayout.fxml"))).load();
+            Drawable.globalStage.setScene(new Scene(root));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
