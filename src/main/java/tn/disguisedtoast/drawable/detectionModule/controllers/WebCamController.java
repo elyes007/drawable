@@ -116,10 +116,8 @@ public class WebCamController implements Initializable {
             e.printStackTrace();
         }
 
-
         setCameraControls();
         startWebCamStream();
-
     }
 
 
@@ -127,8 +125,6 @@ public class WebCamController implements Initializable {
     protected void startWebCamStream() {
         System.out.println("started");
         stopCamera = false;
-
-
         Task<Void> task = new Task<Void>() {
             @Override
             protected Void call() {
@@ -139,8 +135,6 @@ public class WebCamController implements Initializable {
                         if ((frame = grabber.grab()) != null) {
 
                             bufferedFrame = paintConverter.getBufferedImage(frame, 1);
-
-
                             final Image mainImage = SwingFXUtils.toFXImage(bufferedFrame, null);
                             imageProperty.set(mainImage);
                         }
@@ -160,12 +154,9 @@ public class WebCamController implements Initializable {
 
 
     protected void startWebCamCamera() {
-        stopCamera = false;
         startWebCamStream();
         stop_img1.setVisible(true);
         record_img.setVisible(false);
-
-
     }
 
 
@@ -173,8 +164,6 @@ public class WebCamController implements Initializable {
         stopCamera = true;
         stop_img1.setVisible(false);
         record_img.setVisible(true);
-
-
     }
 
     //method used to handle on record and stop on click events
@@ -245,9 +234,8 @@ public class WebCamController implements Initializable {
                     toDrawPane.getChildren().add(title);
                     toDrawPane.getChildren().add(rectangle);
 
-                    toDrawPane.setLayoutX(box.getxMin() * 640);
-                    toDrawPane.setLayoutY((box.getyMin() * 480) - 17);
-
+                    toDrawPane.setLayoutX(box.getxMin() * 575);
+                    toDrawPane.setLayoutY((box.getyMin() * 400) - 17);
 
                     drawingPane.getChildren().add(toDrawPane);
                 }

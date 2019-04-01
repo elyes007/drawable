@@ -52,7 +52,7 @@ public class CodeGenerator {
         }
         if (topFrame == bottomFrame) {
             //return parseWithSingleFrame(topFrame, objects);
-            return null;
+            throw new NoFramesDetected("Only one frame detected");
         } else {
             return parseWithDoubleFrames(topFrame, bottomFrame, objects);
         }
@@ -86,10 +86,10 @@ public class CodeGenerator {
             double widthPercent = object.getBox().getWidth() / topFrame.getBox().getWidth() > 1 ? 100 : 100 * object.getBox().getWidth() / topFrame.getBox().getWidth();
             view.setWidth(String.format(Locale.US, "%.2f", widthPercent) + "%");
 
-            double top = Math.min(1, Math.max(0, object.getBox().getyMin() - topFrame.getBox().getyMax()) /
-                    Math.max(0, bottomFrame.getBox().getyMin() - topFrame.getBox().getyMax() - object.getBox().getHeight()));
-            double left = Math.max(0, object.getBox().getxMin() - topFrame.getBox().getxMin()) /
-                    Math.max(0, topFrame.getBox().getWidth() - object.getBox().getWidth());
+            double top = (object.getBox().getyMin() - topFrame.getBox().getyMax())
+                    / (bottomFrame.getBox().getyMin() - topFrame.getBox().getyMax());
+            double left = (object.getBox().getxMin() - topFrame.getBox().getxMin())
+                    / topFrame.getBox().getWidth();
 
             view.setTop(String.format(Locale.US, "%.2f", top * 100) + "%");
             view.setLeft(String.format(Locale.US, "%.2f", left * 100) + "%");

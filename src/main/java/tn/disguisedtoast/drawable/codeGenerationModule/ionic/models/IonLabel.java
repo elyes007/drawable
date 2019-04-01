@@ -44,4 +44,10 @@ public class IonLabel extends IonView {
     public void setPositionAttr(String positionAttr) {
         this.positionAttr = positionAttr;
     }
+
+    @XmlAttribute(name = "class")
+    @Override
+    public String getClasse() {
+        return positionAttr != null ? null : "clickable";
+    }
 }

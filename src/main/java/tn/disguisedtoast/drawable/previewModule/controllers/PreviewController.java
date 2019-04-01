@@ -117,10 +117,27 @@ public class PreviewController {
     }
 
     public static void refresh(){
-        try{
-            Path path = Paths.get(Paths.get(ionicDocument.baseUri()).getParent() + "/temp_"+ RandomStringUtils.randomAlphanumeric(8)+".html");
+        Platform.runLater(() -> {
+            try {
+                Path path = Paths.get(Paths.get(ionicDocument.baseUri()).getParent() + "/temp_" + RandomStringUtils.randomAlphanumeric(8) + ".html");
+                Files.write(path, ionicDocument.html().getBytes());
+                webView.getEngine().load("file:///" + path.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public static void refreshForCamStream() {
+        try {
+            File input = new File(url);
+            PreviewController.ionicDocument = Jsoup.parse(input, "UTF-8");
+            if (root == null || webView == null) {
+                new PreviewController();
+            }
+            Path path = Paths.get(input.getParent() + "/temp_" + RandomStringUtils.randomAlphanumeric(8) + ".html");
             Files.write(path, ionicDocument.html().getBytes());
-            webView.getEngine().load("file:///"+path.toString());
+            Platform.runLater(() -> webView.getEngine().load("file:///" + path));
         } catch (IOException e) {
             e.printStackTrace();
         }

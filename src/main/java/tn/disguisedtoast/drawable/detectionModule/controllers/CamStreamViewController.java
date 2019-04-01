@@ -46,7 +46,7 @@ public class CamStreamViewController implements Initializable, UploadInterface {
                 webCamController.drawObjects(objects);
 
                 CodeGenerator.generateTempHtml(CodeGenerator.parse(objects));
-                PreviewController.refresh();
+                PreviewController.refreshForCamStream();
 
                 retry();
             } catch (NoDetectedObjects | NoFramesDetected e) {

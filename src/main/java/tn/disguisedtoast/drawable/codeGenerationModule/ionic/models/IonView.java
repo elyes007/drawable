@@ -14,6 +14,7 @@ public abstract class IonView {
     private String width;
     private String height;
     private String style;
+    private String classe = "clickable";
 
     @XmlAttribute(name = "id")
     public String getId() {
@@ -82,4 +83,12 @@ public abstract class IonView {
         this.position = position;
     }
 
+    @XmlAttribute(name = "class")
+    public String getClasse() {
+        return classe;
+    }
+
+    public void setClasse(String classe) {
+        this.classe = classe;
+    }
 }
