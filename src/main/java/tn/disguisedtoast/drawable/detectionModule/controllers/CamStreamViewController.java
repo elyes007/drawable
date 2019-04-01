@@ -36,7 +36,7 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
     @FXML
     public BorderPane root;
     @FXML
-    private StackPane camHolder;
+    private BorderPane camHolder;
     @FXML
     private HBox previewHolder;
 
@@ -102,6 +102,7 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
         setWebCamHolder(camIndex);
         setPreviewHolder();
         Drawable.globalStage.setScene(new Scene(root));
+        Drawable.globalStage.setMaximized(true);
     }
 
     //used to call webcamstream into preview holder
@@ -113,7 +114,7 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
             loader.getLocation().openStream();
             webCamController = loader.getController();
             webCamController.init(camIndex, this, this);
-            camHolder.getChildren().add(pane);
+            camHolder.setCenter(pane);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -17,7 +17,7 @@ public class Main extends Application implements CamChooserController.CameraButt
     @Override
     public void start(Stage primaryStage) throws Exception {
         Main.primaryStage = primaryStage;
-        primaryStage.setTitle("CamStarter");
+        primaryStage.setTitle("Drawable");
         primaryStage.setScene(new Scene(new CamChooserController(this).getRoot()));
         primaryStage.setHeight(200);
         primaryStage.setWidth(400);
