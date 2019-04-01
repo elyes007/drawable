@@ -3,12 +3,13 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-
-<AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="300.0" stylesheets="@../css/preview.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="preview.PreviewController">
+<AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="600.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/8.0.171"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="preview.PreviewController">
     <children>
-        <AnchorPane fx:id="preview" layoutX="18.0" layoutY="40.0" prefHeight="523.0" prefWidth="259.0" styleClass="preview_background" />
-        <ImageView fitHeight="600.0" fitWidth="300.0" mouseTransparent="true" pickOnBounds="true">
-            <Image url="@../pictures/pixel2_frame.png" />
+        <ImageView fitHeight="600.0" fitWidth="300.0" pickOnBounds="true">
+            <Image url="@../drawable/detectionDrawables/pixel2_frame.png"/>
         </ImageView>
+        <AnchorPane fx:id="preview" layoutX="18.0" layoutY="51.0" prefHeight="500.0" prefWidth="260.0"/>
     </children>
 </AnchorPane>

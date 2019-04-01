@@ -1,16 +1,13 @@
 package preview;
 
-import code_generation.entities.views.Button;
-import code_generation.entities.views.EditText;
-import code_generation.entities.views.ImageView;
-import code_generation.entities.views.View;
-import code_generation.service.CodeGenerator;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import org.eclipse.jgit.diff.Edit;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.generation.CodeGenerator;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.Button;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.EditText;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.ImageView;
+import tn.disguisedtoast.drawable.codeGenerationModule.android.models.views.View;
 
 import java.io.File;
 import java.util.ArrayList;
