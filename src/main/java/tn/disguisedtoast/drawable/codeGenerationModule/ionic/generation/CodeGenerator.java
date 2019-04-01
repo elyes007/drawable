@@ -151,7 +151,7 @@ public class CodeGenerator {
         String body = sw.toString();
 
         //reading template html string and replacing title and body
-        String pagesPath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages\\";
+        String tempPath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages\\temp\\";
         File htmlTemplateFile = new File(CodeGenerator.class.getResource("/codeGenerationModule/template.html").toURI());
         String htmlString = FileUtils.readFileToString(htmlTemplateFile);
         String title = app.getHeader().getToolbar().getTitle();
@@ -159,10 +159,10 @@ public class CodeGenerator {
         htmlString = htmlString.replace("$body", body);
 
         //writing html file
-        File newHtmlFile = new File(pagesPath + "temp.html");
+        File newHtmlFile = new File(tempPath + "temp.html");
         FileUtils.writeStringToFile(newHtmlFile, htmlString);
 
-        return pagesPath + "temp.html";
+        return tempPath + "temp.html";
     }
 
     public static String generatePageFolder(IonApp app) throws JAXBException, IOException, URISyntaxException {
@@ -177,9 +177,11 @@ public class CodeGenerator {
             //
         }
         String pageName = "Page" + id;
-        app.getHeader().getToolbar().setTitle(pageName);
 
         //serializing IonApp to string
+        if (app == null) {
+            app = new IonApp();
+        }
         JAXBContext jc = JAXBContext.newInstance(IonApp.class);
         Marshaller marshaller = jc.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
@@ -201,13 +203,13 @@ public class CodeGenerator {
         FileUtils.writeStringToFile(newHtmlFile, htmlString);
 
         //writing config file
-        String configString = String.format("{\n\t\"html\": \"%s\"\n}", pageName);
+        String configString = String.format("{\n\t\"page\": \"%s\",\n\t\"html\": \"%s.html\"\n}", pageName, pageName);
         File configFile = new File(pagesPath + "\\" + pageName + "\\" + "conf.json");
         FileUtils.writeStringToFile(configFile, configString);
 
         //updating id file
         FileUtils.writeStringToFile(idFile, id + "");
 
-        return htmlPath;
+        return pagesPath + pageName;
     }
 }

@@ -1,4 +1,4 @@
-package preview;
+package tn.disguisedtoast.drawable.detectionModule.controllers;
 
 import com.github.sarxos.webcam.Webcam;
 import javafx.beans.value.ChangeListener;

@@ -25,7 +25,7 @@ import javafx.scene.text.Font;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.Java2DFrameConverter;
-import org.bytedeco.javacv.VideoInputFrameGrabber;
+import org.bytedeco.javacv.OpenCVFrameGrabber;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.Box;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.DetectedObject;
 
@@ -68,6 +68,7 @@ public class WebCamController implements Initializable {
     ObjectProperty<Image> imageProperty = new SimpleObjectProperty<Image>();
     private boolean shouldUpload;
     private UploadInterface uploadInterface;
+    private NavigationCallback navigationCallback;
 
     private RectAttributes[] rectsAttributes = new RectAttributes[]{
             new RectAttributes("edit_text", Color.AQUA),
@@ -78,6 +79,7 @@ public class WebCamController implements Initializable {
 
     //method to get file
     public File getFileFromImage() throws IOException {
+        if (bufferedFrame == null) return null;
         File file = new File("frame.jpg");
         ImageIO.write(bufferedFrame, "jpg", file);
         return file;
@@ -89,9 +91,10 @@ public class WebCamController implements Initializable {
 
     }
 
-    public void init(int index, UploadInterface uploadInterface) {
+    public void init(int index, UploadInterface uploadInterface, NavigationCallback navigationCallback) {
         this.webcamIndex = index;
         this.uploadInterface = uploadInterface;
+        this.navigationCallback = navigationCallback;
         imgWebCamCapturedImage = new ImageView();
         imgWebCamCapturedImage.setFitWidth(575);
         imgWebCamCapturedImage.setFitHeight(400);
@@ -109,15 +112,8 @@ public class WebCamController implements Initializable {
 
         System.out.println("we are here");
 
-        grabber = new VideoInputFrameGrabber(index);
-        try {
-            grabber.start();
-        } catch (FrameGrabber.Exception e) {
-            e.printStackTrace();
-        }
-
         setCameraControls();
-        startWebCamStream();
+        //startWebCamStream();
     }
 
 
@@ -125,6 +121,15 @@ public class WebCamController implements Initializable {
     protected void startWebCamStream() {
         System.out.println("started");
         stopCamera = false;
+        if (grabber == null) {
+            grabber = new OpenCVFrameGrabber(webcamIndex);
+            try {
+                grabber.start();
+            } catch (FrameGrabber.Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         Task<Void> task = new Task<Void>() {
             @Override
             protected Void call() {
@@ -132,7 +137,7 @@ public class WebCamController implements Initializable {
                 final Java2DFrameConverter paintConverter = new Java2DFrameConverter();
                 try {
                     while (!stopCamera) {
-                        if ((frame = grabber.grab()) != null) {
+                        if (grabber != null && (frame = grabber.grab()) != null) {
 
                             bufferedFrame = paintConverter.getBufferedImage(frame, 1);
                             final Image mainImage = SwingFXUtils.toFXImage(bufferedFrame, null);
@@ -161,6 +166,14 @@ public class WebCamController implements Initializable {
 
 
     protected void stopWebCamCamera() {
+        if (grabber != null) {
+            try {
+                grabber.release();
+                grabber = null;
+            } catch (FrameGrabber.Exception e) {
+                e.printStackTrace();
+            }
+        }
         stopCamera = true;
         stop_img1.setVisible(false);
         record_img.setVisible(true);
@@ -190,17 +203,21 @@ public class WebCamController implements Initializable {
     //go back to home
     @FXML
     void Back(ActionEvent event) {
-
+        navigationCallback.back();
     }
 
     // go to settings
     @FXML
     void Confirm(ActionEvent event) {
-
+        navigationCallback.finish();
     }
 
     public boolean isShouldUpload() {
         return shouldUpload;
+    }
+
+    public void setShoudUpload(boolean shouldUpload) {
+        this.shouldUpload = shouldUpload;
     }
 
     public void switchShouldUpload() {
@@ -251,5 +268,11 @@ public class WebCamController implements Initializable {
             this.className = className;
             this.color = color;
         }
+    }
+
+    public interface NavigationCallback {
+        void finish();
+
+        void back();
     }
 }

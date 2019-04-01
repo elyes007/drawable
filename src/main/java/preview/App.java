@@ -3,6 +3,7 @@ package preview;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import tn.disguisedtoast.drawable.detectionModule.controllers.CamChooserController;
 
 import java.io.IOException;
 
