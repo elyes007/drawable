@@ -14,8 +14,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import preview.CamChooserController;
 import preview.PreviewScene;
-import preview.StartScene;
 import tn.disguisedtoast.drawable.homeModule.models.Page;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
 
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-public class HomeController implements StartScene.CameraButtonCallback, Initializable {
+public class HomeController implements CamChooserController.CameraButtonCallback, Initializable {
     @FXML
     public TextField search;
     @FXML
