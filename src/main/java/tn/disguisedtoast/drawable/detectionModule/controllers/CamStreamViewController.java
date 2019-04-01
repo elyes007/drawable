@@ -8,7 +8,6 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import org.apache.commons.io.FileUtils;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.generation.CodeGenerator;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.DetectedObject;
@@ -33,7 +32,7 @@ public class CamStreamViewController implements Initializable, UploadInterface {
     @FXML
     public BorderPane root;
     @FXML
-    private StackPane camHolder;
+    private BorderPane camHolder;
     @FXML
     private HBox previewHolder;
 
@@ -93,7 +92,7 @@ public class CamStreamViewController implements Initializable, UploadInterface {
         setWebCamHolder(camIndex);
         setPreviewHolder();
         Main.primaryStage.setScene(new Scene(root));
-        Main.primaryStage.sizeToScene();
+        Main.primaryStage.setMaximized(true);
     }
 
     //used to call webcamstream into preview holder
@@ -105,7 +104,7 @@ public class CamStreamViewController implements Initializable, UploadInterface {
             loader.getLocation().openStream();
             webCamController = loader.getController();
             webCamController.init(camIndex, this);
-            camHolder.getChildren().add(pane);
+            camHolder.setCenter(pane);
         } catch (IOException e) {
             e.printStackTrace();
         }

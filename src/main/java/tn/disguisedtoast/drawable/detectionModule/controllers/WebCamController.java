@@ -9,7 +9,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -28,6 +27,7 @@ import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.VideoInputFrameGrabber;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.Box;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.DetectedObject;
+import tn.disguisedtoast.drawable.utils.ImageViewPane;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -93,19 +93,12 @@ public class WebCamController implements Initializable {
         this.webcamIndex = index;
         this.uploadInterface = uploadInterface;
         imgWebCamCapturedImage = new ImageView();
-        imgWebCamCapturedImage.setFitWidth(575);
-        imgWebCamCapturedImage.setFitHeight(400);
+        imgWebCamCapturedImage.setPreserveRatio(true);
+        ImageViewPane imageViewPane = new ImageViewPane(imgWebCamCapturedImage);
         drawingPane = new BorderPane();
-        drawingPane.setStyle("-fx-border-color: red;");
-        drawingPane.setPrefHeight(575);
-        drawingPane.setPrefWidth(400);
-        StackPane stackPane = new StackPane();
-        stackPane.getChildren().add(imgWebCamCapturedImage);
+        StackPane stackPane = (StackPane) this.ImageHolder.getCenter();
+        stackPane.getChildren().add(imageViewPane);
         stackPane.getChildren().add(drawingPane);
-        stackPane.setAlignment(Pos.CENTER);
-
-
-        this.ImageHolder.setCenter(stackPane);
 
         System.out.println("we are here");
 
