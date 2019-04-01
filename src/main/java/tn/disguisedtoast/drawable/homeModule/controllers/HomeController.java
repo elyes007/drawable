@@ -150,39 +150,46 @@ public class HomeController implements CamChooserController.CameraButtonCallback
             e.printStackTrace();
         }*/
 
-        DirectoryChooser dc = new DirectoryChooser();
-        //dc.showDialog(primaryStage);
-        File f = dc.showDialog(primaryStage);
-        String s = f.getAbsolutePath();
-        System.out.println(s);
 
-        ProcessBuilder processBuilder = new ProcessBuilder();
-        TextField projectName = new TextField();
-        System.setProperty("user.dir", s);
+
 
         // Windows
-        processBuilder.command("cmd.exe", "/c", "ionic start testProject blank");
 
-        try {
+        Platform.runLater(() -> {
+            DirectoryChooser dc = new DirectoryChooser();
+            //dc.showDialog(primaryStage);
+            File f = dc.showDialog(primaryStage);
+            String s = f.getAbsolutePath();
+            System.out.println(s);
 
-            Process process = processBuilder.start();
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            processBuilder.directory(new File(s));
+            // TextField projectName = new TextField();
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println("wait");
-                System.out.println(line);
+            processBuilder.command("cmd.exe", "/c", "ionic start testProject blank");
+            try {
+
+                Process process = processBuilder.start();
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println("wait");
+                    System.out.println(line);
+                }
+
+                int exitCode = process.waitFor();
+                System.out.println("\nExited with error code : " + exitCode);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+        });
 
-            int exitCode = process.waitFor();
-            System.out.println("\nExited with error code : " + exitCode);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
 
     }
