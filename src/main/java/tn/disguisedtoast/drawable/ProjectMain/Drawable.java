@@ -10,6 +10,8 @@ import javafx.stage.WindowEvent;
 
 public class Drawable extends javafx.application.Application {
     public static Stage globalStage;
+    public static double height;
+    public static double width;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -17,10 +19,12 @@ public class Drawable extends javafx.application.Application {
         Parent root = (new FXMLLoader(getClass().getResource("/layouts/homeLayouts/HomeLayout.fxml"))).load();
         primaryStage.setTitle("Drawable");
         primaryStage.setScene(new Scene(root));
+        primaryStage.setMaximized(true);
         primaryStage.show();
+        height = primaryStage.getScene().getHeight();
+        width = primaryStage.getScene().getWidth();
         //primaryStage.setWidth(1366);
         //primaryStage.setHeight(768);
-        primaryStage.setMaximized(true);
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent t) {

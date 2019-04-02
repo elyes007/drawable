@@ -19,6 +19,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.w3c.dom.Element;
+import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.previewModule.models.Device;
 
@@ -43,13 +44,17 @@ public class PreviewController {
     private AppInterface appInterface;
 
     private PreviewController() {
+        Device defaultDevice = Device.devices[0];
+        double ratio = defaultDevice.getWidth() / defaultDevice.getHeight();
+        double previewHeight = Math.min(Drawable.height - 30 * 2 - BUTTON_SIZE, defaultDevice.getHeight());
+        double previewWidth = previewHeight * ratio;
         root = new VBox();
-        root.setPrefHeight(731 + BUTTON_SIZE);
-        root.setPrefWidth(411);
+        root.setPrefHeight(previewHeight + BUTTON_SIZE);
+        root.setPrefWidth(previewWidth);
 
         webView = new WebView();
-        webView.setPrefHeight(731 + BUTTON_SIZE);
-        webView.setPrefWidth(411);
+        webView.setPrefHeight(previewHeight + BUTTON_SIZE);
+        webView.setPrefWidth(previewWidth);
         webView.getEngine().setJavaScriptEnabled(true);
         webView.getEngine().setUserAgent("Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Mobile Safari/537.36");
 
@@ -83,11 +88,15 @@ public class PreviewController {
             @Override
             public void changed(ObservableValue<? extends Device> observable, Device oldValue, Device newValue) {
                 if(newValue != null){
-                    root.setPrefHeight(newValue.getHeight() + BUTTON_SIZE);
-                    root.setPrefWidth(newValue.getWidth());
+                    double ratio = newValue.getWidth() / newValue.getHeight();
+                    double previewHeight = Math.min(Drawable.height - 30 * 2 - BUTTON_SIZE, newValue.getHeight());
+                    double previewWidth = previewHeight * ratio;
 
-                    webView.setPrefHeight(newValue.getHeight() + BUTTON_SIZE);
-                    webView.setPrefWidth(newValue.getWidth());
+                    root.setPrefHeight(previewHeight + BUTTON_SIZE);
+                    root.setPrefWidth(previewWidth);
+
+                    webView.setPrefHeight(previewHeight + BUTTON_SIZE);
+                    webView.setPrefWidth(previewWidth);
 
                     webView.getEngine().setUserAgent(newValue.getUserAgent());
                     refresh();

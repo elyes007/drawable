@@ -46,6 +46,7 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
         @Override
         public void onUploaded(List<DetectedObject> objects) {
             try {
+                System.out.println("loool");
                 webCamController.drawObjects(objects);
 
                 ionApp = CodeGenerator.parse(objects);
@@ -95,6 +96,8 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        root.setPrefWidth(Drawable.width);
+        root.setPrefHeight(Drawable.height);
     }
 
     public void init(int camIndex) {
@@ -143,9 +146,16 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
     public void startUpload() {
         try {
             File file = webCamController.getFileFromImage();
-            ShapeDetectionService.upload(file, mUploadCallback);
-            lastRequestDate = new Date();
+            if (file != null) {
+                ShapeDetectionService.upload(file, mUploadCallback);
+                lastRequestDate = new Date();
+                return;
+            }
+            Thread.sleep(1000);
+            startUpload();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
