@@ -76,6 +76,7 @@ public class WebCamController implements Initializable {
             new RectAttributes("button", Color.RED),
             new RectAttributes("image_view", Color.GREEN)
     };
+    private ImageViewPane imageViewPane;
 
     //method to get file
     public File getFileFromImage() throws IOException {
@@ -97,8 +98,9 @@ public class WebCamController implements Initializable {
         this.navigationCallback = navigationCallback;
         imgWebCamCapturedImage = new ImageView();
         imgWebCamCapturedImage.setPreserveRatio(true);
-        ImageViewPane imageViewPane = new ImageViewPane(imgWebCamCapturedImage);
+        imageViewPane = new ImageViewPane(imgWebCamCapturedImage);
         drawingPane = new BorderPane();
+        drawingPane.setStyle("-fx-border-color: red");
         StackPane stackPane = (StackPane) this.ImageHolder.getCenter();
         stackPane.getChildren().add(imageViewPane);
         stackPane.getChildren().add(drawingPane);
@@ -225,10 +227,18 @@ public class WebCamController implements Initializable {
             @Override
             public void run() {
                 drawingPane.getChildren().clear();
+                double aspectRatio = imgWebCamCapturedImage.getImage().getWidth() / imgWebCamCapturedImage.getImage().getHeight();
+                double realWidth = Math.min(imgWebCamCapturedImage.getFitWidth(), imgWebCamCapturedImage.getFitHeight() * aspectRatio);
+                double realHeight = Math.min(imgWebCamCapturedImage.getFitHeight(), imgWebCamCapturedImage.getFitWidth() / aspectRatio);
+                double xOffset = (drawingPane.getWidth() - realWidth) / 2;
+                double yOffset = (drawingPane.getHeight() - realHeight) / 2;
                 for (DetectedObject detectedObject : objects) {
                     Box box = detectedObject.getBox();
                     RectAttributes attributes = rectsAttributes[(int) detectedObject.getClasse() - 1];
-                    Rectangle rectangle = new Rectangle(box.getxMin() * 575, box.getyMin() * 400, box.getWidth() * 575, box.getHeight() * 400);
+                    Rectangle rectangle = new Rectangle(box.getxMin() * realWidth,
+                            box.getyMin() * realHeight,
+                            box.getWidth() * realWidth,
+                            box.getHeight() * realHeight);
                     rectangle.setStrokeWidth(3);
                     rectangle.setFill(Color.TRANSPARENT);
                     rectangle.setStroke(attributes.color);
@@ -244,8 +254,8 @@ public class WebCamController implements Initializable {
                     toDrawPane.getChildren().add(title);
                     toDrawPane.getChildren().add(rectangle);
 
-                    toDrawPane.setLayoutX(box.getxMin() * 575);
-                    toDrawPane.setLayoutY((box.getyMin() * 400) - 17);
+                    toDrawPane.setLayoutX(box.getxMin() * realWidth + xOffset);
+                    toDrawPane.setLayoutY((box.getyMin() * realHeight) - 17 + yOffset);
 
                     drawingPane.getChildren().add(toDrawPane);
                 }
