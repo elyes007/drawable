@@ -11,6 +11,7 @@ public class IonToolbar {
     private String color = "primary";
     private String id = "toolbar";
     private String classe = "clickable";
+    private IonButtons ionButtons = new IonButtons();
 
     public IonToolbar() {
     }
@@ -53,5 +54,14 @@ public class IonToolbar {
 
     public void setClasse(String classe) {
         this.classe = classe;
+    }
+
+    @XmlElement(name = "ion-buttons")
+    public IonButtons getIonButtons() {
+        return ionButtons;
+    }
+
+    public void setIonButtons(IonButtons ionButtons) {
+        this.ionButtons = ionButtons;
     }
 }
