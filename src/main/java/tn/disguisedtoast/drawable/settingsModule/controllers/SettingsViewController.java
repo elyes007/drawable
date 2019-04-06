@@ -66,12 +66,14 @@ public class SettingsViewController implements Initializable {
                 JsonObject jsonObject = new JsonParser().parse(new FileReader(pageFolder+"/conf.json")).getAsJsonObject();
                 jsonObject.addProperty("snapshot", "snapshot.png");
                 Files.write(Paths.get(pageFolder+"/conf.json"), new Gson().toJson(jsonObject).getBytes());
+
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/HomeLayout.fxml"));
+                Drawable.globalStage.setScene(new Scene(loader.load()));
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         });
     }
 

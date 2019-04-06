@@ -36,6 +36,7 @@ public class PreviewController {
     private static PreviewCallBack callBack;
     private static VBox root;
     private static WebView webView;
+    private static ComboBox<Device> previewDevice;
     private static String url;
 
     private final float BUTTON_SIZE = 20;
@@ -65,7 +66,7 @@ public class PreviewController {
                     JSObject win = (JSObject) webView.getEngine().executeScript("window");
                     win.setMember("app", appInterface);
                     webView.getEngine().executeScript("setIsSetting("+(PreviewController.callBack!=null)+");");
-                    //webView.getScene().getWindow().sizeToScene();
+                    snapshot();
                     try {
                         Files.delete(Paths.get(webView.getEngine().getDocument().getDocumentURI().substring(8)));
                     } catch (IOException e) {
@@ -81,9 +82,10 @@ public class PreviewController {
             }
         });
 
-        ComboBox<Device> previewDevice = new ComboBox<>();
+        previewDevice = new ComboBox<>();
         previewDevice.setItems(FXCollections.observableArrayList(Device.devices));
         previewDevice.setPromptText("Choose a device");
+        previewDevice.getSelectionModel().select(0);
         previewDevice.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Device>() {
             @Override
             public void changed(ObservableValue<? extends Device> observable, Device oldValue, Device newValue) {
@@ -152,6 +154,37 @@ public class PreviewController {
         }
     }
 
+
+
+    public static void snapshot(){
+        new Thread(() -> {
+            try{
+                Thread.sleep(500);
+                Platform.runLater(() -> {
+                    if(snapshotDestination != null && !snapshotDestination.isEmpty()) {
+                        SnapshotParameters snapshotParameters = new SnapshotParameters();
+                        snapshotParameters.setFill(Color.TRANSPARENT);
+                        Image image = webView.snapshot(snapshotParameters, null);
+
+                        File outputFile = new File(snapshotDestination);
+                        if(outputFile.exists()){
+                            outputFile.delete();
+                        }
+                        BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
+                        try {
+                            ImageIO.write(bImage, "png", outputFile);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        snapshotDestination = null;
+                    }
+                });
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
     public class AppInterface {
 
         public void setEelement(Object dom) {
@@ -162,28 +195,6 @@ public class PreviewController {
             }else{
                 System.out.println("Not Element");
             }
-        }
-
-        public void snapshot(){
-            Platform.runLater(() -> {
-                if(snapshotDestination != null && !snapshotDestination.isEmpty()) {
-                    SnapshotParameters snapshotParameters = new SnapshotParameters();
-                    snapshotParameters.setFill(Color.TRANSPARENT);
-                    Image image = webView.snapshot(snapshotParameters, null);
-
-                    File outputFile = new File(snapshotDestination);
-                    if(outputFile.exists()){
-                        outputFile.delete();
-                    }
-                    BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
-                    try {
-                        ImageIO.write(bImage, "png", outputFile);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    snapshotDestination = null;
-                }
-            });
         }
     }
 
@@ -213,7 +224,12 @@ public class PreviewController {
     }
 
     public static void saveSnapshot(String destination) {
+        previewDevice.getSelectionModel().clearSelection();
         snapshotDestination = destination;
-        webView.getEngine().executeScript("snapshot();");
+        previewDevice.getSelectionModel().select(0);
+    }
+
+    public static void updateClickableElements(){
+        webView.getEngine().executeScript("updateClickableElements();");
     }
 }
