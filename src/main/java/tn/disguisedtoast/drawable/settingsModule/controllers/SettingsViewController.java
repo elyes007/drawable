@@ -3,6 +3,7 @@ package tn.disguisedtoast.drawable.settingsModule.controllers;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -12,6 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
+import tn.disguisedtoast.drawable.homeModule.controllers.HomeController;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.models.SupportedComponents;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
@@ -61,19 +63,17 @@ public class SettingsViewController implements Initializable {
         this.saveButton.setDisable(true);
         this.saveButton.setOnAction(event -> currentController.save());
         this.finishButton.setOnAction(event -> {
-            try{
-                PreviewController.saveSnapshot(pageFolder + File.separator + "snapshot.png");
-                JsonObject jsonObject = new JsonParser().parse(new FileReader(pageFolder+"/conf.json")).getAsJsonObject();
-                jsonObject.addProperty("snapshot", "snapshot.png");
-                Files.write(Paths.get(pageFolder+"/conf.json"), new Gson().toJson(jsonObject).getBytes());
-
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/HomeLayout.fxml"));
-                Drawable.globalStage.setScene(new Scene(loader.load()));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            PreviewController.saveSnapshot(pageFolder + File.separator + "snapshot.png", () -> {
+                try{
+                    JsonObject jsonObject = new JsonParser().parse(new FileReader(pageFolder+"/conf.json")).getAsJsonObject();
+                    jsonObject.addProperty("snapshot", "snapshot.png");
+                    Files.write(Paths.get(pageFolder+"/conf.json"), new Gson().toJson(jsonObject).getBytes());
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/HomeLayout.fxml"));
+                    Drawable.globalStage.setScene(new Scene(loader.load()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
         });
     }
 

@@ -60,22 +60,7 @@ public class HomeController implements CamChooserController.CameraButtonCallback
             chooserStage.show();
         });
 
-        //Loading pages
-        pageCellViewControllers = new ArrayList<>();
-        List<Page> pages = loadPages();
-        for (Page page : pages) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/PageCellView.fxml"));
-                Pane pagePane = loader.load();
-                PageCellViewController pageCellViewController = loader.getController();
-                pageCellViewController.setPage(page, pageClickCallback);
-                pageCellViewControllers.add(pageCellViewController);
-
-                pagesPreviewHBox.getChildren().addAll(pagePane);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        refresh();
 
         this.search.setOnKeyReleased(event -> {
             if (this.search.getText().isEmpty()) {
@@ -211,5 +196,24 @@ public class HomeController implements CamChooserController.CameraButtonCallback
             }
         }
         return pages;
+    }
+
+    public void refresh() {
+        pagesPreviewHBox.getChildren().clear();
+        pagesPreviewHBox.getChildren().add(this.addButtonPane);
+        pageCellViewControllers = new ArrayList<>();
+        List<Page> pages = loadPages();
+        for (Page page : pages) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/PageCellView.fxml"));
+                Pane pagePane = loader.load();
+                PageCellViewController pageCellViewController = loader.getController();
+                pageCellViewController.setPage(page, pageClickCallback);
+                pageCellViewControllers.add(pageCellViewController);
+                pagesPreviewHBox.getChildren().addAll(pagePane);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

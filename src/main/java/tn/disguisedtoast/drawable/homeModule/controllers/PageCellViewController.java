@@ -18,10 +18,6 @@ import java.util.ResourceBundle;
 
 public class PageCellViewController implements Initializable {
     @FXML
-    private AnchorPane pageImagePane;
-    @FXML
-    private ImageView pageImage;
-    @FXML
     private Label pageName;
     @FXML
     private BorderPane pagePane;

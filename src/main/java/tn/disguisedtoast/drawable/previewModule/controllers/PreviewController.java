@@ -42,6 +42,7 @@ public class PreviewController {
     private final float BUTTON_SIZE = 20;
     public static Document ionicDocument;
     private static String snapshotDestination;
+    private static SnapshotCallback snapshotCallback;
     private AppInterface appInterface;
 
     private PreviewController() {
@@ -66,7 +67,9 @@ public class PreviewController {
                     JSObject win = (JSObject) webView.getEngine().executeScript("window");
                     win.setMember("app", appInterface);
                     webView.getEngine().executeScript("setIsSetting("+(PreviewController.callBack!=null)+");");
-                    snapshot();
+                    if(snapshotCallback != null) {
+                        snapshot(snapshotCallback);
+                    }
                     try {
                         Files.delete(Paths.get(webView.getEngine().getDocument().getDocumentURI().substring(8)));
                     } catch (IOException e) {
@@ -156,7 +159,7 @@ public class PreviewController {
 
 
 
-    public static void snapshot(){
+    public static void snapshot(SnapshotCallback callback){
         new Thread(() -> {
             try{
                 Thread.sleep(500);
@@ -173,6 +176,7 @@ public class PreviewController {
                         BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
                         try {
                             ImageIO.write(bImage, "png", outputFile);
+                            callback.completed();
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
@@ -223,9 +227,10 @@ public class PreviewController {
         void clicked(GeneratedElement element);
     }
 
-    public static void saveSnapshot(String destination) {
+    public static void saveSnapshot(String destination, SnapshotCallback callback) {
         previewDevice.getSelectionModel().clearSelection();
         snapshotDestination = destination;
+        snapshotCallback = callback;
         previewDevice.getSelectionModel().select(0);
     }
 
