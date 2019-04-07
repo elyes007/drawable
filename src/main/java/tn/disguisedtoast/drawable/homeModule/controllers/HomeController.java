@@ -33,7 +33,7 @@ public class HomeController implements CamChooserController.CameraButtonCallback
     @FXML
     public Button export;
     @FXML
-    private AnchorPane addButtonPane;
+    public AnchorPane addButtonPane;
     @FXML
     private HBox pagesPreviewHBox;
 
@@ -86,20 +86,6 @@ public class HomeController implements CamChooserController.CameraButtonCallback
                 });
             }
         });
-
-        /*pages = new ArrayList<>();
-        imageList.setCellFactory(new PageCellFactory());
-        loadPages();
-        imageList.getItems().addAll(pages);
-
-        this.search.setOnKeyReleased(event -> {
-            List<Page> subPages = pages.stream().filter(page -> page.getName().contains(this.search.getText())).collect(Collectors.toList());
-            System.out.println(subPages);
-            Platform.runLater(() -> {
-                imageList.getItems().clear();
-                imageList.getItems().addAll(subPages);
-            });
-        });*/
     }
 
     @Override
@@ -208,7 +194,7 @@ public class HomeController implements CamChooserController.CameraButtonCallback
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/PageCellView.fxml"));
                 Pane pagePane = loader.load();
                 PageCellViewController pageCellViewController = loader.getController();
-                pageCellViewController.setPage(page, pageClickCallback);
+                pageCellViewController.setPage(page, pageClickCallback, this);
                 pageCellViewControllers.add(pageCellViewController);
                 pagesPreviewHBox.getChildren().addAll(pagePane);
             } catch (IOException e) {

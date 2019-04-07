@@ -6,14 +6,17 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import org.apache.commons.io.FileUtils;
 import tn.disguisedtoast.drawable.homeModule.models.Page;
 import tn.disguisedtoast.drawable.utils.ImageViewPane;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
 public class PageCellViewController implements Initializable {
@@ -24,9 +27,10 @@ public class PageCellViewController implements Initializable {
     @FXML
     private Button deleteButton;
 
-
+    private ImageViewPane imageViewPane;
+    private ImageView imageView;
+    private HomeController homeController;
     private Page page;
-    private String pagesPath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages";
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -38,85 +42,35 @@ public class PageCellViewController implements Initializable {
 
         });
         this.deleteButton.setOnMouseClicked(event -> {
-            Page pageToDelete = new Page();
+            Pane parent = (Pane) this.pagePane.getParent();
+            parent.getChildren().clear();
 
-            System.out.println(page.getName());
-            File files = new File(pagesPath + "/" + pageName.getText());
+            //Detaching image
+            this.imageViewPane.setImageView(null);
+            this.imageViewPane = null;
+            this.imageView.setImage(null);
+            this.imageView = null;
+            this.page.setImage(null);
+            System.gc();
 
-            // File folder = new File();
-            String[] entries = files.list();
-            for (String s : entries) {
-                File currentFile = new File(files.getPath(), s);
-                currentFile.delete();
+            Path path = Paths.get(this.page.getFolderName());
+            try {
+                FileUtils.deleteDirectory(new File(path.toUri()));
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-
-
-               /* FileInputStream imagePath = null;
-                try {
-                    imagePath = new FileInputStream(pagesPath+"\\"+pageName.getText()+"\\"+"snapshot.png");
-
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                try {
-
-                    imagePath.close();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                try {
-                    Files.delete(Paths.get(pagesPath+"\\"+pageName.getText()+"\\"+"snapshot.png"));
-                } catch (NoSuchFileException x) {
-                    System.err.format("%s: no such" + " file or directory%n", pagesPath+"\\"+pageName.getText()+"\\"+"snapshot.png");
-                } catch (DirectoryNotEmptyException x) {
-                    System.err.format("%s not empty%n", pagesPath+"\\"+pageName.getText()+"/snapshot.png");
-                } catch (IOException x) {
-                    // File permission problems are caught here.
-                    System.err.println(x);
-                }*/
-
-
+            homeController.refresh();
         });
 
     }
 
-    public static boolean deleteDir(File dir) {
-        if (dir.isDirectory()) {
-            String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    return false;
-                }
-            }
-        }
-        return dir.delete();
-    }
-
-    /*public  void deleteFolder(File folder) {
-        File[] files = folder.listFiles();
-        if(files!=null) { //some JVMs return null for empty dirs
-            for(File f: files) {
-                if(f.isDirectory()) {
-                    deleteFolder(f);
-                } else {
-                    f.delete();
-                }
-            }
-        }
-        folder.delete();
-    }*/
-
-
-    public void setPage(Page page, PageClickCallback callback) {
+    public void setPage(Page page, PageClickCallback callback, HomeController homeController) {
         this.page = page;
+        this.homeController = homeController;
 
-        ImageView imageView = new ImageView(page.getImage());
+        imageView = new ImageView(page.getImage());
         imageView.setPreserveRatio(true);
-        ImageViewPane imageViewPane = new ImageViewPane(imageView);
+        imageViewPane = new ImageViewPane(imageView);
 
         pagePane.setCenter(imageViewPane);
 
