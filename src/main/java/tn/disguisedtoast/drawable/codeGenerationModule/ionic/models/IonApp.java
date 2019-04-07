@@ -8,17 +8,19 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(propOrder = {"header", "content", "tabs"})
 public class IonApp {
 
-    private IonHeader header;
+    private IonHeader header = new IonHeader();
     private IonContent content;
     private IonTabs tabs;
 
     public IonApp() {
-        header = new IonHeader();
     }
 
     public IonApp(IonContent ionContent) {
-        header = new IonHeader();
         this.content = ionContent;
+    }
+
+    public IonApp(IonTabs ionTabs) {
+        this.tabs = ionTabs;
     }
 
     @XmlElement(name = "ion-header")

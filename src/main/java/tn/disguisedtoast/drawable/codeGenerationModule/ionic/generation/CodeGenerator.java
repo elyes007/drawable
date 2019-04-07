@@ -3,8 +3,8 @@ package tn.disguisedtoast.drawable.codeGenerationModule.ionic.generation;
 import org.apache.commons.io.FileUtils;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.*;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.FailedToCreateHtmlFromIonApp;
+import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.MissingFramesException;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.NoDetectedObjects;
-import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.NoFramesDetected;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -19,46 +19,101 @@ import java.util.Locale;
 
 public class CodeGenerator {
 
-    public static IonApp parse(List<DetectedObject> detectedObjects) throws NoDetectedObjects, NoFramesDetected, FailedToCreateHtmlFromIonApp {
-        if (detectedObjects == null || detectedObjects.isEmpty()) {
+    public static IonApp parse(List<DetectedObject> detectedObjects) throws NoDetectedObjects, MissingFramesException, FailedToCreateHtmlFromIonApp {
+
+        List<List<DetectedObject>> tabs = partition(detectedObjects);
+
+        List<List<IonView>> viewsList = new ArrayList<>();
+        for (List<DetectedObject> tab : tabs) {
+            DetectedObject topFrame = tab.get(0);
+            DetectedObject bottomFrame = tab.get(1);
+            if (bottomFrame.getClasse() != DetectedObject.FRAME) {
+                //tab.remove(0);
+                //return parseWithSingleFrame(topFrame, objects);
+                throw new MissingFramesException("Only one frame detected");
+            } else {
+                tab.remove(0); //remove topFrame
+                tab.remove(0); //remove bottomFrame after index shift
+                viewsList.add(parseWithDoubleFrames(topFrame, bottomFrame, tab));
+            }
+        }
+
+        if (viewsList.size() > 1) {
+            return buildTabLayout(viewsList);
+        }
+        return buildContentLayout(viewsList.get(0));
+    }
+
+    private static List<List<DetectedObject>> partition(List<DetectedObject> objectList) throws NoDetectedObjects, MissingFramesException {
+        if (objectList == null || objectList.isEmpty()) {
             throw new NoDetectedObjects("No detected objects");
         }
-        //find frame and remove it from list
+
+        //separate frames from other objects
         List<DetectedObject> frames = new ArrayList<>();
         List<DetectedObject> objects = new ArrayList<>();
-        for (DetectedObject object : detectedObjects) {
+        for (DetectedObject object : objectList) {
             if (object.getClasse() == DetectedObject.FRAME) {
                 frames.add(object);
             } else {
                 objects.add(object);
             }
         }
+
+        //test for exceptions
         if (frames.isEmpty()) {
-            throw new NoFramesDetected("No frames detected");
+            throw new MissingFramesException("No frames detected");
         }
         if (objects.isEmpty()) {
             throw new NoDetectedObjects("No detected objects inside frames");
         }
 
-        DetectedObject topFrame = frames.get(0);
-        DetectedObject bottomFrame = frames.get(0);
-        for (DetectedObject object : frames) {
-            if (object.getBox().getyMin() < topFrame.getBox().getyMin()) {
-                topFrame = object;
+        List<List<DetectedObject>> tabs = new ArrayList<>();
+
+        //pair up frames
+        while (!frames.isEmpty()) {
+            List<DetectedObject> tab = new ArrayList<>();
+            DetectedObject frame1 = frames.remove(0);
+            tab.add(frame1);
+            for (int i = 0; i < frames.size(); i++) {
+                DetectedObject frame2 = frames.get(i);
+                double centerX = (frame2.getBox().getxMin() + frame2.getBox().getxMax()) / 2;
+                if (centerX >= frame1.getBox().getxMin() && centerX <= frame1.getBox().getxMax()) {
+                    tab.add(frame2);
+                    frames.remove(i);
+                }
             }
-            if (object.getBox().getyMin() > bottomFrame.getBox().getyMin()) {
-                bottomFrame = object;
+            tab.sort((o1, o2) -> o1.getBox().getyMin() < o2.getBox().getyMin() ? -1 : 1);
+            tabs.add(tab);
+        }
+
+        //add objects to each tab
+        for (List<DetectedObject> tab : tabs) {
+            DetectedObject frame = tab.get(0);
+            for (int i = 0; i < objects.size(); i++) {
+                DetectedObject object = objects.get(i);
+                double centerX = (object.getBox().getxMin() + object.getBox().getxMax()) / 2;
+                if (centerX >= frame.getBox().getxMin() && centerX <= frame.getBox().getxMax()) {
+                    tab.add(object);
+                    objects.remove(i);
+                    i--;
+                }
             }
         }
-        if (topFrame == bottomFrame) {
-            //return parseWithSingleFrame(topFrame, objects);
-            throw new NoFramesDetected("Only one frame detected");
-        } else {
-            return parseWithDoubleFrames(topFrame, bottomFrame, objects);
+
+        //remove empty tabs
+        for (int i = 0; i < tabs.size(); i++) {
+            List<DetectedObject> tab = tabs.get(i);
+            if (tab.size() == 1 || tab.size() == 2 && tab.get(1).getClasse() == DetectedObject.FRAME) {
+                tabs.remove(i);
+                i--;
+            }
         }
+
+        return tabs;
     }
 
-    private static IonApp parseWithDoubleFrames(DetectedObject topFrame, DetectedObject bottomFrame, List<DetectedObject> objects) throws FailedToCreateHtmlFromIonApp {
+    private static List<IonView> parseWithDoubleFrames(DetectedObject topFrame, DetectedObject bottomFrame, List<DetectedObject> objects) throws FailedToCreateHtmlFromIonApp {
         List<IonView> views = new ArrayList<>();
         int i = 1;
         int j = 1;
@@ -97,7 +152,7 @@ public class CodeGenerator {
             views.add(view);
         }
 
-        return buildLayout(views);
+        return views;
     }
 
     private static IonView getViewInstance(DetectedObject object) {
@@ -112,7 +167,40 @@ public class CodeGenerator {
         return null;
     }
 
-    private static IonApp buildLayout(List<IonView> views) {
+    private static IonApp buildContentLayout(List<IonView> views) {
+        return new IonApp(getContent(views));
+    }
+
+    private static IonApp buildTabLayout(List<List<IonView>> tabs) {
+        IonTabs ionTabs = new IonTabs();
+
+        int i = 1;
+        for (List<IonView> tab : tabs) {
+            IonTab ionTab = new IonTab();
+            ionTab.setTab("tab" + i);
+
+            IonTabButton tabButton = new IonTabButton();
+            tabButton.setTab(ionTab.getTab());
+            tabButton.setLabel("Tab " + i);
+            tabButton.setIcon(new IonIcon(IonIcon.names.get(i - 1)));
+
+            IonContent content = getContent(tab);
+
+            ionTab.setButtons(content.getButtons());
+            ionTab.setImages(content.getImages());
+            ionTab.setItems(content.getItems());
+            ionTab.setLabels(content.getLabels());
+
+            ionTabs.getTabs().add(ionTab);
+            ionTabs.getTabBar().getTabButtons().add(tabButton);
+
+            i++;
+        }
+
+        return new IonApp(ionTabs);
+    }
+
+    private static IonContent getContent(List<IonView> views) {
         IonContent ionContent = new IonContent();
 
         for (IonView view : views) {
@@ -135,7 +223,7 @@ public class CodeGenerator {
                 ionContent.getItems().add((IonItem) view);
             }
         }
-        return new IonApp(ionContent);
+        return ionContent;
     }
 
     public static String generateTempHtml(IonApp app) throws JAXBException, IOException, URISyntaxException {

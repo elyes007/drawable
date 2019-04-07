@@ -13,7 +13,7 @@ public class IonTabs {
 
     private String style = "position: relative;";
     private List<IonTab> tabs = new ArrayList<>();
-    private IonTabBar tabBar;
+    private IonTabBar tabBar = new IonTabBar();
 
     @XmlAttribute(name = "style")
     public String getStyle() {
