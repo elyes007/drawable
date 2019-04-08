@@ -153,7 +153,7 @@ public class CodeGenerator {
             IonView view = getViewInstance(object);
             if (view == null) continue;
             if (view instanceof IonButton) {
-                view.setId("Button " + j);
+                view.setId("Button" + j);
                 ((IonButton) view).setText("Button " + j);
                 j++;
             }
@@ -193,7 +193,7 @@ public class CodeGenerator {
             case DetectedObject.IMAGE:
                 return new IonImg();
             case DetectedObject.EditText:
-                return new IonItem();
+                return new IonItem(new IonLabel(), new IonInput());
         }
         return null;
     }
@@ -258,7 +258,6 @@ public class CodeGenerator {
     }
 
     public static String generateTempHtml(IonApp app) throws JAXBException, IOException, URISyntaxException {
-        app.getHeader().getToolbar().setTitle("Page");
 
         //serializing IonApp to string
         JAXBContext jc = JAXBContext.newInstance(IonApp.class);
@@ -273,8 +272,6 @@ public class CodeGenerator {
         String tempPath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages\\temp\\";
         File htmlTemplateFile = new File(CodeGenerator.class.getResource("/codeGenerationModule/template.html").toURI());
         String htmlString = FileUtils.readFileToString(htmlTemplateFile);
-        String title = app.getHeader().getToolbar().getTitle();
-        htmlString = htmlString.replace("$title", title);
         htmlString = htmlString.replace("$body", body);
 
         //writing html file
