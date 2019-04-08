@@ -5,19 +5,22 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "ion-app")
-@XmlType(propOrder = {"header", "content"})
+@XmlType(propOrder = {"header", "content", "tabs"})
 public class IonApp {
 
-    private IonHeader header;
+    private IonHeader header = new IonHeader();
     private IonContent content;
+    private IonTabs tabs;
 
     public IonApp() {
-        header = new IonHeader();
     }
 
     public IonApp(IonContent ionContent) {
-        header = new IonHeader();
         this.content = ionContent;
+    }
+
+    public IonApp(IonTabs ionTabs) {
+        this.tabs = ionTabs;
     }
 
     @XmlElement(name = "ion-header")
@@ -36,5 +39,14 @@ public class IonApp {
 
     public void setContent(IonContent content) {
         this.content = content;
+    }
+
+    @XmlElement(name = "ion-tabs")
+    public IonTabs getTabs() {
+        return tabs;
+    }
+
+    public void setTabs(IonTabs tabs) {
+        this.tabs = tabs;
     }
 }

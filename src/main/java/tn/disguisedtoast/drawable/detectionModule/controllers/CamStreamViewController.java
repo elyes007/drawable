@@ -13,9 +13,8 @@ import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.generation.CodeGenerator;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.DetectedObject;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.IonApp;
-import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.FailedToCreateHtmlFromIonApp;
+import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.MissingFramesException;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.NoDetectedObjects;
-import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.NoFramesDetected;
 import tn.disguisedtoast.drawable.codeGenerationModule.shapeDetection.ShapeDetectionService;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
@@ -54,7 +53,7 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
                 PreviewController.refreshForCamStream();
 
                 retry();
-            } catch (NoDetectedObjects | NoFramesDetected e) {
+            } catch (NoDetectedObjects | MissingFramesException e) {
                 e.printStackTrace();
                 System.out.println("creating file failed");
                 retry();
@@ -65,8 +64,6 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-            } catch (FailedToCreateHtmlFromIonApp failedToCreateHtmlFromIonApp) {
-                failedToCreateHtmlFromIonApp.printStackTrace();
             }
         }
     };
