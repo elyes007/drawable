@@ -17,18 +17,16 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.paint.Color;
 import org.eclipse.jgit.util.StringUtils;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
+import org.w3c.dom.Node;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.models.SupportedComponents;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
 import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.FacebookLoginSettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.GoogleLoginSettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.NavigationSettingsViewController;
-import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
-import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
-import tn.disguisedtoast.drawable.settingsModule.utils.DomUtils;
-import tn.disguisedtoast.drawable.settingsModule.utils.FxUtils;
+import tn.disguisedtoast.drawable.settingsModule.models.IonIcon;
+import tn.disguisedtoast.drawable.settingsModule.utils.*;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -55,12 +53,12 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
     @FXML public ToggleButton italicButton;
     @FXML public ToggleButton underlinedButton;
     @FXML public Label fontColorPane;
-    @FXML public TextField iconName;
     @FXML public ToggleButton leftSlot;
     @FXML public ToggleButton rightSlot;
     @FXML public ToggleButton iconOnlySlot;
     @FXML public Slider horizontalPosition;
     @FXML public Slider verticalPosition;
+    @FXML public ComboBox icon;
 
     public CustomColorPicker textColor;
     public CustomColorPicker backgroundColor;
@@ -72,7 +70,6 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
     private String[] fills = {"Solid", "Outline", "Clear", "None"};
     private String[] actions = {"Select an action", "Navigation", "Login Facebook", "Login Google"};
     private GeneratedElement button;
-    private GeneratedElement iconElement;
     private SettingsControllerInterface settingsControllerInterface;
 
     @Override
@@ -137,21 +134,13 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
         this.textColor.setTooltip(new Tooltip("Select font color."));
         this.fontColorPane.setGraphic(this.textColor);
 
-        this.textValue.setOnKeyReleased(event -> {
-            if(this.textValue.getText().isEmpty()) {
-                this.leftSlot.setDisable(true);
-                this.rightSlot.setDisable(true);
-                this.iconOnlySlot.setDisable(false);
+        this.textValue.textProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue.isEmpty()) {
                 this.iconOnlySlot.setSelected(true);
-            } else {
-                this.rightSlot.setDisable(false);
-                this.leftSlot.setDisable(false);
-                this.iconOnlySlot.setDisable(true);
-                if(iconElement.getElement().attr("slot").equals("end")) {
-                    this.rightSlot.setSelected(true);
-                }else{
-                    this.leftSlot.setSelected(true);
-                }
+                this.leftSlot.setSelected(false);
+                this.rightSlot.setSelected(false);
+            } else if(this.iconOnlySlot.isSelected()) {
+                this.leftSlot.setSelected(true);
             }
             ((TextNode)this.button.getElement().childNodes().get(this.button.getElement().childNodeSize()-1)).text(this.textValue.getText());
             this.button.getDomElement().getLastChild().setTextContent(this.textValue.getText());
@@ -301,16 +290,42 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
     }
 
     private void initIcon() {
+        icon.setButtonCell(new IconComboboxCell());
+        icon.setCellFactory(param -> new IconComboboxCell());
+        icon.getItems().addAll(IonIcon.ionIcons);
+        icon.setPromptText("Select an icon");
 
-        this.iconName.setOnAction(event -> {
-            iconElement.getElement().attr("name", this.iconName.getText());
-            iconElement.getDomElement().setAttribute("name", this.iconName.getText());
-        });
+        icon.setOnAction(event -> {
+            Element ionIcon = button.getElement().selectFirst(SupportedComponents.ION_ICON.toString());
+            if(ionIcon != null){
+                ionIcon.remove();
+                button.getDomElement().removeChild(button.getDomElement().getElementsByTagName(SupportedComponents.ION_ICON.toString().toUpperCase()).item(0));
+            }
+            if(!((IonIcon)icon.getValue()).getName().equals("None")){
+                this.leftSlot.setDisable(false);
+                this.rightSlot.setDisable(false);
+                this.iconOnlySlot.setDisable(false);
 
-        this.iconName.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if(!newValue) {
-                iconElement.getElement().attr("name", this.iconName.getText());
-                iconElement.getDomElement().setAttribute("name", this.iconName.getText());
+                ionIcon = new Element(SupportedComponents.ION_ICON.toString());
+                ionIcon.attr("slot", "start");
+                ionIcon.attr("name", ((IonIcon)icon.getValue()).getName());
+
+                org.w3c.dom.Element ionIconElement = button.getDomElement().getOwnerDocument().createElement(SupportedComponents.ION_ICON.toString().toUpperCase());
+                ionIconElement.setAttribute("slot", "start");
+                ionIconElement.setAttribute("name", ((IonIcon)icon.getValue()).getName());
+
+                button.getElement().insertChildren(0, ionIcon);
+                button.getDomElement().insertBefore(ionIconElement, button.getDomElement().getLastChild());
+
+                this.leftSlot.setSelected(true);
+            }else {
+                this.leftSlot.setSelected(false);
+                this.rightSlot.setSelected(false);
+                this.iconOnlySlot.setSelected(false);
+
+                this.leftSlot.setDisable(true);
+                this.rightSlot.setDisable(true);
+                this.iconOnlySlot.setDisable(true);
             }
         });
 
@@ -318,8 +333,16 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
             if(newValue) {
                 this.rightSlot.setSelected(false);
                 this.iconOnlySlot.setSelected(false);
-                iconElement.getElement().attr("slot", "start");
-                iconElement.getDomElement().setAttribute("slot", "start");
+                Element ionElement = this.button.getElement().selectFirst(SupportedComponents.ION_ICON.toString());
+                if(ionElement != null){
+                    ionElement.attr("slot", "start");
+                    ((org.w3c.dom.Element)this.button.getDomElement().getElementsByTagName(SupportedComponents.ION_ICON.toString().toUpperCase()).item(0)).setAttribute("slot", "start");
+                }
+                if(this.textValue.getText().isEmpty()) {
+                    this.textValue.setText("Button");
+                }
+            } else if(!this.rightSlot.isSelected() && !this.iconOnlySlot.isSelected()) {
+                this.leftSlot.setSelected(true);
             }
         });
 
@@ -327,8 +350,16 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
             if(newValue) {
                 this.leftSlot.setSelected(false);
                 this.iconOnlySlot.setSelected(false);
-                iconElement.getElement().attr("slot", "end");
-                iconElement.getDomElement().setAttribute("slot", "end");
+                Element ionElement = this.button.getElement().selectFirst(SupportedComponents.ION_ICON.toString());
+                if(ionElement != null){
+                    ionElement.attr("slot", "end");
+                    ((org.w3c.dom.Element)this.button.getDomElement().getElementsByTagName(SupportedComponents.ION_ICON.toString().toUpperCase()).item(0)).setAttribute("slot", "end");
+                }
+                if(this.textValue.getText().isEmpty()) {
+                    this.textValue.setText("Button");
+                }
+            } else if(!this.leftSlot.isSelected() && !this.iconOnlySlot.isSelected()) {
+                this.rightSlot.setSelected(true);
             }
         });
 
@@ -336,8 +367,14 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
             if(newValue) {
                 this.leftSlot.setSelected(false);
                 this.rightSlot.setSelected(false);
-                iconElement.getElement().attr("slot", "icon-only");
-                this.button.getDomElement().setAttribute("slot", "icon-only");
+                Element ionElement = this.button.getElement().selectFirst(SupportedComponents.ION_ICON.toString());
+                if(ionElement != null) {
+                    ionElement.attr("slot", "icon-only");
+                    ((org.w3c.dom.Element)this.button.getDomElement().getElementsByTagName(SupportedComponents.ION_ICON.toString().toUpperCase()).item(0)).setAttribute("slot", "icon-only");
+                    this.textValue.setText("");
+                }
+            }else if(!this.leftSlot.isSelected() && !this.rightSlot.isSelected()) {
+                    this.iconOnlySlot.setSelected(true);
             }
         });
     }
@@ -385,7 +422,7 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
         } else {
             this.rightSlot.setDisable(false);
             this.leftSlot.setDisable(false);
-            this.iconOnlySlot.setDisable(true);
+            this.iconOnlySlot.setDisable(false);
         }
 
         getButtonFontSize();
@@ -493,14 +530,14 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
     private void getButtonIcon() {
         Element iconJsoupElement = this.button.getElement().selectFirst(SupportedComponents.ION_ICON.toString());
         if(iconJsoupElement != null) {
-            iconElement = new GeneratedElement(iconJsoupElement,
-                    (org.w3c.dom.Element) DomUtils.getChildNode(SupportedComponents.ION_ICON.toString().toUpperCase(), this.button.getDomElement()));
-            this.iconName.setText(iconElement.getElement().attr("name"));
-            if(!iconElement.getElement().hasAttr("slot") || iconElement.getElement().attr("slot").equals("start")) {
+            String iconName = iconJsoupElement.attr("name");
+            this.icon.getSelectionModel().select(new IonIcon(iconName));
+
+            if(!iconJsoupElement.hasAttr("slot") || iconJsoupElement.attr("slot").equals("start")) {
                 this.leftSlot.setSelected(true);
                 this.rightSlot.setSelected(false);
                 this.iconOnlySlot.setSelected(false);
-            }else if(iconElement.getElement().attr("slot").equals("right")) {
+            }else if(iconJsoupElement.attr("slot").equals("right")) {
                 this.rightSlot.setSelected(true);
                 this.leftSlot.setSelected(false);
                 this.iconOnlySlot.setSelected(false);
@@ -509,6 +546,10 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
                 this.rightSlot.setSelected(false);
                 this.leftSlot.setSelected(false);
             }
+        }else {
+            this.leftSlot.setDisable(true);
+            this.rightSlot.setDisable(true);
+            this.iconOnlySlot.setDisable(true);
         }
     }
 

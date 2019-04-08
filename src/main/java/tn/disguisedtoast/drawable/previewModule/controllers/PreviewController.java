@@ -11,6 +11,8 @@ import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebView;
@@ -27,6 +29,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,11 +39,13 @@ public class PreviewController {
     private static PreviewCallBack callBack;
     private static VBox root;
     private static WebView webView;
+    private static ComboBox<Device> previewDevice;
     private static String url;
 
     private final float BUTTON_SIZE = 20;
     public static Document ionicDocument;
     private static String snapshotDestination;
+    private static SnapshotCallback snapshotCallback;
     private AppInterface appInterface;
 
     private PreviewController() {
@@ -65,7 +70,9 @@ public class PreviewController {
                     JSObject win = (JSObject) webView.getEngine().executeScript("window");
                     win.setMember("app", appInterface);
                     webView.getEngine().executeScript("setIsSetting("+(PreviewController.callBack!=null)+");");
-                    //webView.getScene().getWindow().sizeToScene();
+                    if(snapshotCallback != null) {
+                        snapshot(snapshotCallback);
+                    }
                     try {
                         Files.delete(Paths.get(webView.getEngine().getDocument().getDocumentURI().substring(8)));
                     } catch (IOException e) {
@@ -81,7 +88,14 @@ public class PreviewController {
             }
         });
 
-        ComboBox<Device> previewDevice = new ComboBox<>();
+        AnchorPane pane = new AnchorPane();
+        ImageView skinImageView = new ImageView();
+
+        pane.getChildren().add(webView);
+        pane.getChildren().add(skinImageView);
+
+
+        previewDevice = new ComboBox<>();
         previewDevice.setItems(FXCollections.observableArrayList(Device.devices));
         previewDevice.setPromptText("Choose a device");
         previewDevice.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Device>() {
@@ -95,17 +109,30 @@ public class PreviewController {
                     root.setPrefHeight(previewHeight + BUTTON_SIZE);
                     root.setPrefWidth(previewWidth);
 
-                    webView.setPrefHeight(previewHeight + BUTTON_SIZE);
-                    webView.setPrefWidth(previewWidth);
+                    pane.setPrefHeight(previewHeight + BUTTON_SIZE);
+                    pane.setPrefWidth(previewWidth);
 
                     webView.getEngine().setUserAgent(newValue.getUserAgent());
+                    AnchorPane.setTopAnchor(webView, previewHeight * (newValue.getSkin().getMargins().getTop() / newValue.getHeight()));
+                    AnchorPane.setRightAnchor(webView, previewWidth * (newValue.getSkin().getMargins().getRight() / newValue.getWidth()));
+                    AnchorPane.setBottomAnchor(webView, previewHeight * (newValue.getSkin().getMargins().getBottom() / newValue.getHeight()));
+                    AnchorPane.setLeftAnchor(webView, previewWidth * (newValue.getSkin().getMargins().getLeft() / newValue.getWidth()));
+
+                    try {
+                        skinImageView.setImage(new Image(getClass().getResource("/drawable/skins/" + newValue.getSkin().getImageName()).toURI().toString()));
+                        skinImageView.setFitHeight(previewHeight);
+                        skinImageView.setFitWidth(previewWidth);
+                    } catch (URISyntaxException e) {
+                        e.printStackTrace();
+                    }
                     refresh();
                 }
             }
         });
+        previewDevice.getSelectionModel().select(0);
 
         root.getChildren().add(previewDevice);
-        root.getChildren().add(webView);
+        root.getChildren().add(pane);
     }
 
     public static Node getView(String url, PreviewCallBack callBack) {
@@ -152,6 +179,38 @@ public class PreviewController {
         }
     }
 
+
+
+    public static void snapshot(SnapshotCallback callback){
+        new Thread(() -> {
+            try{
+                Thread.sleep(500);
+                Platform.runLater(() -> {
+                    if(snapshotDestination != null && !snapshotDestination.isEmpty()) {
+                        SnapshotParameters snapshotParameters = new SnapshotParameters();
+                        snapshotParameters.setFill(Color.TRANSPARENT);
+                        Image image = webView.snapshot(snapshotParameters, null);
+
+                        File outputFile = new File(snapshotDestination);
+                        if(outputFile.exists()){
+                            outputFile.delete();
+                        }
+                        BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
+                        try {
+                            ImageIO.write(bImage, "png", outputFile);
+                            callback.completed();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        snapshotDestination = null;
+                    }
+                });
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
     public class AppInterface {
 
         public void setEelement(Object dom) {
@@ -162,28 +221,6 @@ public class PreviewController {
             }else{
                 System.out.println("Not Element");
             }
-        }
-
-        public void snapshot(){
-            Platform.runLater(() -> {
-                if(snapshotDestination != null && !snapshotDestination.isEmpty()) {
-                    SnapshotParameters snapshotParameters = new SnapshotParameters();
-                    snapshotParameters.setFill(Color.TRANSPARENT);
-                    Image image = webView.snapshot(snapshotParameters, null);
-
-                    File outputFile = new File(snapshotDestination);
-                    if(outputFile.exists()){
-                        outputFile.delete();
-                    }
-                    BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
-                    try {
-                        ImageIO.write(bImage, "png", outputFile);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    snapshotDestination = null;
-                }
-            });
         }
     }
 
@@ -212,8 +249,14 @@ public class PreviewController {
         void clicked(GeneratedElement element);
     }
 
-    public static void saveSnapshot(String destination) {
+    public static void saveSnapshot(String destination, SnapshotCallback callback) {
+        previewDevice.getSelectionModel().clearSelection();
         snapshotDestination = destination;
-        webView.getEngine().executeScript("snapshot();");
+        snapshotCallback = callback;
+        previewDevice.getSelectionModel().select(0);
+    }
+
+    public static void updateClickableElements(){
+        webView.getEngine().executeScript("updateClickableElements();");
     }
 }
