@@ -39,7 +39,6 @@ public class PageCellViewController implements Initializable {
         });
         this.pagePane.setOnMouseExited(event -> {
             this.deleteButton.setVisible(false);
-
         });
         this.deleteButton.setOnMouseClicked(event -> {
             Pane parent = (Pane) this.pagePane.getParent();

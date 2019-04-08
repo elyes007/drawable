@@ -15,10 +15,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.detectionModule.controllers.CamChooserController;
 import tn.disguisedtoast.drawable.detectionModule.controllers.CamStreamViewController;
 import tn.disguisedtoast.drawable.homeModule.models.Page;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
+import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 
 import java.io.*;
 import java.net.URL;
@@ -42,14 +44,23 @@ public class HomeController implements CamChooserController.CameraButtonCallback
     private String pagesPath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages";
 
     private PageCellViewController.PageClickCallback pageClickCallback = page -> {
-        SettingsViewController.showStage(page.getFolderName());
+        try {
+            EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
+            FXMLLoader loader = new FXMLLoader(SettingsViewController.class.getResource("/layouts/settingsViews/SettingsView.fxml"));
+            EveryWhereLoader.getInstance().stopLoader(loader.load());
+            SettingsViewController controller = loader.getController();
+            controller.init(page.getFolderName());
+        } catch (IOException e) {
+            e.printStackTrace();
+            EveryWhereLoader.getInstance().stopLoader(null);
+        }
     };
     private Stage chooserStage;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         ((Button) this.addButtonPane.getChildren().get(0)).setOnAction(event -> {
-            System.out.println("new");
+            EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
             chooserStage = new Stage();
             chooserStage.setTitle("Camera Chooser");
             chooserStage.setScene(new Scene(new CamChooserController(this).getRoot()));
@@ -58,6 +69,7 @@ public class HomeController implements CamChooserController.CameraButtonCallback
             chooserStage.setResizable(false);
             chooserStage.centerOnScreen();
             chooserStage.show();
+            EveryWhereLoader.getInstance().stopLoader(null);
         });
 
         refresh();
@@ -93,10 +105,11 @@ public class HomeController implements CamChooserController.CameraButtonCallback
         chooserStage.close();
         if (webcamIndex != -1) {
             try {
+                EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
                 FXMLLoader loader = new FXMLLoader();
                 loader.setLocation(getClass().getResource("/layouts/detectionViews/CamStreamView.fxml"));
-                loader.load();
                 loader.getLocation().openStream();
+                EveryWhereLoader.getInstance().stopLoader(loader.load());
                 CamStreamViewController controller = loader.getController();
                 controller.init(webcamIndex);
             } catch (IOException e) {

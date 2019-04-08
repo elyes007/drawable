@@ -11,6 +11,8 @@ import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebView;
@@ -27,6 +29,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -85,10 +88,16 @@ public class PreviewController {
             }
         });
 
+        AnchorPane pane = new AnchorPane();
+        ImageView skinImageView = new ImageView();
+
+        pane.getChildren().add(webView);
+        pane.getChildren().add(skinImageView);
+
+
         previewDevice = new ComboBox<>();
         previewDevice.setItems(FXCollections.observableArrayList(Device.devices));
         previewDevice.setPromptText("Choose a device");
-        previewDevice.getSelectionModel().select(0);
         previewDevice.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Device>() {
             @Override
             public void changed(ObservableValue<? extends Device> observable, Device oldValue, Device newValue) {
@@ -100,17 +109,30 @@ public class PreviewController {
                     root.setPrefHeight(previewHeight + BUTTON_SIZE);
                     root.setPrefWidth(previewWidth);
 
-                    webView.setPrefHeight(previewHeight + BUTTON_SIZE);
-                    webView.setPrefWidth(previewWidth);
+                    pane.setPrefHeight(previewHeight + BUTTON_SIZE);
+                    pane.setPrefWidth(previewWidth);
 
                     webView.getEngine().setUserAgent(newValue.getUserAgent());
+                    AnchorPane.setTopAnchor(webView, previewHeight * (newValue.getSkin().getMargins().getTop() / newValue.getHeight()));
+                    AnchorPane.setRightAnchor(webView, previewWidth * (newValue.getSkin().getMargins().getRight() / newValue.getWidth()));
+                    AnchorPane.setBottomAnchor(webView, previewHeight * (newValue.getSkin().getMargins().getBottom() / newValue.getHeight()));
+                    AnchorPane.setLeftAnchor(webView, previewWidth * (newValue.getSkin().getMargins().getLeft() / newValue.getWidth()));
+
+                    try {
+                        skinImageView.setImage(new Image(getClass().getResource("/drawable/skins/" + newValue.getSkin().getImageName()).toURI().toString()));
+                        skinImageView.setFitHeight(previewHeight);
+                        skinImageView.setFitWidth(previewWidth);
+                    } catch (URISyntaxException e) {
+                        e.printStackTrace();
+                    }
                     refresh();
                 }
             }
         });
+        previewDevice.getSelectionModel().select(0);
 
         root.getChildren().add(previewDevice);
-        root.getChildren().add(webView);
+        root.getChildren().add(pane);
     }
 
     public static Node getView(String url, PreviewCallBack callBack) {

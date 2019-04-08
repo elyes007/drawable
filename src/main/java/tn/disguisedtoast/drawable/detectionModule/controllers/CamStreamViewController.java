@@ -20,6 +20,7 @@ import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.N
 import tn.disguisedtoast.drawable.codeGenerationModule.shapeDetection.ShapeDetectionService;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
+import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -96,15 +97,11 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        root.setPrefWidth(Drawable.width);
-        root.setPrefHeight(Drawable.height);
     }
 
     public void init(int camIndex) {
         setWebCamHolder(camIndex);
         setPreviewHolder();
-        Drawable.globalStage.setScene(new Scene(root));
-        Drawable.globalStage.setMaximized(true);
     }
 
     //used to call webcamstream into preview holder
@@ -166,8 +163,16 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
             webCamController.setShoudUpload(false);
             webCamController.stopWebCamCamera();
             String folderName = CodeGenerator.generatePageFolder(ionApp);
-            System.out.println(folderName);
-            SettingsViewController.showStage(folderName);
+            try {
+                EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
+                FXMLLoader loader = new FXMLLoader(SettingsViewController.class.getResource("/layouts/settingsViews/SettingsView.fxml"));
+                EveryWhereLoader.getInstance().stopLoader(loader.load());
+                SettingsViewController controller = loader.getController();
+                controller.init(folderName);
+            } catch (IOException e) {
+                e.printStackTrace();
+                EveryWhereLoader.getInstance().stopLoader(null);
+            }
         } catch (JAXBException | URISyntaxException | IOException e) {
             e.printStackTrace();
         }
