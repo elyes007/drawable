@@ -14,7 +14,6 @@ import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.generation.CodeGenerator;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.DetectedObject;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.IonApp;
-import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.FailedToCreateHtmlFromIonApp;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.MissingFramesException;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.NoDetectedObjects;
 import tn.disguisedtoast.drawable.codeGenerationModule.shapeDetection.ShapeDetectionService;
@@ -65,8 +64,6 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-            } catch (FailedToCreateHtmlFromIonApp failedToCreateHtmlFromIonApp) {
-                failedToCreateHtmlFromIonApp.printStackTrace();
             }
         }
     };

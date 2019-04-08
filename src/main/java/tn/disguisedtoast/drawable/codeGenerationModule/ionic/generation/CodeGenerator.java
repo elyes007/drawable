@@ -2,7 +2,6 @@ package tn.disguisedtoast.drawable.codeGenerationModule.ionic.generation;
 
 import org.apache.commons.io.FileUtils;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.*;
-import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.FailedToCreateHtmlFromIonApp;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.MissingFramesException;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.NoDetectedObjects;
 
@@ -14,28 +13,57 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public class CodeGenerator {
 
-    public static IonApp parse(List<DetectedObject> detectedObjects) throws NoDetectedObjects, MissingFramesException, FailedToCreateHtmlFromIonApp {
+    public static IonApp parse(List<DetectedObject> detectedObjects) throws NoDetectedObjects, MissingFramesException {
 
         List<List<DetectedObject>> tabs = partition(detectedObjects);
 
-        List<List<IonView>> viewsList = new ArrayList<>();
+        List<CompletableFuture<List<IonView>>> promises = new ArrayList<>();
         for (List<DetectedObject> tab : tabs) {
-            DetectedObject topFrame = tab.get(0);
-            DetectedObject bottomFrame = tab.get(1);
-            if (bottomFrame.getClasse() != DetectedObject.FRAME) {
-                //tab.remove(0);
-                //return parseWithSingleFrame(topFrame, objects);
-                throw new MissingFramesException("Only one frame detected");
-            } else {
-                tab.remove(0); //remove topFrame
-                tab.remove(0); //remove bottomFrame after index shift
-                viewsList.add(parseWithDoubleFrames(topFrame, bottomFrame, tab));
-            }
+            promises.add(CompletableFuture.supplyAsync(() -> {
+                Date start = new Date();
+                DetectedObject topFrame = tab.get(0);
+                DetectedObject bottomFrame = tab.get(1);
+                if (bottomFrame.getClasse() != DetectedObject.FRAME) {
+                    //tab.remove(0);
+                    //return parseWithSingleFrame(topFrame, objects);
+                    try {
+                        throw new MissingFramesException("Only one frame detected");
+                    } catch (MissingFramesException e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                } else {
+                    tab.remove(0); //remove topFrame
+                    tab.remove(0); //remove bottomFrame after index shift
+                    tab.sort((o1, o2) -> o1.getBox().getyMin() < o2.getBox().getyMin() ? -1 : 1); //sort by height to get the naming order right
+                    List<IonView> views = parseWithDoubleFrames(topFrame, bottomFrame, tab);
+                    Date finish = new Date();
+                    System.out.println("done in " + (finish.getTime() - start.getTime()) + " ms");
+                    return views;
+                }
+            }));
+        }
+        Date start = new Date();
+        CompletableFuture.allOf(promises.stream().toArray(CompletableFuture[]::new));
+        Date finish = new Date();
+        System.out.println("All done in " + (finish.getTime() - start.getTime()) + " ms");
+
+        List<List<IonView>> viewsList = new ArrayList<>();
+        for (CompletableFuture<List<IonView>> promise : promises) {
+            try {
+                viewsList.add(promise.get());
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            } catch (NullPointerException e) {
+            } //in case one of the promises returned null
         }
 
         if (viewsList.size() > 1) {
@@ -110,10 +138,13 @@ public class CodeGenerator {
             }
         }
 
+        //sort tabs by x
+        tabs.sort((o1, o2) -> o1.get(0).getBox().getxMin() < o2.get(0).getBox().getxMin() ? 1 : -1);
+
         return tabs;
     }
 
-    private static List<IonView> parseWithDoubleFrames(DetectedObject topFrame, DetectedObject bottomFrame, List<DetectedObject> objects) throws FailedToCreateHtmlFromIonApp {
+    private static List<IonView> parseWithDoubleFrames(DetectedObject topFrame, DetectedObject bottomFrame, List<DetectedObject> objects) {
         List<IonView> views = new ArrayList<>();
         int i = 1;
         int j = 1;
