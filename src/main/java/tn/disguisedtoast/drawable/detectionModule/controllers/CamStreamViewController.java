@@ -5,7 +5,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -184,7 +183,7 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
             webCamController.setShoudUpload(false);
             webCamController.stopWebCamCamera();
             Parent root = (new FXMLLoader(getClass().getResource("/layouts/homeLayouts/HomeLayout.fxml"))).load();
-            Drawable.globalStage.setScene(new Scene(root));
+            Drawable.globalStage.getScene().setRoot(root);
         } catch (IOException e) {
             e.printStackTrace();
         }

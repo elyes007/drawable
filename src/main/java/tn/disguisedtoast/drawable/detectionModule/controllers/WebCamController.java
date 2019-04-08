@@ -21,10 +21,12 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.stage.WindowEvent;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameGrabber;
+import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.Box;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.DetectedObject;
 import tn.disguisedtoast.drawable.utils.ImageViewPane;
@@ -88,8 +90,14 @@ public class WebCamController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
-
+        Drawable.globalStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent t) {
+                stopWebCamCamera();
+                Platform.exit();
+                System.exit(0);
+            }
+        });
     }
 
     public void init(int index, UploadInterface uploadInterface, NavigationCallback navigationCallback) {
