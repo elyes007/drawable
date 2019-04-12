@@ -13,22 +13,27 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CodeGenerator {
 
-    public static IonApp parse(List<DetectedObject> detectedObjects) throws NoDetectedObjects, MissingFramesException {
+    public static IonApp parse(List<DetectedObject> detectedObjects) throws NoDetectedObjects, MissingFramesException, ExecutionException, InterruptedException {
+
+        AtomicBoolean withMenu = new AtomicBoolean(false);
+        detectedObjects.stream().forEach(o -> {
+            if (o.getClasse() == DetectedObject.MENU)
+                withMenu.set(true);
+        });
 
         List<List<DetectedObject>> tabs = partition(detectedObjects);
-
         List<CompletableFuture<List<IonView>>> promises = new ArrayList<>();
         for (List<DetectedObject> tab : tabs) {
             promises.add(CompletableFuture.supplyAsync(() -> {
-                Date start = new Date();
                 DetectedObject topFrame = tab.get(0);
                 DetectedObject bottomFrame = tab.get(1);
                 if (bottomFrame.getClasse() != DetectedObject.FRAME) {
@@ -45,16 +50,11 @@ public class CodeGenerator {
                     tab.remove(0); //remove bottomFrame after index shift
                     tab.sort((o1, o2) -> o1.getBox().getyMin() < o2.getBox().getyMin() ? -1 : 1); //sort by height to get the naming order right
                     List<IonView> views = parseWithDoubleFrames(topFrame, bottomFrame, tab);
-                    Date finish = new Date();
-                    System.out.println("done in " + (finish.getTime() - start.getTime()) + " ms");
                     return views;
                 }
             }));
         }
-        Date start = new Date();
-        CompletableFuture.allOf(promises.stream().toArray(CompletableFuture[]::new));
-        Date finish = new Date();
-        System.out.println("All done in " + (finish.getTime() - start.getTime()) + " ms");
+        CompletableFuture.allOf(promises.stream().toArray(CompletableFuture[]::new)).get();
 
         List<List<IonView>> viewsList = new ArrayList<>();
         for (CompletableFuture<List<IonView>> promise : promises) {
@@ -66,10 +66,40 @@ public class CodeGenerator {
             } //in case one of the promises returned null
         }
 
+        IonApp ionApp;
         if (viewsList.size() > 1) {
-            return buildTabLayout(viewsList);
+            ionApp = buildTabLayout(viewsList);
+        } else {
+            ionApp = buildContentLayout(viewsList.get(0));
         }
-        return buildContentLayout(viewsList.get(0));
+
+        if (withMenu.get()) {
+            wrapWithMenu(ionApp);
+        }
+        return ionApp;
+    }
+
+    private static void wrapWithMenu(IonApp ionApp) {
+        Div div = new Div();
+        div.setTabs(ionApp.getTabs());
+        div.setContent(ionApp.getContent());
+        div.setClasse("ion-page");
+        div.setMain("");
+        div.getHeader().getToolbar().getIonButtons().setMenuButton(new IonMenuButton());
+        div.getHeader().getToolbar().getIonButtons().setSlot("start");
+
+        IonMenu ionMenu = new IonMenu();
+        ionMenu.getHeader().getToolbar().setTitle("Menu");
+        ionMenu.getHeader().getToolbar().setIonButtons(null);
+        IonContent ionContent = new IonContent();
+        ionContent.setIonLists(new ArrayList<>(new ArrayList<>(Collections.singletonList(new IonList()))));
+        ionMenu.setContent(ionContent);
+
+        ionApp.setHeader(null);
+        ionApp.setContent(null);
+        ionApp.setTabs(null);
+        ionApp.setIonMenu(ionMenu);
+        ionApp.setDiv(div);
     }
 
     private static List<List<DetectedObject>> partition(List<DetectedObject> objectList) throws NoDetectedObjects, MissingFramesException {
@@ -152,8 +182,25 @@ public class CodeGenerator {
         for (DetectedObject object : objects) {
             IonView view = getViewInstance(object);
             if (view == null) continue;
+
+            double top = (object.getBox().getyMin() - topFrame.getBox().getyMax())
+                    / (bottomFrame.getBox().getyMin() - topFrame.getBox().getyMax());
+            top = top < 0 ? 0 : top;
+
+            double xMin = Math.max(0, object.getBox().getxMin() - topFrame.getBox().getxMin());
+            double left = xMin / topFrame.getBox().getWidth();
+
+            view.setTop(String.format(Locale.US, "%.2f", top * 100) + "%");
+            view.setLeft(String.format(Locale.US, "%.2f", left * 100) + "%");
+
+            double width = object.getBox().getxMax() - topFrame.getBox().getxMin() - xMin;
+            width = xMin + width < topFrame.getBox().getWidth() ? width :
+                    topFrame.getBox().getWidth() - xMin;
+            double widthPercent = 100 * width / topFrame.getBox().getWidth();
+            view.setWidth(String.format(Locale.US, "%.2f", widthPercent) + "%");
+
             if (view instanceof IonButton) {
-                view.setId("Button " + j);
+                view.setId("Button" + j);
                 ((IonButton) view).setText("Button " + j);
                 j++;
             }
@@ -169,16 +216,6 @@ public class CodeGenerator {
                 view.setHeight(String.format(Locale.US, "%.2f", heightPercent) + "%");
                 ((IonImg) view).setSrc(CodeGenerator.class.getResource("/codeGenerationModule/placeholder.png").getPath());
             }
-            double widthPercent = object.getBox().getWidth() / topFrame.getBox().getWidth() > 1 ? 100 : 100 * object.getBox().getWidth() / topFrame.getBox().getWidth();
-            view.setWidth(String.format(Locale.US, "%.2f", widthPercent) + "%");
-
-            double top = (object.getBox().getyMin() - topFrame.getBox().getyMax())
-                    / (bottomFrame.getBox().getyMin() - topFrame.getBox().getyMax());
-            double left = (object.getBox().getxMin() - topFrame.getBox().getxMin())
-                    / topFrame.getBox().getWidth();
-
-            view.setTop(String.format(Locale.US, "%.2f", top * 100) + "%");
-            view.setLeft(String.format(Locale.US, "%.2f", left * 100) + "%");
 
             views.add(view);
         }
@@ -193,7 +230,7 @@ public class CodeGenerator {
             case DetectedObject.IMAGE:
                 return new IonImg();
             case DetectedObject.EditText:
-                return new IonItem();
+                return new IonItem(new IonLabel(), new IonInput());
         }
         return null;
     }
@@ -258,7 +295,6 @@ public class CodeGenerator {
     }
 
     public static String generateTempHtml(IonApp app) throws JAXBException, IOException, URISyntaxException {
-        app.getHeader().getToolbar().setTitle("Page");
 
         //serializing IonApp to string
         JAXBContext jc = JAXBContext.newInstance(IonApp.class);
@@ -273,8 +309,6 @@ public class CodeGenerator {
         String tempPath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages\\temp\\";
         File htmlTemplateFile = new File(CodeGenerator.class.getResource("/codeGenerationModule/template.html").toURI());
         String htmlString = FileUtils.readFileToString(htmlTemplateFile);
-        String title = app.getHeader().getToolbar().getTitle();
-        htmlString = htmlString.replace("$title", title);
         htmlString = htmlString.replace("$body", body);
 
         //writing html file

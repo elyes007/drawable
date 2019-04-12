@@ -23,7 +23,7 @@ public class TestHtmlGeneration {
         titleLabel.setTop("30%");
         titleLabel.setLeft("45%");
 
-        IonItem item = new IonItem();
+        IonItem item = new IonItem(new IonLabel(), new IonInput());
         item.setInput(new IonInput());
         item.setLabel(new IonLabel("Your name here"));
         item.setTop("50%");

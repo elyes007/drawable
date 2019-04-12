@@ -5,48 +5,40 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "ion-app")
-@XmlType(propOrder = {"header", "content", "tabs"})
-public class IonApp {
+@XmlType(propOrder = {"ionMenu", "div", "header", "content", "tabs"})
+public class IonApp extends IonContainer {
 
-    private IonHeader header = new IonHeader();
-    private IonContent content;
-    private IonTabs tabs;
+    private IonMenu ionMenu;
+    private Div div;
 
     public IonApp() {
     }
 
     public IonApp(IonContent ionContent) {
+        super();
         this.content = ionContent;
     }
 
     public IonApp(IonTabs ionTabs) {
+        super();
         this.tabs = ionTabs;
     }
 
-    @XmlElement(name = "ion-header")
-    public IonHeader getHeader() {
-        return header;
+    @XmlElement(name = "ion-menu")
+    public IonMenu getIonMenu() {
+        return ionMenu;
     }
 
-    public void setHeader(IonHeader header) {
-        this.header = header;
+    public void setIonMenu(IonMenu ionMenu) {
+        this.ionMenu = ionMenu;
     }
 
-    @XmlElement(name = "ion-content")
-    public IonContent getContent() {
-        return content;
+    @XmlElement(name = "div")
+    public Div getDiv() {
+        return div;
     }
 
-    public void setContent(IonContent content) {
-        this.content = content;
-    }
-
-    @XmlElement(name = "ion-tabs")
-    public IonTabs getTabs() {
-        return tabs;
-    }
-
-    public void setTabs(IonTabs tabs) {
-        this.tabs = tabs;
+    public void setDiv(Div div) {
+        this.div = div;
     }
 }

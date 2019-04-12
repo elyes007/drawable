@@ -28,6 +28,7 @@ import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutionException;
 
 public class CamStreamViewController implements Initializable, UploadInterface, WebCamController.NavigationCallback {
 
@@ -62,7 +63,7 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
                 System.out.println("marshalling layout failed");
             } catch (URISyntaxException e) {
                 e.printStackTrace();
-            } catch (IOException e) {
+            } catch (IOException | ExecutionException | InterruptedException e) {
                 e.printStackTrace();
             }
         }
