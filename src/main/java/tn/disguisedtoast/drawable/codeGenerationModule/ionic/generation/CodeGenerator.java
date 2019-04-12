@@ -21,14 +21,14 @@ import java.util.concurrent.ExecutionException;
 
 public class CodeGenerator {
 
-    public static IonApp parse(List<DetectedObject> detectedObjects) throws NoDetectedObjects, MissingFramesException {
+    public static IonApp parse(List<DetectedObject> detectedObjects) throws NoDetectedObjects, MissingFramesException, ExecutionException, InterruptedException {
 
         List<List<DetectedObject>> tabs = partition(detectedObjects);
-
         List<CompletableFuture<List<IonView>>> promises = new ArrayList<>();
+        Date start = new Date();
         for (List<DetectedObject> tab : tabs) {
             promises.add(CompletableFuture.supplyAsync(() -> {
-                Date start = new Date();
+                Date startDate = new Date();
                 DetectedObject topFrame = tab.get(0);
                 DetectedObject bottomFrame = tab.get(1);
                 if (bottomFrame.getClasse() != DetectedObject.FRAME) {
@@ -46,13 +46,12 @@ public class CodeGenerator {
                     tab.sort((o1, o2) -> o1.getBox().getyMin() < o2.getBox().getyMin() ? -1 : 1); //sort by height to get the naming order right
                     List<IonView> views = parseWithDoubleFrames(topFrame, bottomFrame, tab);
                     Date finish = new Date();
-                    System.out.println("done in " + (finish.getTime() - start.getTime()) + " ms");
+                    System.out.println("done in " + (finish.getTime() - startDate.getTime()) + " ms");
                     return views;
                 }
             }));
         }
-        Date start = new Date();
-        CompletableFuture.allOf(promises.stream().toArray(CompletableFuture[]::new));
+        CompletableFuture.allOf(promises.stream().toArray(CompletableFuture[]::new)).get();
         Date finish = new Date();
         System.out.println("All done in " + (finish.getTime() - start.getTime()) + " ms");
 
@@ -152,6 +151,23 @@ public class CodeGenerator {
         for (DetectedObject object : objects) {
             IonView view = getViewInstance(object);
             if (view == null) continue;
+
+            double top = (object.getBox().getyMin() - topFrame.getBox().getyMax())
+                    / (bottomFrame.getBox().getyMin() - topFrame.getBox().getyMax());
+            top = top < 0 ? 0 : top;
+
+            double xMin = Math.max(0, object.getBox().getxMin() - topFrame.getBox().getxMin());
+            double left = xMin / topFrame.getBox().getWidth();
+
+            view.setTop(String.format(Locale.US, "%.2f", top * 100) + "%");
+            view.setLeft(String.format(Locale.US, "%.2f", left * 100) + "%");
+
+            double width = object.getBox().getxMax() - topFrame.getBox().getxMin() - xMin;
+            width = xMin + width < topFrame.getBox().getWidth() ? width :
+                    topFrame.getBox().getWidth() - xMin;
+            double widthPercent = 100 * width / topFrame.getBox().getWidth();
+            view.setWidth(String.format(Locale.US, "%.2f", widthPercent) + "%");
+
             if (view instanceof IonButton) {
                 view.setId("Button" + j);
                 ((IonButton) view).setText("Button " + j);
@@ -169,16 +185,6 @@ public class CodeGenerator {
                 view.setHeight(String.format(Locale.US, "%.2f", heightPercent) + "%");
                 ((IonImg) view).setSrc(CodeGenerator.class.getResource("/codeGenerationModule/placeholder.png").getPath());
             }
-            double widthPercent = object.getBox().getWidth() / topFrame.getBox().getWidth() > 1 ? 100 : 100 * object.getBox().getWidth() / topFrame.getBox().getWidth();
-            view.setWidth(String.format(Locale.US, "%.2f", widthPercent) + "%");
-
-            double top = (object.getBox().getyMin() - topFrame.getBox().getyMax())
-                    / (bottomFrame.getBox().getyMin() - topFrame.getBox().getyMax());
-            double left = (object.getBox().getxMin() - topFrame.getBox().getxMin())
-                    / topFrame.getBox().getWidth();
-
-            view.setTop(String.format(Locale.US, "%.2f", top * 100) + "%");
-            view.setLeft(String.format(Locale.US, "%.2f", left * 100) + "%");
 
             views.add(view);
         }

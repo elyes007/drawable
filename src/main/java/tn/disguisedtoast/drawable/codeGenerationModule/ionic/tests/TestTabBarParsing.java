@@ -12,9 +12,10 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class TestTabBarParsing {
-    public static void main(String[] args) throws NoDetectedObjects, MissingFramesException, FailedToCreateHtmlFromIonApp, JAXBException, IOException, URISyntaxException {
+    public static void main(String[] args) throws NoDetectedObjects, MissingFramesException, FailedToCreateHtmlFromIonApp, JAXBException, IOException, URISyntaxException, ExecutionException, InterruptedException {
         List<DetectedObject> objects = new ArrayList<>();
         objects.add(new DetectedObject(DetectedObject.FRAME, new Box(0, 0, 10.0 / 30, 2.0 / 30)));
         objects.add(new DetectedObject(DetectedObject.IMAGE, new Box(3.5 / 30, 2.0 / 30, 6.5 / 30, 3.0 / 30)));
