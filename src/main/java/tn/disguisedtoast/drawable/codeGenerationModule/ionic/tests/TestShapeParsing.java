@@ -12,16 +12,17 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class TestShapeParsing {
-    public static void main(String[] args) throws NoDetectedObjects, MissingFramesException, FailedToCreateHtmlFromIonApp, JAXBException, IOException, URISyntaxException {
+    public static void main(String[] args) throws NoDetectedObjects, MissingFramesException, FailedToCreateHtmlFromIonApp, JAXBException, IOException, URISyntaxException, ExecutionException, InterruptedException {
         List<DetectedObject> objects = new ArrayList<>();
         objects.add(new DetectedObject(DetectedObject.FRAME, new Box(0, 0, 10.0 / 30, 2.0 / 30)));
         objects.add(new DetectedObject(DetectedObject.IMAGE, new Box(3.5 / 30, 2.0 / 30, 6.5 / 30, 3.0 / 30)));
         objects.add(new DetectedObject(DetectedObject.EditText, new Box(2.5 / 30, 3.0 / 30, 7.5 / 30, 4.0 / 30)));
         objects.add(new DetectedObject(DetectedObject.EditText, new Box(2.0 / 30, 6.0 / 30, 4.0 / 30, 8.0 / 30)));
-        objects.add(new DetectedObject(DetectedObject.BUTTON, new Box(5.0 / 30, 6.4 / 30, 8.0 / 30, 7.4 / 30)));
-        objects.add(new DetectedObject(DetectedObject.BUTTON, new Box(1.0 / 30, 10.0 / 30, 5.0 / 30, 13.0 / 30)));
+        objects.add(new DetectedObject(DetectedObject.BUTTON, new Box(-3.0 / 30, 6.4 / 30, 8.0 / 30, 7.4 / 30)));
+        objects.add(new DetectedObject(DetectedObject.BUTTON, new Box(5.0 / 30, 10.0 / 30, 15.0 / 30, 13.0 / 30)));
         objects.add(new DetectedObject(DetectedObject.FRAME, new Box(0, 14.0 / 30, 10.0 / 30, 15.0 / 30)));
 
         CodeGenerator.generateTempHtml(CodeGenerator.parse(objects));
