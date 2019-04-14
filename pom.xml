@@ -109,11 +109,6 @@
             <artifactId>jsoup</artifactId>
             <version>1.11.3</version>
         </dependency>
-        <dependency>
-            <groupId>guru.nidi</groupId>
-            <artifactId>graphviz-java</artifactId>
-            <version>0.8.3</version>
-        </dependency>
     </dependencies>
     
 </project>

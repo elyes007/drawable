@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>storyboard test</title>
+    <style type="text/css">
+        .dragme {
+            cursor: move;
+            position: absolute;
+            width: 200px;
+            height: 400px;
+            object-fit: cover;
+        }
+
+        .arrow {
+            stroke: rgb(0, 0, 0);
+            stroke-width: 2;
+            marker-end: url(#markerArrow)
+        }
+    </style>
+</head>
+<body>
+
+<svg height="100%" width="100%" style="position: absolute" id="svg">
+    <defs>
+        <marker id="markerArrow" markerWidth="15" markerHeight="15" refX="2" refY="6"
+                orient="auto">
+            <path d="M2,2 L2,11 L10,6 L2,2" style="fill: #000000;"/>
+        </marker>
+    </defs>
+</svg>
+
+<img src="https://i.imgur.com/WlVVX.jpg" class="dragme" id="1" style="left: 0; top: 0;">
+<img src="https://i.imgur.com/WlVVX.jpg" class="dragme" id="2" style="left: 600px; top: 100px;">
+
+<script type="text/javascript">
+    function setArrowPosition(arrow, id1, id2) {
+        var img1 = document.getElementById("1")
+        var img2 = document.getElementById("2")
+
+        var left1 = parseInt(img1.style.left.slice(0, img1.style.left.length - 2))
+        var top1 = parseInt(img1.style.top.slice(0, img1.style.top.length - 2))
+        var left2 = parseInt(img2.style.left.slice(0, img2.style.left.length - 2))
+        var top2 = parseInt(img2.style.top.slice(0, img2.style.top.length - 2))
+
+        arrow.setAttribute('x1', (left1 + img1.clientWidth) + "");
+        arrow.setAttribute('y1', (top1 + img1.clientHeight / 2) + "");
+        arrow.setAttribute('x2', (left2 - 30) + "");
+        arrow.setAttribute('y2', (top2 + img2.clientHeight / 2) + "");
+    }
+
+    function drawArrows() {
+        var arrow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        arrow.setAttribute('id', 'line');
+        arrow.setAttribute("stroke", "black")
+        arrow.setAttribute("class", "arrow")
+        setArrowPosition(arrow, "1", "2")
+        var svg = document.getElementById("svg")
+        svg.appendChild(arrow)
+    }
+
+    function startDrag(e) {
+        // determine event object
+        if (!e) {
+            var e = window.event;
+        }
+        if (e.preventDefault) e.preventDefault();
+        // IE uses srcElement, others use target
+        targ = e.target ? e.target : e.srcElement;
+
+        if (targ.className != 'dragme') {
+            return
+        }
+        ;
+        console.log('start drag')
+        // calculate event X, Y coordinates
+        offsetX = e.clientX;
+        offsetY = e.clientY;
+
+        // assign default values for top and left properties
+        if (!targ.style.left) {
+            targ.style.left = '0px'
+        }
+        ;
+        if (!targ.style.top) {
+            targ.style.top = '0px'
+        }
+        ;
+
+        // calculate integer values for top and left
+        // properties
+        coordX = parseInt(targ.style.left);
+        coordY = parseInt(targ.style.top);
+        drag = true;
+
+        // move div element
+        document.onmousemove = dragDiv;
+        return false;
+
+    }
+
+    function dragDiv(e) {
+        if (!drag) {
+            return
+        }
+        ;
+        if (!e) {
+            var e = window.event
+        }
+        ;
+        // var targ=e.target?e.target:e.srcElement;
+        // move div element
+        targ.style.left = coordX + e.clientX - offsetX + 'px';
+        targ.style.top = coordY + e.clientY - offsetY + 'px';
+
+        var newLine = document.getElementById("line")
+        setArrowPosition(newLine, "1", "2")
+
+        return false;
+    }
+
+    function stopDrag() {
+        drag = false;
+    }
+
+    window.onload = function () {
+        drawArrows();
+        document.onmousedown = startDrag;
+        document.onmouseup = stopDrag;
+    }
+</script>
+</body>
+</html>
