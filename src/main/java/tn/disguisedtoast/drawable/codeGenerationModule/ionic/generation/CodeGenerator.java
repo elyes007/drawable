@@ -26,6 +26,7 @@ public class CodeGenerator {
     private static int itemCounter = 1;
     private static int imageCounter = 1;
     private static int textCounter = 1;
+    private static String loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tristique, diam sit amet sodales sodales.";
 
     public static IonApp parse(List<DetectedObject> detectedObjects) throws NoDetectedObjects, MissingFramesException, ExecutionException, InterruptedException {
 
@@ -220,6 +221,10 @@ public class CodeGenerator {
                 view.setId("Item" + itemCounter++);
                 ((IonItem) view).getLabel().setLabel("Input " + k++);
             }
+            if (view instanceof IonLabel) {
+                view.setId("Label" + textCounter);
+                ((IonLabel) view).setEllipsis(true);
+            }
             if (view instanceof IonImg) {
                 view.setId("Image" + imageCounter++);
                 double heightPercent = object.getBox().getHeight() / (bottomFrame.getBox().getyMin() - topFrame.getBox().getyMax()) > 1 ? 100 : 100 * object.getBox().getHeight() / (bottomFrame.getBox().getyMin() - topFrame.getBox().getyMax());
@@ -241,6 +246,8 @@ public class CodeGenerator {
                 return new IonImg();
             case DetectedObject.EditText:
                 return new IonItem(new IonLabel(), new IonInput());
+            case DetectedObject.TEXT:
+                return new IonLabel(loremIpsum, null);
         }
         return null;
     }
@@ -299,6 +306,12 @@ public class CodeGenerator {
                     ionContent.setItems(new ArrayList<>());
                 }
                 ionContent.getItems().add((IonItem) view);
+            }
+            if (view instanceof IonLabel) {
+                if (ionContent.getLabels() == null) {
+                    ionContent.setLabels(new ArrayList<>());
+                }
+                ionContent.getLabels().add((IonLabel) view);
             }
         }
         return ionContent;
