@@ -1,48 +1,29 @@
 package tn.disguisedtoast.drawable.projectGenerationModule.generation;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import javafx.util.Duration;
 import org.apache.commons.io.FileUtils;
-import tn.disguisedtoast.drawable.ProjectMain.Drawable;
-import tn.disguisedtoast.drawable.detectionModule.controllers.CamChooserController;
-import tn.disguisedtoast.drawable.homeModule.controllers.HomeController;
 import tn.disguisedtoast.drawable.projectGenerationModule.ionic.ProjectGeneration;
-
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
 import java.util.Optional;
 import java.util.ResourceBundle;
-
-import static java.nio.file.StandardOpenOption.APPEND;
-import static tn.disguisedtoast.drawable.homeModule.controllers.HomeController.primaryStage;
 
 public class GlobalProjectGeneration implements Initializable {
     @FXML
@@ -87,7 +68,7 @@ public class GlobalProjectGeneration implements Initializable {
                     ProjectGeneration.generateBlankProject(Stage,projectPath);
 
 
-                       // ProjectGeneration.generatePages(projectPath);
+                    // ProjectGen eration.generatePages(projectPath);
 
                     try {
                         Thread.sleep(5000);
