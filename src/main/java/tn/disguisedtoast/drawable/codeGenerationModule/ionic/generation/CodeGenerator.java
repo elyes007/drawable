@@ -59,7 +59,10 @@ public class CodeGenerator {
         List<List<IonView>> viewsList = new ArrayList<>();
         for (CompletableFuture<List<IonView>> promise : promises) {
             try {
-                viewsList.add(promise.get());
+                List<IonView> ionViews = promise.get();
+                if (ionViews != null) {
+                    viewsList.add(ionViews);
+                }
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             } catch (NullPointerException e) {
@@ -67,6 +70,12 @@ public class CodeGenerator {
         }
 
         IonApp ionApp;
+        for (List<IonView> ionViews : viewsList) {
+            System.out.println(ionViews);
+        }
+        if (viewsList.isEmpty()) {
+            throw new NoDetectedObjects("View list is empty");
+        }
         if (viewsList.size() > 1) {
             ionApp = buildTabLayout(viewsList);
         } else {

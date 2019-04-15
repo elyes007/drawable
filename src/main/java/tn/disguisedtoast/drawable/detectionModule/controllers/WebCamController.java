@@ -76,7 +76,9 @@ public class WebCamController implements Initializable {
             new RectAttributes("edit_text", Color.AQUA),
             new RectAttributes("frame", Color.YELLOW),
             new RectAttributes("button", Color.RED),
-            new RectAttributes("image_view", Color.GREEN)
+            new RectAttributes("image_view", Color.GREEN),
+            new RectAttributes("menu", Color.PURPLE),
+            new RectAttributes("text", Color.ORANGE),
     };
     private ImageViewPane imageViewPane;
 

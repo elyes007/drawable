@@ -46,7 +46,6 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
         @Override
         public void onUploaded(List<DetectedObject> objects) {
             try {
-                System.out.println("loool");
                 webCamController.drawObjects(objects);
 
                 ionApp = CodeGenerator.parse(objects);
