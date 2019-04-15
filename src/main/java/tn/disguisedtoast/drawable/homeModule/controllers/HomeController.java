@@ -39,7 +39,7 @@ public class HomeController implements CamChooserController.CameraButtonCallback
 
     public static Stage primaryStage;
     private List<PageCellViewController> pageCellViewControllers;
-    private String pagesPath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages";
+    public static String pagesPath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages";
 
     private PageCellViewController.PageClickCallback pageClickCallback = page -> {
         SettingsViewController.showStage(page.getFolderName());
@@ -134,8 +134,8 @@ public class HomeController implements CamChooserController.CameraButtonCallback
         }
     }
 
-    @FXML
-    public void exportProject(ActionEvent event) {
+   @FXML
+   /* public void exportProject(ActionEvent event) {
         // String command ="cmd /c ionic start newProject";
         // Runtime rt = Runtime.getRuntime();
         /*ProcessBuilder processBuilder = new ProcessBuilder();
@@ -149,9 +149,16 @@ public class HomeController implements CamChooserController.CameraButtonCallback
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }*/
+        }
 
+        File files = new File(pagesPath );
 
+        // File folder = new File();
+        String[] entries = files.list();
+        for (String s : entries) {
+            File currentFile = new File(files.getPath(), s);
+            System.out.println(currentFile.length());
+        }
 
 
         // Windows
@@ -193,10 +200,10 @@ public class HomeController implements CamChooserController.CameraButtonCallback
 
 
 
-    }
+    }*/
 
-    private List<Page> loadPages() {
-        File root = new File(System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages");
+    public List<Page> loadPages() {
+        File root = new File(pagesPath);
         String[] directories = root.list((dir, name) -> (new File(dir, name).isDirectory()));
         List<Page> pages = new ArrayList<>();
         for (String dir : directories) {
@@ -212,4 +219,6 @@ public class HomeController implements CamChooserController.CameraButtonCallback
         }
         return pages;
     }
+
+
 }
