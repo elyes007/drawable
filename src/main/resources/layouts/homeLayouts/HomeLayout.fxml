@@ -19,11 +19,11 @@
                 <HBox spacing="20.0" BorderPane.alignment="CENTER">
                     <children>
                         <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-                                mnemonicParsing="false" style="-fx-background-image: Téléchargements/gear(1).png;">
+                                mnemonicParsing="false">
                             <graphic>
                                 <ImageView fx:id="settings" fitHeight="18.0" fitWidth="20.0">
                                     <image>
-                                        <Image url="@../../drawable/homeDrawables/aaa.png"/>
+                                        <Image url="@../../drawable/homeDrawables/gear.png"/>
                                     </image>
                                 </ImageView>
                             </graphic>

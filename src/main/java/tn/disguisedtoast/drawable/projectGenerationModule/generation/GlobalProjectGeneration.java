@@ -1,7 +1,6 @@
 package tn.disguisedtoast.drawable.projectGenerationModule.generation;
 
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -17,13 +16,13 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.apache.commons.io.FileUtils;
-import tn.disguisedtoast.drawable.projectGenerationModule.ionic.ProjectGeneration;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
 
 public class GlobalProjectGeneration implements Initializable {
     @FXML
@@ -61,37 +60,25 @@ public class GlobalProjectGeneration implements Initializable {
             projectPath = s + "\\" + splitn;
             saveglobalPath(projectPath);
 
-            Task task = new Task<Void>() {
+            CompletableFuture task = CompletableFuture
+                    .runAsync(GlobalProjectGeneration::createprojectHierarchy)
+                    .thenAccept(aVoid -> {
+                        startPane.setCenter(null);
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/HomeLayout.fxml"));
+                        try {
+                            startPane.setCenter(loader.load());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+            /*Task task = new Task<Void>() {
                 @Override
                 public Void call() {
-                    createprojectHierarchy();
                     ProjectGeneration.generateBlankProject(Stage,projectPath);
-
-
-                    // ProjectGen eration.generatePages(projectPath);
-
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
                     return null;
                 }
-            };
-            task.setOnSucceeded(taskFinishEvent -> {System.out.println("Finished!!");
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/HomeLayout.fxml"));
-                try {
-                    startPane.setCenter(loader.load());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-            new Thread(task).start();
-
-            //HomeController.pagesPath =projectPath+"pages";
-
-
+            };*/
         });
         this.openProject.setOnMouseClicked(event -> {
             final ProgressIndicator progress = new ProgressIndicator();
@@ -150,9 +137,8 @@ public class GlobalProjectGeneration implements Initializable {
         try {
             FileUtils.copyDirectory(new File(System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\previewModule"),
                     new File(projectPath + "\\RelatedFiles\\previewModule"));
-            System.out.println("Done!");
             FileUtils.copyToDirectory(new File(System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\assets\\drawable\\placeholder.png"),new File(projectPath + "\\RelatedFiles\\assets"));
-
+            System.out.println("Done!");
         } catch (IOException e) {
             e.printStackTrace();
         }
