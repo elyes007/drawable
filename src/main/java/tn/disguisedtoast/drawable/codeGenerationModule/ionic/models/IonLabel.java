@@ -2,6 +2,7 @@ package tn.disguisedtoast.drawable.codeGenerationModule.ionic.models;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlValue;
 
 @XmlRootElement(name = "ion-label")
@@ -9,6 +10,7 @@ public class IonLabel extends IonView {
 
     private String label;
     private String positionAttr = "floating";
+    private boolean ellipsis = false;
 
     public IonLabel() {
         setPosition(null);
@@ -33,6 +35,15 @@ public class IonLabel extends IonView {
         setPosition(position);
     }
 
+    @XmlTransient
+    public boolean isEllipsis() {
+        return ellipsis;
+    }
+
+    public void setEllipsis(boolean ellipsis) {
+        this.ellipsis = ellipsis;
+    }
+
     @XmlValue
     public String getLabel() {
         return label;
@@ -55,5 +66,11 @@ public class IonLabel extends IonView {
     @Override
     public String getClasse() {
         return positionAttr != null ? null : "clickable";
+    }
+
+    @XmlAttribute(name = "style")
+    @Override
+    public String getStyle() {
+        return super.getStyle() + (ellipsis ? "text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" : "");
     }
 }
