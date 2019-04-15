@@ -13,6 +13,7 @@ public class IonIcon {
     public static List<String> names = new ArrayList<>(Arrays.asList("calendar", "map", "contacts"));
 
     private String name;
+    private String slot;
 
     public IonIcon() {
     }
@@ -28,6 +29,15 @@ public class IonIcon {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @XmlAttribute(name = "slot")
+    public String getSlot() {
+        return slot;
+    }
+
+    public void setSlot(String slot) {
+        this.slot = slot;
     }
 
     @XmlValue

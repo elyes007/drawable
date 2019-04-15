@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class TestTabBarGeneration {
+public class TestMenuGeneration {
     public static void main(String[] args) throws JAXBException, IOException, URISyntaxException {
         IonImg ionImg = new IonImg();
         ionImg.setSrc("https://i.imgur.com/yjWwi3F.jpg");
@@ -74,8 +74,35 @@ public class TestTabBarGeneration {
         ionTabs.getTabs().addAll(Arrays.asList(tab1, tab2, tab3));
         ionTabs.setTabBar(ionTabBar);
 
+        Div div = new Div();
+        div.setTabs(ionTabs);
+        div.setClasse("ion-page");
+        div.setMain("");
+        div.getHeader().getToolbar().getIonButtons().setMenuButton(new IonMenuButton());
+        div.getHeader().getToolbar().getIonButtons().setSlot("start");
+
+        IonItem item1 = new IonItem(new IonLabel("Contacts", null, null), new IonIcon("contacts"));
+        IonItem item2 = new IonItem(new IonLabel("Schedule", null, null), new IonIcon("calendar"));
+        item1.getIcon().setSlot("start");
+        item2.getIcon().setSlot("start");
+        item1.setPosition(null);
+        item2.setPosition(null);
+
+        IonList ionList = new IonList();
+        ionList.getItems().addAll(Arrays.asList(item1, item2));
+
+        IonContent ionContent = new IonContent();
+        ionContent.setIonLists(new ArrayList<>(Collections.singletonList(ionList)));
+
+        IonMenu ionMenu = new IonMenu();
+        ionMenu.setContent(ionContent);
+        ionMenu.getHeader().getToolbar().setTitle("Menu");
+        ionMenu.getHeader().getToolbar().setIonButtons(null);
+
         IonApp ionApp = new IonApp();
-        ionApp.setTabs(ionTabs);
+        ionApp.setHeader(null);
+        ionApp.setIonMenu(ionMenu);
+        ionApp.setDiv(div);
 
         CodeGenerator.generateTempHtml(ionApp);
     }

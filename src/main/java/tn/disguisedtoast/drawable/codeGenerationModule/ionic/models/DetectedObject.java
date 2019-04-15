@@ -8,6 +8,8 @@ public class DetectedObject {
     public static final int BUTTON = 3;
     public static final int IMAGE = 4;
     public static final int EditText = 1;
+    public static final int MENU = 5;
+    public static final int TEXT = 6;
 
     private Box box;
     @SerializedName(value = "class")
