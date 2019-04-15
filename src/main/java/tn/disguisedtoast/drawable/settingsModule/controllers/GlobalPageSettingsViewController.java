@@ -83,6 +83,7 @@ public class GlobalPageSettingsViewController implements Initializable, Settings
                 Node toolbarNode = this.bodyGeneratedElement.getDomElement().getElementsByTagName(SupportedComponents.ION_TOOLBAR.toString().toUpperCase()).item(0);
                 toolbarNode.getParentNode().removeChild(toolbarNode);
             }
+            PreviewController.updateClickableElements();
         });
     }
 
@@ -90,6 +91,7 @@ public class GlobalPageSettingsViewController implements Initializable, Settings
         Element toolbar = new Element(SupportedComponents.ION_TOOLBAR.toString());
         toolbar.attr("color", "primary");
         toolbar.attr("id", "toolbar");
+        toolbar.addClass("clickable");
 
         Element buttons = new Element(SupportedComponents.ION_BUTTONS.toString());
         buttons.attr("slot", "start");
@@ -113,6 +115,8 @@ public class GlobalPageSettingsViewController implements Initializable, Settings
         org.w3c.dom.Element toolbar = document.createElement(SupportedComponents.ION_TOOLBAR.toString().toUpperCase());
         toolbar.setAttribute("color", "primary");
         toolbar.setAttribute("id", "toolbar");
+        System.out.println(toolbar);
+        toolbar.setAttribute("class", "clickable");
 
         org.w3c.dom.Element buttons = document.createElement(SupportedComponents.ION_BUTTONS.toString().toUpperCase());
         buttons.setAttribute("slot", "start");

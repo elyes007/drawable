@@ -27,6 +27,12 @@ public class IonLabel extends IonView {
         }
     }
 
+    public IonLabel(String label, String positionAttr, String position) {
+        this.label = label;
+        this.positionAttr = positionAttr;
+        setPosition(position);
+    }
+
     @XmlValue
     public String getLabel() {
         return label;

@@ -11,6 +11,7 @@ public class IonContent {
     private List<IonImg> images;
     private List<IonLabel> labels;
     private List<IonItem> items;
+    private List<IonList> ionLists;
 
     @XmlElement(name = "ion-button")
     public List<IonButton> getButtons() {
@@ -46,5 +47,14 @@ public class IonContent {
 
     public void setItems(List<IonItem> items) {
         this.items = items;
+    }
+
+    @XmlElement(name = "ion-list")
+    public List<IonList> getIonLists() {
+        return ionLists;
+    }
+
+    public void setIonLists(List<IonList> ionLists) {
+        this.ionLists = ionLists;
     }
 }

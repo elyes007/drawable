@@ -1,8 +1,9 @@
 var hoveredElement;
 var selectedElement;
 var isSetting = true;
+window.onload = updateClickableElements();
 
-window.onload = function () {
+function updateClickableElements(){
     document.getElementsByTagName("body")[0].onclick = unfocus;
     var elements = document.getElementsByClassName("clickable");
     Array.prototype.forEach.call(elements, function(element) {
