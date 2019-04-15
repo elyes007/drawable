@@ -16,6 +16,8 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.apache.commons.io.FileUtils;
+import tn.disguisedtoast.drawable.projectGenerationModule.tests.test;
+import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,8 +42,6 @@ public class GlobalProjectGeneration implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         this.newProject.setOnMouseClicked(event -> {
-
-
             DirectoryChooser dc = new DirectoryChooser();
             //dc.showDialog(primaryStage);
             File f = dc.showDialog(Stage);
@@ -54,19 +54,15 @@ public class GlobalProjectGeneration implements Initializable {
                 e.printStackTrace();
             }
             System.out.println("hello");
-            final ProgressIndicator progress = new ProgressIndicator();
-            progress.setMaxSize(50, 50);
-            startPane.setCenter(progress);
             projectPath = s + "\\" + splitn;
             saveglobalPath(projectPath);
 
-            CompletableFuture task = CompletableFuture
+            CompletableFuture
                     .runAsync(GlobalProjectGeneration::createprojectHierarchy)
                     .thenAccept(aVoid -> {
-                        startPane.setCenter(null);
                         FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/HomeLayout.fxml"));
                         try {
-                            startPane.setCenter(loader.load());
+                            EveryWhereLoader.getInstance().stopLoader(loader.load());
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -129,6 +125,7 @@ public class GlobalProjectGeneration implements Initializable {
     }
 
     public static void createprojectHierarchy() {
+        EveryWhereLoader.getInstance().showLoader(test.Stage);
         new File(projectPath).mkdir();
         new File(projectPath + "\\RelatedFiles").mkdir();
         new File(projectPath + "\\RelatedFiles\\previewModule").mkdir();
