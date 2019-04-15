@@ -18,7 +18,6 @@ import javafx.scene.paint.Color;
 import org.eclipse.jgit.util.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
-import org.w3c.dom.Node;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.models.SupportedComponents;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
@@ -26,9 +25,11 @@ import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSetting
 import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.GoogleLoginSettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.NavigationSettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.models.IonIcon;
-import tn.disguisedtoast.drawable.settingsModule.utils.*;
+import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
+import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
+import tn.disguisedtoast.drawable.settingsModule.utils.FxUtils;
+import tn.disguisedtoast.drawable.settingsModule.utils.IconComboboxCell;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
@@ -106,7 +107,7 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
                             settingsControllerInterface = facebookLoader.getController();
                             ((FacebookLoginSettingsViewController)settingsControllerInterface).setElement(button.getElement());
                             button.getElement().attr("[routerLink]", "");
-                            save();
+                            //save();
                             break;
                         case 3:
                             FXMLLoader googleLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/GoogleLoginSettingsView.fxml"));
@@ -114,7 +115,7 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
                             settingsControllerInterface = googleLoader.getController();
                             ((GoogleLoginSettingsViewController)settingsControllerInterface).setElement(button.getElement());
                             button.getElement().attr("[routerLink]", "");
-                            save();
+                            //save();
                             break;
                     }
                 }catch (IOException ex){

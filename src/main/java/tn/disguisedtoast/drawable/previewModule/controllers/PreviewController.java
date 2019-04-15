@@ -73,11 +73,17 @@ public class PreviewController {
                     if(snapshotCallback != null) {
                         snapshot(snapshotCallback);
                     }
-                    try {
-                        Files.delete(Paths.get(webView.getEngine().getDocument().getDocumentURI().substring(8)));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    System.out.println("Here");
+                    new Thread(() -> {
+                        File file = new File(Paths.get(webView.getEngine().getDocument().getDocumentURI().substring(8)).toUri());
+                        while (file.exists()) {
+                            try {
+                                Files.delete(file.toPath());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start();
                 }
             });
 
@@ -144,7 +150,6 @@ public class PreviewController {
             if( root == null || webView == null ) {
                 new PreviewController();
             }
-            refresh();
             return root;
         } catch (IOException e) {
             e.printStackTrace();
@@ -178,8 +183,6 @@ public class PreviewController {
             e.printStackTrace();
         }
     }
-
-
 
     public static void snapshot(SnapshotCallback callback){
         new Thread(() -> {
