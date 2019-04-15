@@ -164,24 +164,30 @@ public class WebCamController implements Initializable {
 
 
     protected void startWebCamCamera() {
-        startWebCamStream();
-        stop_img1.setVisible(true);
         record_img.setVisible(false);
+        stop_img1.setVisible(true);
+        new Thread(() -> {
+            startWebCamStream();
+            switchShouldUpload();
+        }).start();
     }
 
 
     protected void stopWebCamCamera() {
-        if (grabber != null) {
-            try {
-                grabber.release();
-                grabber = null;
-            } catch (FrameGrabber.Exception e) {
-                e.printStackTrace();
-            }
-        }
-        stopCamera = true;
         stop_img1.setVisible(false);
         record_img.setVisible(true);
+        switchShouldUpload();
+        stopCamera = true;
+        new Thread(() -> {
+            if (grabber != null) {
+                try {
+                    grabber.release();
+                    grabber = null;
+                } catch (FrameGrabber.Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     //method used to handle on record and stop on click events
@@ -190,7 +196,6 @@ public class WebCamController implements Initializable {
             @Override
             public void handle(MouseEvent event) {
                 startWebCamCamera();
-                switchShouldUpload();
             }
         });
 
@@ -198,7 +203,6 @@ public class WebCamController implements Initializable {
             @Override
             public void handle(MouseEvent event) {
                 stopWebCamCamera();
-                switchShouldUpload();
             }
         });
 

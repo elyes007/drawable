@@ -68,14 +68,11 @@ public class CodeGenerator {
             } catch (NullPointerException e) {
             } //in case one of the promises returned null
         }
-
-        IonApp ionApp;
-        for (List<IonView> ionViews : viewsList) {
-            System.out.println(ionViews);
-        }
         if (viewsList.isEmpty()) {
             throw new NoDetectedObjects("View list is empty");
         }
+
+        IonApp ionApp;
         if (viewsList.size() > 1) {
             ionApp = buildTabLayout(viewsList);
         } else {
@@ -178,7 +175,7 @@ public class CodeGenerator {
         }
 
         //sort tabs by x
-        tabs.sort((o1, o2) -> o1.get(0).getBox().getxMin() < o2.get(0).getBox().getxMin() ? 1 : -1);
+        tabs.sort((o1, o2) -> o1.get(0).getBox().getxMin() > o2.get(0).getBox().getxMin() ? 1 : -1);
 
         return tabs;
     }
@@ -355,8 +352,6 @@ public class CodeGenerator {
         //reading template html string and replacing title and body
         File htmlTemplateFile = new File(CodeGenerator.class.getResource("/codeGenerationModule/template.html").toURI());
         String htmlString = FileUtils.readFileToString(htmlTemplateFile);
-        String title = app.getHeader().getToolbar().getTitle();
-        htmlString = htmlString.replace("$title", title);
         htmlString = htmlString.replace("$body", body);
 
         //writing html file

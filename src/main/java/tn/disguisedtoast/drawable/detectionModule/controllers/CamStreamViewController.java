@@ -156,19 +156,21 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
     @Override
     public void finish() {
         try {
-            webCamController.setShoudUpload(false);
             webCamController.stopWebCamCamera();
+            webCamController.setShoudUpload(false);
             String folderName = CodeGenerator.generatePageFolder(ionApp);
-            try {
-                EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
-                FXMLLoader loader = new FXMLLoader(SettingsViewController.class.getResource("/layouts/settingsViews/SettingsView.fxml"));
-                EveryWhereLoader.getInstance().stopLoader(loader.load());
-                SettingsViewController controller = loader.getController();
-                controller.init(folderName);
-            } catch (IOException e) {
-                e.printStackTrace();
-                EveryWhereLoader.getInstance().stopLoader(null);
-            }
+            PreviewController.saveSnapshot(folderName + File.separator + "snapshot.png", () -> {
+                try {
+                    EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
+                    FXMLLoader loader = new FXMLLoader(SettingsViewController.class.getResource("/layouts/settingsViews/SettingsView.fxml"));
+                    EveryWhereLoader.getInstance().stopLoader(loader.load());
+                    SettingsViewController controller = loader.getController();
+                    controller.init(folderName);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    EveryWhereLoader.getInstance().stopLoader(null);
+                }
+            });
         } catch (JAXBException | URISyntaxException | IOException e) {
             e.printStackTrace();
         }

@@ -25,6 +25,7 @@ import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -181,7 +182,8 @@ public class HomeController implements CamChooserController.CameraButtonCallback
 
     private List<Page> loadPages() {
         File root = new File(System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages");
-        String[] directories = root.list((dir, name) -> (new File(dir, name).isDirectory()));
+        List<String> directories = Arrays.asList(root.list((dir, name) -> (new File(dir, name).isDirectory())));
+
         List<Page> pages = new ArrayList<>();
         for (String dir : directories) {
             if (dir.equals("temp")) continue;
@@ -194,6 +196,8 @@ public class HomeController implements CamChooserController.CameraButtonCallback
                 e.printStackTrace();
             }
         }
+
+        pages.sort((p1, p2) -> Integer.parseInt(p1.getFolderName().substring(pagesPath.length() + 5)) > Integer.parseInt(p2.getFolderName().substring(pagesPath.length() + 5)) ? 1 : -1);
         return pages;
     }
 

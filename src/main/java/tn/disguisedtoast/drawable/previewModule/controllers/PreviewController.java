@@ -1,5 +1,8 @@
 package tn.disguisedtoast.drawable.previewModule.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.sun.javafx.webkit.WebConsoleListener;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -28,6 +31,7 @@ import tn.disguisedtoast.drawable.previewModule.models.Device;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -150,6 +154,7 @@ public class PreviewController {
             if( root == null || webView == null ) {
                 new PreviewController();
             }
+            refresh();
             return root;
         } catch (IOException e) {
             e.printStackTrace();
@@ -201,6 +206,11 @@ public class PreviewController {
                         BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
                         try {
                             ImageIO.write(bImage, "png", outputFile);
+
+                            JsonObject jsonObject = new JsonParser().parse(new FileReader(Paths.get(snapshotDestination).getParent().toString() + "/conf.json")).getAsJsonObject();
+                            jsonObject.addProperty("snapshot", "snapshot.png");
+                            Files.write(Paths.get(Paths.get(snapshotDestination).getParent().toString() + "/conf.json"), new Gson().toJson(jsonObject).getBytes());
+
                             callback.completed();
                         } catch (IOException e) {
                             throw new RuntimeException(e);

@@ -1,8 +1,5 @@
 package tn.disguisedtoast.drawable.settingsModule.controllers;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -18,11 +15,8 @@ import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 import tn.disguisedtoast.drawable.utils.JsonUtils;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
 public class SettingsViewController implements Initializable {
@@ -51,9 +45,6 @@ public class SettingsViewController implements Initializable {
             EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
             PreviewController.saveSnapshot(pageFolder + File.separator + "snapshot.png", () -> {
                 try{
-                    JsonObject jsonObject = new JsonParser().parse(new FileReader(pageFolder+"/conf.json")).getAsJsonObject();
-                    jsonObject.addProperty("snapshot", "snapshot.png");
-                    Files.write(Paths.get(pageFolder+"/conf.json"), new Gson().toJson(jsonObject).getBytes());
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/HomeLayout.fxml"));
                     EveryWhereLoader.getInstance().stopLoader(loader.load());
                 } catch (IOException e) {
