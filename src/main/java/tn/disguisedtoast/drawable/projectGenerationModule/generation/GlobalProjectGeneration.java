@@ -54,7 +54,7 @@ public class GlobalProjectGeneration implements Initializable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            System.out.println("hello");
+
             final ProgressIndicator progress = new ProgressIndicator();
             progress.setMaxSize(50, 50);
             startPane.setCenter(progress);
@@ -68,25 +68,29 @@ public class GlobalProjectGeneration implements Initializable {
                     ProjectGeneration.generateBlankProject(Stage,projectPath);
 
 
-                    // ProjectGen eration.generatePages(projectPath);
 
-                    try {
+
+                   /* try {
                         Thread.sleep(5000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
-                    }
+                    }*/
 
                     return null;
                 }
             };
-            task.setOnSucceeded(taskFinishEvent -> {System.out.println("Finished!!");
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/HomeLayout.fxml"));
-                try {
-                    startPane.setCenter(loader.load());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
+            task.setOnSucceeded(taskFinishEvent -> {
+                        System.out.println("Finished!!");
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/HomeLayout.fxml"));
+                        try {
+                            startPane.setCenter(loader.load());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
+            );
             new Thread(task).start();
 
             //HomeController.pagesPath =projectPath+"pages";
@@ -99,22 +103,30 @@ public class GlobalProjectGeneration implements Initializable {
             startPane.setCenter(progress);
 
             DirectoryChooser dc = new DirectoryChooser();
-            //dc.showDialog(primaryStage);
             File f = dc.showDialog(Stage);
             String s = f.getAbsolutePath();
             System.out.println(s);
             saveglobalPath(s);
-            //HomeController.pagesPath =projectPath+"\\RelatedFiles\\pages";
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/HomeLayout.fxml"));
+            // handle cancellation properly
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/projectGenerationViews/startView.fxml"));
             try {
-               startPane.setCenter(loader.load());
+                startPane.setCenter(loader.load());
                /* Stage.setScene(new Scene(startPane));
                 Stage.setMaximized(true);
                 Stage.show();*/
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+
+            //HomeController.pagesPath =projectPath+"\\RelatedFiles\\pages";
+
+
+
+
+            //dc.showDialog(primaryStage);
+
           /*  try {
                 splitn = dialogSplit();
                 System.out.println(splitn);

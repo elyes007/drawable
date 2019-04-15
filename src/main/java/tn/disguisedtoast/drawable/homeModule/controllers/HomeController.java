@@ -135,7 +135,7 @@ public class HomeController implements CamChooserController.CameraButtonCallback
     }
 
    @FXML
-   /* public void exportProject(ActionEvent event) {
+   public void exportProject(ActionEvent event) {
         // String command ="cmd /c ionic start newProject";
         // Runtime rt = Runtime.getRuntime();
         /*ProcessBuilder processBuilder = new ProcessBuilder();
@@ -149,7 +149,7 @@ public class HomeController implements CamChooserController.CameraButtonCallback
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
+        }*/
 
         File files = new File(pagesPath );
 
@@ -199,8 +199,7 @@ public class HomeController implements CamChooserController.CameraButtonCallback
         });
 
 
-
-    }*/
+   }
 
     public List<Page> loadPages() {
         File root = new File(pagesPath);
