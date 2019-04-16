@@ -70,7 +70,7 @@ public class PreviewController {
         appInterface = new AppInterface();
 
         webView.getEngine().getLoadWorker().stateProperty().addListener((ObservableValue<? extends Worker.State> ov, Worker.State oldState, Worker.State newState) -> {
-                if (newState == Worker.State.SUCCEEDED) {
+            if (newState == Worker.State.SUCCEEDED) {
                     JSObject win = (JSObject) webView.getEngine().executeScript("window");
                     win.setMember("app", appInterface);
                     webView.getEngine().executeScript("setIsSetting("+(PreviewController.callBack!=null)+");");
@@ -151,10 +151,7 @@ public class PreviewController {
             PreviewController.url = url;
             File input = new File(url);
             PreviewController.ionicDocument = Jsoup.parse(input, "UTF-8");
-            if( root == null || webView == null ) {
-                new PreviewController();
-            }
-            refresh();
+            new PreviewController();
             return root;
         } catch (IOException e) {
             e.printStackTrace();
@@ -193,6 +190,7 @@ public class PreviewController {
         new Thread(() -> {
             try{
                 Thread.sleep(500);
+                System.out.println(snapshotDestination);
                 Platform.runLater(() -> {
                     if(snapshotDestination != null && !snapshotDestination.isEmpty()) {
                         SnapshotParameters snapshotParameters = new SnapshotParameters();

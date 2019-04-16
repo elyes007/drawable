@@ -25,7 +25,6 @@ import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -42,7 +41,7 @@ public class HomeController implements CamChooserController.CameraButtonCallback
 
     public static Stage primaryStage;
     private List<PageCellViewController> pageCellViewControllers;
-    private String pagesPath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages";
+    private String pagesPath = (Drawable.projectPath + "&RelatedFiles&pages").replace("&", File.separator);
 
     private PageCellViewController.PageClickCallback pageClickCallback = page -> {
         try {
@@ -119,8 +118,8 @@ public class HomeController implements CamChooserController.CameraButtonCallback
         }
     }
 
-    @FXML
-    public void exportProject(ActionEvent event) {
+   @FXML
+   public void exportProject(ActionEvent event) {
         // String command ="cmd /c ionic start newProject";
         // Runtime rt = Runtime.getRuntime();
         /*ProcessBuilder processBuilder = new ProcessBuilder();
@@ -180,10 +179,9 @@ public class HomeController implements CamChooserController.CameraButtonCallback
 
     }
 
-    private List<Page> loadPages() {
-        File root = new File(System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages");
-        List<String> directories = Arrays.asList(root.list((dir, name) -> (new File(dir, name).isDirectory())));
-
+    public List<Page> loadPages() {
+        File root = new File(pagesPath);
+        String[] directories = root.list((dir, name) -> (new File(dir, name).isDirectory()));
         List<Page> pages = new ArrayList<>();
         for (String dir : directories) {
             if (dir.equals("temp")) continue;
