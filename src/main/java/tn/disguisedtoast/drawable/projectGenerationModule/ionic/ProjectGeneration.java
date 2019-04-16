@@ -1,9 +1,6 @@
 package tn.disguisedtoast.drawable.projectGenerationModule.ionic;
 
-import com.sun.org.apache.xerces.internal.impl.io.UTF8Reader;
-import javafx.application.Platform;
 import javafx.scene.control.TextInputDialog;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -11,19 +8,15 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import sun.nio.cs.UTF_32;
+import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.homeModule.controllers.HomeController;
 import tn.disguisedtoast.drawable.homeModule.models.Page;
-import tn.disguisedtoast.drawable.projectGenerationModule.generation.GlobalProjectGeneration;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 public class ProjectGeneration {
@@ -228,8 +221,8 @@ public class ProjectGeneration {
 
                 int exitCode = process.waitFor();
                 System.out.println("\nExited with error code : " + exitCode);
-                copyFileUsingApacheCommonsIO(new File(System.getProperty("user.dir") + "\\" + p.getName() + "\\" + "ion-test.html"),
-                        new File(globalProjectPath+"\\src\\app" + "\\" + p.getName() + "\\" + p.getName() + ".page.html"));
+                copyFileUsingApacheCommonsIO(new File((Drawable.projectPath + "&RelatedFiles&pages&" + p.getName() + "&" + p.getName() + ".html").replace("&", File.separator)),
+                        new File((Drawable.projectPath + "&ionic_project&src&app&" + p.getName() + "&" + p.getName() + ".page.html").replace("&", File.separator)));
                 process.destroy();
 
             } catch (IOException e) {

@@ -41,7 +41,7 @@ public class HomeController implements CamChooserController.CameraButtonCallback
 
     public static Stage primaryStage;
     private List<PageCellViewController> pageCellViewControllers;
-    public static String pagesPath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages";
+    private String pagesPath = (Drawable.projectPath + "&RelatedFiles&pages").replace("&", File.separator);
 
     private PageCellViewController.PageClickCallback pageClickCallback = page -> {
         try {

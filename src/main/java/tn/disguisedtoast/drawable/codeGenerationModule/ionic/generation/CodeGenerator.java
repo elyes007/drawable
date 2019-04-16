@@ -1,6 +1,7 @@
 package tn.disguisedtoast.drawable.codeGenerationModule.ionic.generation;
 
 import org.apache.commons.io.FileUtils;
+import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.*;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.MissingFramesException;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.NoDetectedObjects;
@@ -301,7 +302,6 @@ public class CodeGenerator {
     }
 
     public static String generateTempHtml(IonApp app) throws JAXBException, IOException, URISyntaxException {
-
         //serializing IonApp to string
         JAXBContext jc = JAXBContext.newInstance(IonApp.class);
         Marshaller marshaller = jc.createMarshaller();
@@ -310,9 +310,11 @@ public class CodeGenerator {
         StringWriter sw = new StringWriter();
         marshaller.marshal(app, sw);
         String body = sw.toString();
+        body = body.replace("ion-buttons slot=\"start\"/>", "ion-buttons slot=\"start\"></ion-buttons>");
+        body = body.replace("ion-list/>", "ion-list></ion-list>");
 
         //reading template html string and replacing title and body
-        String tempPath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages\\temp\\";
+        String tempPath = (Drawable.projectPath + "&RelatedFiles&pages&temp&").replace("&", File.separator);
         File htmlTemplateFile = new File(CodeGenerator.class.getResource("/codeGenerationModule/template.html").toURI());
         String htmlString = FileUtils.readFileToString(htmlTemplateFile);
         htmlString = htmlString.replace("$body", body);
@@ -326,8 +328,8 @@ public class CodeGenerator {
 
     public static String generatePageFolder(IonApp app) throws JAXBException, IOException, URISyntaxException {
         //setting page name
-        String pagesPath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages\\";
-        File idFile = new File(pagesPath + "\\.last_id");
+        String pagesPath = (Drawable.projectPath + "&RelatedFiles&pages").replace("&", File.separator);
+        File idFile = new File(pagesPath + File.separator + ".last_id");
         int id = 1;
         //in case last_id file doesn't exist
         try {
@@ -348,6 +350,8 @@ public class CodeGenerator {
         StringWriter sw = new StringWriter();
         marshaller.marshal(app, sw);
         String body = sw.toString();
+        body = body.replace("ion-buttons slot=\"start\"/>", "ion-buttons slot=\"start\"></ion-buttons>");
+        body = body.replace("ion-list/>", "ion-list></ion-list>");
 
         //reading template html string and replacing title and body
         File htmlTemplateFile = new File(CodeGenerator.class.getResource("/codeGenerationModule/template.html").toURI());
@@ -355,18 +359,18 @@ public class CodeGenerator {
         htmlString = htmlString.replace("$body", body);
 
         //writing html file
-        String htmlPath = pagesPath + "\\" + pageName + "\\" + pageName + ".html";
+        String htmlPath = (pagesPath + "&" + pageName + "&" + pageName + ".html").replace("&", File.separator);
         File newHtmlFile = new File(htmlPath);
         FileUtils.writeStringToFile(newHtmlFile, htmlString);
 
         //writing config file
         String configString = String.format("{\n\t\"page\": \"%s\",\n\t\"html\": \"%s.html\",\n\t\"actions\":[\n\n\t]\n}", pageName, pageName);
-        File configFile = new File(pagesPath + "\\" + pageName + "\\" + "conf.json");
+        File configFile = new File((pagesPath + "&" + pageName + "&" + "conf.json").replace("&", File.separator));
         FileUtils.writeStringToFile(configFile, configString);
 
         //updating id file
         FileUtils.writeStringToFile(idFile, id + "");
 
-        return pagesPath + pageName;
+        return pagesPath + File.separator + pageName;
     }
 }

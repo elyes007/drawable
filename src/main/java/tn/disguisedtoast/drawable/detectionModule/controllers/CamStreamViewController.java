@@ -55,11 +55,9 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
                 retry();
             } catch (NoDetectedObjects | MissingFramesException e) {
                 e.printStackTrace();
-                System.out.println("creating file failed");
                 retry();
             } catch (JAXBException e) {
                 e.printStackTrace();
-                System.out.println("marshalling layout failed");
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             } catch (IOException | ExecutionException | InterruptedException e) {
@@ -119,7 +117,7 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
     public void setPreviewHolder(){
         String htmlString = null;
         try {
-            String tempFilePath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages\\temp\\temp.html";
+            String tempFilePath = (Drawable.projectPath + "&RelatedFiles&pages&temp&temp.html").replace("&", File.separator);
             File htmlTemplateFile = new File(CodeGenerator.class.getResource("/codeGenerationModule/preview_template.html").toURI());
             htmlString = FileUtils.readFileToString(htmlTemplateFile);
 
