@@ -9,7 +9,10 @@ import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsControllerInterface;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -29,7 +32,7 @@ public class NavigationSettingsViewController implements Initializable, Settings
     public void initialize(URL location, ResourceBundle resources) {
         String parentDirPath = System.getProperty("user.dir")+"/src/main/RelatedFiles/generated_views/pages";
         File file = new File(parentDirPath);
-        String[] directories = file.list((dir, name) -> (new File(dir, name).isDirectory() && !name.equals(Paths.get(SettingsViewController.pageFolder).getFileName().toString())));
+        String[] directories = file.list((dir, name) -> (new File(dir, name).isDirectory() && !name.equals(Paths.get(SettingsViewController.pageFolder).getFileName().toString())) && !name.equals("temp"));
 
         this.pagesList.setPromptText("Select a destination page");
         this.pagesList.getItems().addAll(Arrays.asList(directories));

@@ -24,6 +24,8 @@ public class SettingsViewController implements Initializable {
     @FXML private Pane previewPane;
     @FXML private Button saveButton;
     @FXML private Button finishButton;
+    @FXML
+    private Button cancelButton;
 
     private SettingsControllerInterface currentController;
     public static String pageFolder;
@@ -52,11 +54,21 @@ public class SettingsViewController implements Initializable {
                 }
             });
         });
+        this.cancelButton.setOnAction(event -> {
+            try {
+                EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/HomeLayout.fxml"));
+                EveryWhereLoader.getInstance().stopLoader(loader.load());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public void setComponent(GeneratedElement element){
         settingsPane.getChildren().clear();
         try{
+            System.out.println(element.getElement().tagName());
             if(element.getElement().tagName().equals(SupportedComponents.ION_BUTTON.toString())){
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/ButtonSettingsView.fxml"));
                 Pane pane = loader.load();
@@ -94,6 +106,15 @@ public class SettingsViewController implements Initializable {
                 settingsPane.getChildren().add(pane);
                 currentController = loader.getController();
                 ((LabelSettingsViewController)currentController).setLabel(element);
+            } else if (element.getElement().tagName().equals(SupportedComponents.ION_TOOLBAR.toString()) && element.getElement().id().equals("menu_toolbar")) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/MenuBarSettingsView.fxml"));
+                Pane pane = loader.load();
+                AnchorPane.setTopAnchor(pane, 0.0);
+                AnchorPane.setLeftAnchor(pane, 0.0);
+                AnchorPane.setRightAnchor(pane, 0.0);
+                settingsPane.getChildren().add(pane);
+                currentController = loader.getController();
+                ((MenuBarSettingController) currentController).setMenuBarElement(element);
             } else if(element.getElement().tagName().equals(SupportedComponents.ION_TOOLBAR.toString())) {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/ToolbarSettingsView.fxml"));
                 Pane pane = loader.load();
@@ -112,6 +133,26 @@ public class SettingsViewController implements Initializable {
                 settingsPane.getChildren().add(pane);
                 currentController = loader.getController();
                 ((GlobalPageSettingsViewController)currentController).setBodyGeneratedElement(element);
+            } else if (element.getElement().tagName().equals(SupportedComponents.ION_ITEM.toString()) && element.getElement().classNames().contains("menu_item")) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/MenuButtonSettingsView.fxml"));
+                Pane pane = loader.load();
+                AnchorPane.setTopAnchor(pane, 0.0);
+                AnchorPane.setLeftAnchor(pane, 0.0);
+                AnchorPane.setRightAnchor(pane, 0.0);
+
+                settingsPane.getChildren().add(pane);
+                currentController = loader.getController();
+                ((MenuButtonSettingsController) currentController).setMenuButton(element, this);
+            } else if (element.getElement().tagName().equals(SupportedComponents.ION_CONTENT.toString())) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/MenuSettingsView.fxml"));
+                Pane pane = loader.load();
+                AnchorPane.setTopAnchor(pane, 0.0);
+                AnchorPane.setLeftAnchor(pane, 0.0);
+                AnchorPane.setRightAnchor(pane, 0.0);
+
+                settingsPane.getChildren().add(pane);
+                currentController = loader.getController();
+                ((MenuSettingsController) currentController).setIonContentElement(element);
             }
 
             //HomeController.primaryStage.sizeToScene();
@@ -123,6 +164,10 @@ public class SettingsViewController implements Initializable {
         }catch (IOException e){
             e.printStackTrace();
         }
+    }
+
+    public void clearSettingView() {
+        settingsPane.getChildren().clear();
     }
 
 }
