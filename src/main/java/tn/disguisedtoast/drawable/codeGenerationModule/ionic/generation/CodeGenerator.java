@@ -99,6 +99,7 @@ public class CodeGenerator {
         ionMenu.getHeader().getToolbar().setTitle("Menu");
         ionMenu.getHeader().getToolbar().setIonButtons(null);
         IonContent ionContent = new IonContent();
+        ionContent.setId("ion-content");
         ionContent.setIonLists(new ArrayList<>(new ArrayList<>(Collections.singletonList(new IonList()))));
         ionMenu.setContent(ionContent);
 
