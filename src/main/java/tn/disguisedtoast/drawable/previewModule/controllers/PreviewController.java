@@ -151,10 +151,7 @@ public class PreviewController {
             PreviewController.url = url;
             File input = new File(url);
             PreviewController.ionicDocument = Jsoup.parse(input, "UTF-8");
-            if( root == null || webView == null ) {
-                new PreviewController();
-            }
-            refresh();
+            new PreviewController();
             return root;
         } catch (IOException e) {
             e.printStackTrace();

@@ -94,6 +94,8 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
                         case 0:
                             actionSettingsPane.setCenter(noActionPane);
                             settingsControllerInterface = null;
+                            System.out.println("Here None");
+                            button.getElement().removeAttr("[routerLink]");
                             break;
                         case 1:
                             FXMLLoader navigationLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/NavigationSettingsView.fxml"));
@@ -106,7 +108,8 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
                             actionSettingsPane.setCenter(facebookLoader.load());
                             settingsControllerInterface = facebookLoader.getController();
                             ((FacebookLoginSettingsViewController)settingsControllerInterface).setElement(button.getElement());
-                            button.getElement().attr("[routerLink]", "");
+                            System.out.println("Here FB");
+                            button.getElement().removeAttr("[routerLink]");
                             //save();
                             break;
                         case 3:
@@ -114,7 +117,8 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
                             actionSettingsPane.setCenter(googleLoader.load());
                             settingsControllerInterface = googleLoader.getController();
                             ((GoogleLoginSettingsViewController)settingsControllerInterface).setElement(button.getElement());
-                            button.getElement().attr("[routerLink]", "");
+                            System.out.println("here G");
+                            button.getElement().removeAttr("[routerLink]");
                             //save();
                             break;
                     }

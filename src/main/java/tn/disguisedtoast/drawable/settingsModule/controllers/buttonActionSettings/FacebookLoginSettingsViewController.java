@@ -15,7 +15,6 @@ import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsControllerInterface;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.models.LogInConfigs;
-import tn.disguisedtoast.drawable.utils.typescriptParser.controller.TypeScriptParser;
 import tn.disguisedtoast.drawable.utils.typescriptParser.models.FunctionElement;
 import tn.disguisedtoast.drawable.utils.typescriptParser.models.ImportElement;
 
@@ -178,7 +177,7 @@ public class FacebookLoginSettingsViewController implements Initializable, Setti
             FunctionElement functionElement = new FunctionElement("async fbLogin");
             functionElement.setBodyLines(LogInConfigs.getFacebookFunctionBody());
 
-            TypeScriptParser.addFunction(Paths.get(ionicPagePath), functionElement);
+            //TypeScriptParser.addFunction(Paths.get(ionicPagePath), functionElement);
         } catch (IOException e) {
             e.printStackTrace();
         }

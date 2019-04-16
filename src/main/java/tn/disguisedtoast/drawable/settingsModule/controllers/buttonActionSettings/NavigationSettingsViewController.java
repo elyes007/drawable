@@ -33,7 +33,7 @@ public class NavigationSettingsViewController implements Initializable, Settings
     public void initialize(URL location, ResourceBundle resources) {
         String parentDirPath = (Drawable.projectPath + "&RelatedFiles&pages").replace("&", File.separator);
         File file = new File(parentDirPath);
-        String[] directories = file.list((dir, name) -> (new File(dir, name).isDirectory() && !name.equals(Paths.get(SettingsViewController.pageFolder).getFileName().toString())));
+        String[] directories = file.list((dir, name) -> (new File(dir, name).isDirectory() && !name.equals(Paths.get(SettingsViewController.pageFolder).getFileName().toString())) && !name.equals("temp"));
 
         this.pagesList.setPromptText("Select a destination page");
         this.pagesList.getItems().addAll(Arrays.asList(directories));
