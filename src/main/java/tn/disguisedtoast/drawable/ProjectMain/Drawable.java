@@ -10,6 +10,7 @@ public class Drawable extends javafx.application.Application {
     public static Stage globalStage;
     public static double height;
     public static double width;
+    public static String projectPath;
 
     private static Application instance;
 
@@ -20,8 +21,8 @@ public class Drawable extends javafx.application.Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         instance = this;
-        this.globalStage = primaryStage;
-        Parent root = (new FXMLLoader(getClass().getResource("/layouts/homeLayouts/HomeLayout.fxml"))).load();
+        globalStage = primaryStage;
+        Parent root = (new FXMLLoader(getClass().getResource("/layouts/projectGenerationViews/startView.fxml"))).load();
         primaryStage.setTitle("Drawable");
         primaryStage.setScene(new Scene(root));
         primaryStage.setMaximized(true);
