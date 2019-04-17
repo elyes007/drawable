@@ -15,10 +15,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.detectionModule.controllers.CamChooserController;
 import tn.disguisedtoast.drawable.detectionModule.controllers.CamStreamViewController;
 import tn.disguisedtoast.drawable.homeModule.models.Page;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
+import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 
 import java.io.*;
 import java.net.URL;
@@ -33,23 +35,32 @@ public class HomeController implements CamChooserController.CameraButtonCallback
     @FXML
     public Button export;
     @FXML
-    private AnchorPane addButtonPane;
+    public AnchorPane addButtonPane;
     @FXML
     private HBox pagesPreviewHBox;
 
     public static Stage primaryStage;
     private List<PageCellViewController> pageCellViewControllers;
-    private String pagesPath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages";
+    private String pagesPath = (Drawable.projectPath + "&RelatedFiles&pages").replace("&", File.separator);
 
     private PageCellViewController.PageClickCallback pageClickCallback = page -> {
-        SettingsViewController.showStage(page.getFolderName());
+        try {
+            EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
+            FXMLLoader loader = new FXMLLoader(SettingsViewController.class.getResource("/layouts/settingsViews/SettingsView.fxml"));
+            EveryWhereLoader.getInstance().stopLoader(loader.load());
+            SettingsViewController controller = loader.getController();
+            controller.init(page.getFolderName());
+        } catch (IOException e) {
+            e.printStackTrace();
+            EveryWhereLoader.getInstance().stopLoader(null);
+        }
     };
     private Stage chooserStage;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         ((Button) this.addButtonPane.getChildren().get(0)).setOnAction(event -> {
-            System.out.println("new");
+            EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
             chooserStage = new Stage();
             chooserStage.setTitle("Camera Chooser");
             chooserStage.setScene(new Scene(new CamChooserController(this).getRoot()));
@@ -58,24 +69,10 @@ public class HomeController implements CamChooserController.CameraButtonCallback
             chooserStage.setResizable(false);
             chooserStage.centerOnScreen();
             chooserStage.show();
+            EveryWhereLoader.getInstance().stopLoader(null);
         });
 
-        //Loading pages
-        pageCellViewControllers = new ArrayList<>();
-        List<Page> pages = loadPages();
-        for (Page page : pages) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/PageCellView.fxml"));
-                Pane pagePane = loader.load();
-                PageCellViewController pageCellViewController = loader.getController();
-                pageCellViewController.setPage(page, pageClickCallback);
-                pageCellViewControllers.add(pageCellViewController);
-
-                pagesPreviewHBox.getChildren().addAll(pagePane);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        refresh();
 
         this.search.setOnKeyReleased(event -> {
             if (this.search.getText().isEmpty()) {
@@ -101,20 +98,6 @@ public class HomeController implements CamChooserController.CameraButtonCallback
                 });
             }
         });
-
-        /*pages = new ArrayList<>();
-        imageList.setCellFactory(new PageCellFactory());
-        loadPages();
-        imageList.getItems().addAll(pages);
-
-        this.search.setOnKeyReleased(event -> {
-            List<Page> subPages = pages.stream().filter(page -> page.getName().contains(this.search.getText())).collect(Collectors.toList());
-            System.out.println(subPages);
-            Platform.runLater(() -> {
-                imageList.getItems().clear();
-                imageList.getItems().addAll(subPages);
-            });
-        });*/
     }
 
     @Override
@@ -122,10 +105,11 @@ public class HomeController implements CamChooserController.CameraButtonCallback
         chooserStage.close();
         if (webcamIndex != -1) {
             try {
+                EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
                 FXMLLoader loader = new FXMLLoader();
                 loader.setLocation(getClass().getResource("/layouts/detectionViews/CamStreamView.fxml"));
-                loader.load();
                 loader.getLocation().openStream();
+                EveryWhereLoader.getInstance().stopLoader(loader.load());
                 CamStreamViewController controller = loader.getController();
                 controller.init(webcamIndex);
             } catch (IOException e) {
@@ -134,8 +118,8 @@ public class HomeController implements CamChooserController.CameraButtonCallback
         }
     }
 
-    @FXML
-    public void exportProject(ActionEvent event) {
+   @FXML
+   public void exportProject(ActionEvent event) {
         // String command ="cmd /c ionic start newProject";
         // Runtime rt = Runtime.getRuntime();
         /*ProcessBuilder processBuilder = new ProcessBuilder();
@@ -195,8 +179,8 @@ public class HomeController implements CamChooserController.CameraButtonCallback
 
     }
 
-    private List<Page> loadPages() {
-        File root = new File(System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages");
+    public List<Page> loadPages() {
+        File root = new File(pagesPath);
         String[] directories = root.list((dir, name) -> (new File(dir, name).isDirectory()));
         List<Page> pages = new ArrayList<>();
         for (String dir : directories) {
@@ -210,6 +194,27 @@ public class HomeController implements CamChooserController.CameraButtonCallback
                 e.printStackTrace();
             }
         }
+
+        pages.sort((p1, p2) -> Integer.parseInt(p1.getFolderName().substring(pagesPath.length() + 5)) > Integer.parseInt(p2.getFolderName().substring(pagesPath.length() + 5)) ? 1 : -1);
         return pages;
+    }
+
+    public void refresh() {
+        pagesPreviewHBox.getChildren().clear();
+        pagesPreviewHBox.getChildren().add(this.addButtonPane);
+        pageCellViewControllers = new ArrayList<>();
+        List<Page> pages = loadPages();
+        for (Page page : pages) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/PageCellView.fxml"));
+                Pane pagePane = loader.load();
+                PageCellViewController pageCellViewController = loader.getController();
+                pageCellViewController.setPage(page, pageClickCallback, this);
+                pageCellViewControllers.add(pageCellViewController);
+                pagesPreviewHBox.getChildren().addAll(pagePane);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

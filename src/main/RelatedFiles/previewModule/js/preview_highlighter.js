@@ -1,8 +1,9 @@
 var hoveredElement;
 var selectedElement;
 var isSetting = true;
+window.onload = updateClickableElements();
 
-window.onload = function () {
+function updateClickableElements(){
     document.getElementsByTagName("body")[0].onclick = unfocus;
     var elements = document.getElementsByClassName("clickable");
     Array.prototype.forEach.call(elements, function(element) {
@@ -24,6 +25,7 @@ function clicked(event) {
         }
         selectedElement = this;
         this.classList.add("selected");
+        console.log(this)
         app.setEelement(this);
     }
 }

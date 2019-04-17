@@ -5,8 +5,6 @@ import com.helger.css.decl.CSSDeclaration;
 import com.helger.css.decl.CSSExpression;
 import com.helger.css.writer.CSSWriter;
 import com.helger.css.writer.CSSWriterSettings;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -15,6 +13,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
 import tn.disguisedtoast.drawable.settingsModule.TestMain.Main;
@@ -43,7 +42,7 @@ public class ImageSettingsViewController implements Initializable, SettingsContr
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         aWriter.setContentCharset (StandardCharsets.UTF_8.name ());
-        generatedViewsPath = System.getProperty("user.dir")+"/src/main/RelatedFiles/generated_views";
+        generatedViewsPath = (Drawable.projectPath + "&RelatedFiles").replace("&", File.separator);
 
         browseButton.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
