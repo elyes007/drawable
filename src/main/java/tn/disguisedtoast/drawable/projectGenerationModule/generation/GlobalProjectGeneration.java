@@ -1,5 +1,6 @@
 package tn.disguisedtoast.drawable.projectGenerationModule.generation;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import javafx.fxml.FXML;
@@ -18,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
@@ -27,10 +29,12 @@ public class GlobalProjectGeneration implements Initializable {
     public Button newProject;
     @FXML
     public Button openProject;
-    private static String splitn;
-    private static String projectPath;
     @FXML
     public BorderPane startPane;
+
+    private String splitn;
+    private String projectPath;
+    private List<String> recentList;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -55,6 +59,11 @@ public class GlobalProjectGeneration implements Initializable {
         JsonObject projectsJson = new JsonParser().parse(fileReader).getAsJsonObject();
         if (!projectsJson.get("current").isJsonNull()) {
             Drawable.projectPath = projectsJson.get("current").getAsString();
+            JsonArray recent = projectsJson.get("recent").getAsJsonArray();
+            for (int i = 0; i < recent.size(); i++) {
+                String path = recent.get(i).getAsString();
+                recentList.add(path);
+            }
             EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
             showHome();
             return true;
@@ -89,7 +98,7 @@ public class GlobalProjectGeneration implements Initializable {
 
         EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
         CompletableFuture
-                .runAsync(GlobalProjectGeneration::createprojectHierarchy)
+                .runAsync(GlobalProjectGeneration.this::createprojectHierarchy)
                 .thenAccept(aVoid -> {
                     updateCurrentProject();
                     showHome();
@@ -100,7 +109,18 @@ public class GlobalProjectGeneration implements Initializable {
         try {
             JsonObject projectsJson = new JsonParser().parse(new FileReader("./src/main/projects.json"))
                     .getAsJsonObject();
+            //set current
             projectsJson.addProperty("current", projectPath);
+            //add to recent
+            JsonArray newRecent = new JsonArray();
+            newRecent.add(projectPath);
+            for (String path : recentList) {
+                if (!path.equals(projectPath)) {
+                    newRecent.add(path);
+                }
+            }
+            projectsJson.add("recent", newRecent);
+
             FileUtils.writeStringToFile(new File("./src/main/projects.json"), projectsJson.toString());
         } catch (IOException e) {
             e.printStackTrace();
@@ -116,8 +136,8 @@ public class GlobalProjectGeneration implements Initializable {
         }
     }
 
-    private static void createprojectHierarchy() {
-        new File(Drawable.projectPath).mkdir();
+    private void createprojectHierarchy() {
+        new File(projectPath).mkdir();
         new File(projectPath + "\\RelatedFiles").mkdir();
         new File(projectPath + "\\RelatedFiles\\previewModule").mkdir();
         new File(projectPath + "\\RelatedFiles\\assets").mkdir();
@@ -135,7 +155,7 @@ public class GlobalProjectGeneration implements Initializable {
 
     }
 
-    private static String dialogSplit() throws IOException {
+    private String dialogSplit() throws IOException {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Drawable Project Name");
         dialog.setHeaderText("Enter your project title");
