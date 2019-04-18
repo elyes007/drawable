@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-
 <BorderPane xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.FacebookLoginSettingsViewController">
     <center>
         <GridPane hgap="20.0" vgap="20.0" BorderPane.alignment="CENTER">
@@ -17,26 +15,74 @@
                 <ColumnConstraints hgrow="SOMETIMES" />
             </columnConstraints>
             <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                 <RowConstraints vgrow="SOMETIMES" />
                 <RowConstraints vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
             </rowConstraints>
             <children>
-                <Label text="Application URL">
+                <Label text="Facebook App Name" GridPane.rowIndex="1">
+                    <font>
+                        <Font size="14.0"/>
+                    </font>
+                </Label>
+                <Label text="Facebook App ID" GridPane.rowIndex="2">
                     <font>
                         <Font size="14.0" />
                     </font>
                 </Label>
-                <Label text="API Key" GridPane.rowIndex="1">
+                <TextField fx:id="appName" minWidth="300.0" prefHeight="25.0" GridPane.columnIndex="1"
+                           GridPane.rowIndex="1"/>
+                <TextField fx:id="appId" layoutX="129.0" layoutY="10.0" minWidth="300.0" prefHeight="25.0"
+                           GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                <Label text="Success destination" GridPane.rowIndex="3">
                     <font>
-                        <Font size="14.0" />
+                        <Font size="14.0"/>
                     </font>
                 </Label>
-            <TextField fx:id="appUrl" minWidth="300.0" prefHeight="25.0" GridPane.columnIndex="1" />
-            <TextField fx:id="apiKey" layoutX="129.0" layoutY="10.0" minWidth="300.0" prefHeight="25.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <ComboBox fx:id="destination" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1">
+                    <children>
+                        <TextField fx:id="packageName" editable="false" minWidth="375.0"/>
+                        <Label fx:id="infoLabel">
+                            <graphic>
+                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@../../../drawable/icons/info_icon.png"/>
+                                    </image>
+                                    <cursor>
+                                        <Cursor fx:constant="HAND"/>
+                                    </cursor>
+                                </ImageView>
+                            </graphic>
+                            <tooltip>
+                                <Tooltip wrapText="true">
+                                    <graphic>
+                                        <HBox spacing="5.0">
+                                            <children>
+                                                <Label style="-fx-font-size: 12;"
+                                                       text="Use IONIC app ID to create an app in Facebook. Click this"/>
+                                                <Hyperlink fx:id="infoHyperlink" text="link"/>
+                                                <Label style="-fx-font-size: 12;" text="for more informations."/>
+                                            </children>
+                                        </HBox>
+                                    </graphic>
+                                </Tooltip>
+                            </tooltip>
+                            <cursor>
+                                <Cursor fx:constant="HAND"/>
+                            </cursor>
+                        </Label>
+                    </children>
+                </HBox>
+                <Label text="IONIC App ID"/>
             </children>
             <BorderPane.margin>
-                <Insets left="40.0" right="40.0" />
+                <Insets/>
             </BorderPane.margin>
         </GridPane>
     </center>
+    <padding>
+        <Insets left="40.0" right="40.0"/>
+    </padding>
 </BorderPane>

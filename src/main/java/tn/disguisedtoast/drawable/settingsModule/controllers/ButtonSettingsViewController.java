@@ -18,7 +18,6 @@ import javafx.scene.paint.Color;
 import org.eclipse.jgit.util.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
-import org.w3c.dom.Node;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.models.SupportedComponents;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
@@ -26,9 +25,11 @@ import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSetting
 import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.GoogleLoginSettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.NavigationSettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.models.IonIcon;
-import tn.disguisedtoast.drawable.settingsModule.utils.*;
+import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
+import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
+import tn.disguisedtoast.drawable.settingsModule.utils.FxUtils;
+import tn.disguisedtoast.drawable.settingsModule.utils.IconComboboxCell;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
@@ -93,6 +94,8 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
                         case 0:
                             actionSettingsPane.setCenter(noActionPane);
                             settingsControllerInterface = null;
+                            System.out.println("Here None");
+                            button.getElement().removeAttr("[routerLink]");
                             break;
                         case 1:
                             FXMLLoader navigationLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/NavigationSettingsView.fxml"));
@@ -105,16 +108,18 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
                             actionSettingsPane.setCenter(facebookLoader.load());
                             settingsControllerInterface = facebookLoader.getController();
                             ((FacebookLoginSettingsViewController)settingsControllerInterface).setElement(button.getElement());
-                            button.getElement().attr("[routerLink]", "");
-                            save();
+                            System.out.println("Here FB");
+                            button.getElement().removeAttr("[routerLink]");
+                            //save();
                             break;
                         case 3:
                             FXMLLoader googleLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/GoogleLoginSettingsView.fxml"));
                             actionSettingsPane.setCenter(googleLoader.load());
                             settingsControllerInterface = googleLoader.getController();
                             ((GoogleLoginSettingsViewController)settingsControllerInterface).setElement(button.getElement());
-                            button.getElement().attr("[routerLink]", "");
-                            save();
+                            System.out.println("here G");
+                            button.getElement().removeAttr("[routerLink]");
+                            //save();
                             break;
                     }
                 }catch (IOException ex){

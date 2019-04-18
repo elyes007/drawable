@@ -1,5 +1,8 @@
 package tn.disguisedtoast.drawable.previewModule.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.sun.javafx.webkit.WebConsoleListener;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -28,6 +31,7 @@ import tn.disguisedtoast.drawable.previewModule.models.Device;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -66,18 +70,24 @@ public class PreviewController {
         appInterface = new AppInterface();
 
         webView.getEngine().getLoadWorker().stateProperty().addListener((ObservableValue<? extends Worker.State> ov, Worker.State oldState, Worker.State newState) -> {
-                if (newState == Worker.State.SUCCEEDED) {
+            if (newState == Worker.State.SUCCEEDED) {
                     JSObject win = (JSObject) webView.getEngine().executeScript("window");
                     win.setMember("app", appInterface);
                     webView.getEngine().executeScript("setIsSetting("+(PreviewController.callBack!=null)+");");
                     if(snapshotCallback != null) {
                         snapshot(snapshotCallback);
                     }
-                    try {
-                        Files.delete(Paths.get(webView.getEngine().getDocument().getDocumentURI().substring(8)));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    System.out.println("Here");
+                    new Thread(() -> {
+                        File file = new File(Paths.get(webView.getEngine().getDocument().getDocumentURI().substring(8)).toUri());
+                        while (file.exists()) {
+                            try {
+                                Files.delete(file.toPath());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start();
                 }
             });
 
@@ -141,10 +151,7 @@ public class PreviewController {
             PreviewController.url = url;
             File input = new File(url);
             PreviewController.ionicDocument = Jsoup.parse(input, "UTF-8");
-            if( root == null || webView == null ) {
-                new PreviewController();
-            }
-            refresh();
+            new PreviewController();
             return root;
         } catch (IOException e) {
             e.printStackTrace();
@@ -179,12 +186,11 @@ public class PreviewController {
         }
     }
 
-
-
     public static void snapshot(SnapshotCallback callback){
         new Thread(() -> {
             try{
                 Thread.sleep(500);
+                System.out.println(snapshotDestination);
                 Platform.runLater(() -> {
                     if(snapshotDestination != null && !snapshotDestination.isEmpty()) {
                         SnapshotParameters snapshotParameters = new SnapshotParameters();
@@ -198,6 +204,11 @@ public class PreviewController {
                         BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
                         try {
                             ImageIO.write(bImage, "png", outputFile);
+
+                            JsonObject jsonObject = new JsonParser().parse(new FileReader(Paths.get(snapshotDestination).getParent().toString() + "/conf.json")).getAsJsonObject();
+                            jsonObject.addProperty("snapshot", "snapshot.png");
+                            Files.write(Paths.get(Paths.get(snapshotDestination).getParent().toString() + "/conf.json"), new Gson().toJson(jsonObject).getBytes());
+
                             callback.completed();
                         } catch (IOException e) {
                             throw new RuntimeException(e);

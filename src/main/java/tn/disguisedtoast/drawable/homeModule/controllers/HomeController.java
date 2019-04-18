@@ -15,6 +15,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import org.apache.commons.io.FileUtils;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.detectionModule.controllers.CamChooserController;
 import tn.disguisedtoast.drawable.detectionModule.controllers.CamStreamViewController;
@@ -41,7 +42,7 @@ public class HomeController implements CamChooserController.CameraButtonCallback
 
     public static Stage primaryStage;
     private List<PageCellViewController> pageCellViewControllers;
-    private String pagesPath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages";
+    private String pagesPath = (Drawable.projectPath + "&RelatedFiles&pages").replace("&", File.separator);
 
     private PageCellViewController.PageClickCallback pageClickCallback = page -> {
         try {
@@ -98,6 +99,40 @@ public class HomeController implements CamChooserController.CameraButtonCallback
                 });
             }
         });
+
+        //check and generate ionic project in background
+        /*if(!getIonicState()){
+            CompletableFuture.supplyAsync(ProjectGeneration::generateBlankProject)
+                    .thenAccept(this::setIonicState);
+        }*/
+    }
+
+    private boolean getIonicState() {
+        FileReader fileReader;
+        String filePath = Drawable.projectPath + File.separator + "state.json";
+        try {
+            fileReader = new FileReader(filePath);
+        } catch (FileNotFoundException e) {
+            String fileBody = "{\n\t\"ionic_state\":false\n}";
+            try {
+                FileUtils.writeStringToFile(new File(filePath), fileBody);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            return false;
+        }
+        JsonObject projectsJson = new JsonParser().parse(fileReader).getAsJsonObject();
+        return projectsJson.get("ionic_state").getAsBoolean();
+    }
+
+    private void setIonicState(boolean state) {
+        String filePath = Drawable.projectPath + File.separator + "state.json";
+        String fileBody = "{\n\t\"ionic_state\":" + state + "\n}";
+        try {
+            FileUtils.writeStringToFile(new File(filePath), fileBody);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
     }
 
     @Override
@@ -118,8 +153,8 @@ public class HomeController implements CamChooserController.CameraButtonCallback
         }
     }
 
-    @FXML
-    public void exportProject(ActionEvent event) {
+   @FXML
+   public void exportProject(ActionEvent event) {
         // String command ="cmd /c ionic start newProject";
         // Runtime rt = Runtime.getRuntime();
         /*ProcessBuilder processBuilder = new ProcessBuilder();
@@ -179,8 +214,8 @@ public class HomeController implements CamChooserController.CameraButtonCallback
 
     }
 
-    private List<Page> loadPages() {
-        File root = new File(System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages");
+    public List<Page> loadPages() {
+        File root = new File(pagesPath);
         String[] directories = root.list((dir, name) -> (new File(dir, name).isDirectory()));
         List<Page> pages = new ArrayList<>();
         for (String dir : directories) {
@@ -194,6 +229,8 @@ public class HomeController implements CamChooserController.CameraButtonCallback
                 e.printStackTrace();
             }
         }
+
+        pages.sort((p1, p2) -> Integer.parseInt(p1.getFolderName().substring(pagesPath.length() + 5)) > Integer.parseInt(p2.getFolderName().substring(pagesPath.length() + 5)) ? 1 : -1);
         return pages;
     }
 

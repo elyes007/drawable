@@ -46,7 +46,6 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
         @Override
         public void onUploaded(List<DetectedObject> objects) {
             try {
-                System.out.println("loool");
                 webCamController.drawObjects(objects);
 
                 ionApp = CodeGenerator.parse(objects);
@@ -56,11 +55,9 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
                 retry();
             } catch (NoDetectedObjects | MissingFramesException e) {
                 e.printStackTrace();
-                System.out.println("creating file failed");
                 retry();
             } catch (JAXBException e) {
                 e.printStackTrace();
-                System.out.println("marshalling layout failed");
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             } catch (IOException | ExecutionException | InterruptedException e) {
@@ -120,7 +117,7 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
     public void setPreviewHolder(){
         String htmlString = null;
         try {
-            String tempFilePath = System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\pages\\temp\\temp.html";
+            String tempFilePath = (Drawable.projectPath + "&RelatedFiles&pages&temp&temp.html").replace("&", File.separator);
             File htmlTemplateFile = new File(CodeGenerator.class.getResource("/codeGenerationModule/preview_template.html").toURI());
             htmlString = FileUtils.readFileToString(htmlTemplateFile);
 
@@ -157,19 +154,21 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
     @Override
     public void finish() {
         try {
-            webCamController.setShoudUpload(false);
             webCamController.stopWebCamCamera();
+            webCamController.setShoudUpload(false);
             String folderName = CodeGenerator.generatePageFolder(ionApp);
-            try {
-                EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
-                FXMLLoader loader = new FXMLLoader(SettingsViewController.class.getResource("/layouts/settingsViews/SettingsView.fxml"));
-                EveryWhereLoader.getInstance().stopLoader(loader.load());
-                SettingsViewController controller = loader.getController();
-                controller.init(folderName);
-            } catch (IOException e) {
-                e.printStackTrace();
-                EveryWhereLoader.getInstance().stopLoader(null);
-            }
+            PreviewController.saveSnapshot(folderName + File.separator + "snapshot.png", () -> {
+                try {
+                    EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
+                    FXMLLoader loader = new FXMLLoader(SettingsViewController.class.getResource("/layouts/settingsViews/SettingsView.fxml"));
+                    EveryWhereLoader.getInstance().stopLoader(loader.load());
+                    SettingsViewController controller = loader.getController();
+                    controller.init(folderName);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    EveryWhereLoader.getInstance().stopLoader(null);
+                }
+            });
         } catch (JAXBException | URISyntaxException | IOException e) {
             e.printStackTrace();
         }

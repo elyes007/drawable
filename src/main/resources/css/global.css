@@ -29,3 +29,9 @@
 ScrollPane {
     -fx-background-color: transparent;
 }
+
+.hyperlink {
+    -fx-border-color: transparent;
+    -fx-padding: 0 0 0 0;
+    -fx-font-size: 12;
+}
