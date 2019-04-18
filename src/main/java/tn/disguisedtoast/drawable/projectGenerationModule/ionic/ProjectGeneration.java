@@ -1,7 +1,6 @@
 package tn.disguisedtoast.drawable.projectGenerationModule.ionic;
 
 import javafx.scene.control.TextInputDialog;
-import javafx.stage.Stage;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -20,15 +19,14 @@ import java.util.Scanner;
 
 public class ProjectGeneration {
 
-    public static Stage Stage;
-    public static String splitn;
+    private static String splitn;
     private static String pagesPath;
-    private static String linkHref;
     private static List<String> assets =new ArrayList<String>();
-
+    public static boolean generationInProcess;
 
     public static boolean generateBlankProject() {
-            ProcessBuilder processBuilder = new ProcessBuilder();
+        generationInProcess = true;
+        ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.directory(new File(Drawable.projectPath));
         processBuilder.command("cmd.exe", "/c", "ionic start ionic_project blank");
         processBuilder.redirectErrorStream(true);
@@ -41,9 +39,11 @@ public class ProjectGeneration {
                 }
                 int exitCode = process.exitValue();
                 System.out.println("\nExited with code : " + exitCode);
+                generationInProcess = false;
                 return exitCode == 0;
             } catch (IOException e) {
                 e.printStackTrace();
+                generationInProcess = false;
                 return false;
             }
     }
@@ -96,7 +96,7 @@ public class ProjectGeneration {
             Document doc = Jsoup.parse(finalScript);
             Elements link = doc.select("ion-img");
         for (Element l:link) {
-          linkHref = l.attr("src");
+            String linkHref = l.attr("src");
            assets.add(linkHref);// "http://example.com/"
             //String linkText = link.text();
             System.out.println("img:" + linkHref);

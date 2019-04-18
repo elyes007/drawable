@@ -30,6 +30,4 @@ public class Drawable extends javafx.application.Application {
         height = primaryStage.getScene().getHeight();
         width = primaryStage.getScene().getWidth();
     }
-
-
 }
