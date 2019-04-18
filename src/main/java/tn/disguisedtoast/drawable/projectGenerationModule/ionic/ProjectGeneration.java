@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
-
 public class ProjectGeneration {
 
     public static Stage Stage;
@@ -28,64 +27,34 @@ public class ProjectGeneration {
     private static List<String> assets =new ArrayList<String>();
 
 
-    public static void generateBlankProject(Stage st,String projectPath) {
-
-
-
-          /*  DirectoryChooser dc = new DirectoryChooser();
-
-            File f = dc.showDialog(st);
-            String s = f.getAbsolutePath();*/
-            System.out.println(projectPath);
-
-           /* try {
-                splitn = dialogSplit();
-                System.out.println(splitn);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }*/
+    public static boolean generateBlankProject() {
             ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.directory(new File(projectPath));
-
-
-            processBuilder.command("cmd.exe", "/c", "ionic start ionic_project blank ");
+        processBuilder.directory(new File(Drawable.projectPath));
+        processBuilder.command("cmd.exe", "/c", "ionic start ionic_project blank");
+        processBuilder.redirectErrorStream(true);
             try {
-
                 Process process = processBuilder.start();
-
-
                 BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
                 String line;
-
                 while ((line = reader.readLine()) != null) {
-
                     System.out.println(line);
                 }
-
-                int exitCode = process.waitFor();
-
-                System.out.println("\nExited with error code : " + exitCode);
-
+                int exitCode = process.exitValue();
+                System.out.println("\nExited with code : " + exitCode);
+                return exitCode == 0;
             } catch (IOException e) {
                 e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                return false;
             }
-
-
-
     }
 
     public static String dialogSplit() throws IOException {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Project Name");
         dialog.setHeaderText("Enter your project title");
-
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()) {
             splitn = result.get();
-
         }
         return splitn;
     }
