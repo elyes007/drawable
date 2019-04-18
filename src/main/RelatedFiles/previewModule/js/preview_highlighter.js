@@ -25,7 +25,7 @@ function clicked(event) {
         }
         selectedElement = this;
         this.classList.add("selected");
-        console.log(this)
+        console.log(this.tagName)
         app.setEelement(this);
     }
 }

@@ -72,7 +72,7 @@ public class SettingsViewController implements Initializable {
     public void setComponent(GeneratedElement element){
         settingsPane.getChildren().clear();
         try{
-            System.out.println(element.getElement().tagName());
+            System.out.println("Yoo: " + element.getElement().tagName());
             if(element.getElement().tagName().equals(SupportedComponents.ION_BUTTON.toString())){
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/ButtonSettingsView.fxml"));
                 Pane pane = loader.load();
@@ -157,6 +157,16 @@ public class SettingsViewController implements Initializable {
                 settingsPane.getChildren().add(pane);
                 currentController = loader.getController();
                 ((MenuSettingsController) currentController).setIonContentElement(element);
+            } else if (element.getElement().tagName().equals(SupportedComponents.ION_TAB_BUTTON.toString())) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/TabSettingsView.fxml"));
+                Pane pane = loader.load();
+                AnchorPane.setTopAnchor(pane, 0.0);
+                AnchorPane.setLeftAnchor(pane, 0.0);
+                AnchorPane.setRightAnchor(pane, 0.0);
+
+                settingsPane.getChildren().add(pane);
+                currentController = loader.getController();
+                ((TabSettingsController) currentController).setTabElement(element);
             }
 
             //HomeController.primaryStage.sizeToScene();

@@ -68,15 +68,14 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
     public ComboBox icon;
     @FXML
     public Label deleteButton;
+
     public CustomColorPicker textColor;
-    public CustomColorPicker backgroundColor;
     private Integer[] textSizes = {10, 12, 14, 18, 24, 36, 48, 64, 72, 96};
     private String[] themes = {"Default", "Primary", "Secondary", "Tertiary", "Success", "Warning", "Danger", "Light", "Medium", "Dark"};
-    private String[] fills = {"Solid", "Outline", "Clear", "None"};
+    private String[] fills = {"Solid", "None"};
     private String[] actions = {"Select an action", "Navigation", "Login Facebook", "Login Google"};
     private GeneratedElement button;
     private GeneratedElement buttonLabel;
-    private SettingsControllerInterface settingsControllerInterface;
     private SettingsViewController settingsViewController;
 
     @Override
@@ -91,7 +90,6 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
 
         initTextView();
         initThemeView();
-        initBackgroundColorView();
         initIcon();
     }
 
@@ -204,15 +202,6 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
             this.button.getDomElement().setAttribute("fill", fill);
         });
 
-        this.fillType.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue == "Solid") {
-                this.backgroundColor.setValue(Color.TRANSPARENT);
-                this.backgroundColor.setDisable(true);
-            } else {
-                this.backgroundColor.setDisable(false);
-            }
-        });
-
         this.fillTheme.setOnAction(event -> {
             if (this.fillTheme.getValue() != "Default") {
                 String fillTheme = this.fillTheme.getValue().toString().toLowerCase();
@@ -222,37 +211,6 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
                 this.button.getElement().removeAttr("color");
                 this.button.getDomElement().removeAttribute("color");
             }
-        });
-
-        this.fillTheme.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue == "Default") {
-                this.textColor.setDisable(false);
-            } else {
-                this.textColor.setValue(Color.TRANSPARENT);
-
-                this.textColor.setDisable(true);
-            }
-        });
-    }
-
-    private void initBackgroundColorView() {
-        this.backgroundColor = new CustomColorPicker();
-        this.backgroundColor.setTooltip(new Tooltip("Select button background color."));
-        this.backgroundColorPane.setGraphic(this.backgroundColor);
-
-        this.backgroundColor.valueProperty().addListener((observable, oldValue, newValue) -> {
-            try {
-                CSSDeclaration declaration = button.getCssRules().getDeclarationOfPropertyName("background-color");
-                button.getCssRules().removeDeclaration(declaration);
-            } catch (NullPointerException e) {
-                System.out.println(e);
-            }
-            if (!newValue.equals(Color.TRANSPARENT)) {
-                button.getCssRules().addDeclaration(new CSSDeclaration("background-color", CSSExpression.createSimple(FxUtils.toRGBCode(newValue) + " !important")));
-            }
-            String cssRules = aWriter.getCSSAsString(button.getCssRules());
-            button.getElement().attr("style", cssRules);
-            button.getDomElement().setAttribute("style", cssRules);
         });
     }
 
@@ -360,7 +318,6 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
         //Setting the button look
         getButtonThemeFill();
         getButtonThemeColor();
-        getButtonBackgroundColor();
 
         //Setting the button icon
         getButtonIcon();
@@ -432,7 +389,7 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
         if (button.getElement().hasAttr("fill")) {
             this.fillType.getSelectionModel().select(StringUtils.capitalize(button.getElement().attr("fill")));
         } else {
-            this.fillType.getSelectionModel().select("Default");
+            this.fillType.getSelectionModel().select("Solid");
         }
     }
 
@@ -442,16 +399,6 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
             this.fillTheme.getSelectionModel().select(StringUtils.capitalize(button.getElement().attr("color")));
         } else {
             this.fillTheme.getSelectionModel().select("Default");
-        }
-    }
-
-    //css background-color rule
-    private void getButtonBackgroundColor() {
-        try {
-            String backgroundString = CssRuleExtractor.extractValue(button.getCssRules(), "background-color");
-            this.backgroundColor.setValue(Color.valueOf(backgroundString));
-        } catch (NullPointerException e) {
-            this.backgroundColor.setValue(Color.TRANSPARENT);
         }
     }
 

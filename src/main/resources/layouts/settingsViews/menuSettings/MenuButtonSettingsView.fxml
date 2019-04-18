@@ -26,7 +26,6 @@
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                                 <RowConstraints vgrow="SOMETIMES"/>
                                 <RowConstraints vgrow="SOMETIMES"/>
-                                <RowConstraints vgrow="SOMETIMES"/>
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                             </rowConstraints>
                             <children>
@@ -102,18 +101,13 @@
                                         <Font size="14.0"/>
                                     </font>
                                 </Label>
-                                <Label text="Background Color" GridPane.rowIndex="2">
-                                    <font>
-                                        <Font size="14.0"/>
-                                    </font>
-                                </Label>
-                                <Label text="Action" GridPane.rowIndex="4">
+                                <Label text="Action" GridPane.rowIndex="3">
                                     <font>
                                         <Font size="14.0"/>
                                     </font>
                                 </Label>
                                 <ChoiceBox fx:id="buttonAction" minWidth="223.0" prefHeight="25.0"
-                                           GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                                           GridPane.columnIndex="1" GridPane.rowIndex="3"/>
                                 <Label text="Theme">
                                     <font>
                                         <Font size="14.0"/>
@@ -140,24 +134,13 @@
                                         </Label>
                                     </children>
                                 </HBox>
-                                <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="1"
-                                      GridPane.rowIndex="2">
-                                    <children>
-                                        <Label fx:id="backgroundColorPane">
-                                            <tooltip>
-                                                <Tooltip
-                                                        text="Can't select button background color when using 'Solid' theme."/>
-                                            </tooltip>
-                                        </Label>
-                                    </children>
-                                </HBox>
-                                <Label text="Icon" GridPane.rowIndex="3">
+                                <Label text="Icon" GridPane.rowIndex="2">
                                     <font>
                                         <Font size="14.0"/>
                                     </font>
                                 </Label>
                                 <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1"
-                                      GridPane.rowIndex="3">
+                                      GridPane.rowIndex="2">
                                     <children>
                                         <ComboBox fx:id="icon"/>
                                         <HBox alignment="CENTER" spacing="2.0">
