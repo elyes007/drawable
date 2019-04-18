@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/10.0.1"
-            fx:controller="tn.disguisedtoast.drawable.settingsModule.controllers.MenuButtonSettingsController">
+            fx:controller="tn.disguisedtoast.drawable.settingsModule.controllers.menuSettings.MenuButtonSettingsController">
     <center>
         <BorderPane>
             <center>
@@ -42,7 +42,7 @@
                                                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true"
                                                                    preserveRatio="true">
                                                             <image>
-                                                                <Image url="@../../drawable/icons/bold_icon.png"/>
+                                                                <Image url="@../../../drawable/icons/bold_icon.png"/>
                                                             </image>
                                                         </ImageView>
                                                     </graphic>
@@ -59,7 +59,7 @@
                                                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true"
                                                                    preserveRatio="true">
                                                             <image>
-                                                                <Image url="@../../drawable/icons/italic_icon.png"/>
+                                                                <Image url="@../../../drawable/icons/italic_icon.png"/>
                                                             </image>
                                                         </ImageView>
                                                     </graphic>
@@ -76,7 +76,7 @@
                                                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true"
                                                                    preserveRatio="true">
                                                             <image>
-                                                                <Image url="@../../drawable/icons/underlined_icon.png"/>
+                                                                <Image url="@../../../drawable/icons/underlined_icon.png"/>
                                                             </image>
                                                         </ImageView>
                                                     </graphic>
@@ -170,7 +170,7 @@
                                                                 <ImageView fitHeight="20.0" fitWidth="20.0"
                                                                            pickOnBounds="true" preserveRatio="true">
                                                                     <image>
-                                                                        <Image url="@../../drawable/icons/border_left.png"/>
+                                                                        <Image url="@../../../drawable/icons/border_left.png"/>
                                                                     </image>
                                                                 </ImageView>
                                                             </graphic>
@@ -197,7 +197,7 @@
                                                                 <ImageView fitHeight="20.0" fitWidth="20.0"
                                                                            pickOnBounds="true" preserveRatio="true">
                                                                     <image>
-                                                                        <Image url="@../../drawable/icons/border_right.png"/>
+                                                                        <Image url="@../../../drawable/icons/border_right.png"/>
                                                                     </image>
                                                                 </ImageView>
                                                             </graphic>

@@ -1,6 +1,8 @@
 package tn.disguisedtoast.drawable.settingsModule.controllers;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.helger.css.ECSSVersion;
 import com.helger.css.decl.CSSDeclaration;
 import com.helger.css.decl.CSSExpression;
@@ -16,11 +18,12 @@ import javafx.scene.paint.Color;
 import org.jsoup.nodes.Element;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import tn.disguisedtoast.drawable.models.*;
+import tn.disguisedtoast.drawable.models.GeneratedElement;
+import tn.disguisedtoast.drawable.models.SupportedComponents;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
+import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
 import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
 import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
-import tn.disguisedtoast.drawable.settingsModule.utils.DomUtils;
 import tn.disguisedtoast.drawable.settingsModule.utils.FxUtils;
 
 import java.io.File;

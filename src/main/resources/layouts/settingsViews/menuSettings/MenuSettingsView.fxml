@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/10.0.1"
-            fx:controller="tn.disguisedtoast.drawable.settingsModule.controllers.MenuSettingsController">
+            fx:controller="tn.disguisedtoast.drawable.settingsModule.controllers.menuSettings.MenuSettingsController">
     <top>
         <BorderPane minWidth="780.0" BorderPane.alignment="CENTER">
             <left>

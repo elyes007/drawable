@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
+import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
 import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
 import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
 import tn.disguisedtoast.drawable.settingsModule.utils.FxUtils;

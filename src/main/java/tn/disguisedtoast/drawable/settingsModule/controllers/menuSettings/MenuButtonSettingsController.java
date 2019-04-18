@@ -1,4 +1,4 @@
-package tn.disguisedtoast.drawable.settingsModule.controllers;
+package tn.disguisedtoast.drawable.settingsModule.controllers.menuSettings;
 
 import com.helger.css.ECSSVersion;
 import com.helger.css.decl.CSSDeclaration;
@@ -16,9 +16,11 @@ import org.jsoup.nodes.Element;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.models.SupportedComponents;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
+import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.FacebookLoginSettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.GoogleLoginSettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.NavigationSettingsViewController;
+import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
 import tn.disguisedtoast.drawable.settingsModule.models.IonIcon;
 import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
 import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;

@@ -11,6 +11,10 @@ import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.models.SupportedComponents;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
+import tn.disguisedtoast.drawable.settingsModule.controllers.menuSettings.MenuBarSettingController;
+import tn.disguisedtoast.drawable.settingsModule.controllers.menuSettings.MenuButtonSettingsController;
+import tn.disguisedtoast.drawable.settingsModule.controllers.menuSettings.MenuSettingsController;
+import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
 import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 import tn.disguisedtoast.drawable.utils.JsonUtils;
 
@@ -107,7 +111,7 @@ public class SettingsViewController implements Initializable {
                 currentController = loader.getController();
                 ((LabelSettingsViewController)currentController).setLabel(element);
             } else if (element.getElement().tagName().equals(SupportedComponents.ION_TOOLBAR.toString()) && element.getElement().id().equals("menu_toolbar")) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/MenuBarSettingsView.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/menuSettings/MenuBarSettingsView.fxml"));
                 Pane pane = loader.load();
                 AnchorPane.setTopAnchor(pane, 0.0);
                 AnchorPane.setLeftAnchor(pane, 0.0);
@@ -134,7 +138,7 @@ public class SettingsViewController implements Initializable {
                 currentController = loader.getController();
                 ((GlobalPageSettingsViewController)currentController).setBodyGeneratedElement(element);
             } else if (element.getElement().tagName().equals(SupportedComponents.ION_ITEM.toString()) && element.getElement().classNames().contains("menu_item")) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/MenuButtonSettingsView.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/menuSettings/MenuButtonSettingsView.fxml"));
                 Pane pane = loader.load();
                 AnchorPane.setTopAnchor(pane, 0.0);
                 AnchorPane.setLeftAnchor(pane, 0.0);
@@ -144,7 +148,7 @@ public class SettingsViewController implements Initializable {
                 currentController = loader.getController();
                 ((MenuButtonSettingsController) currentController).setMenuButton(element, this);
             } else if (element.getElement().tagName().equals(SupportedComponents.ION_CONTENT.toString())) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/MenuSettingsView.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/menuSettings/MenuSettingsView.fxml"));
                 Pane pane = loader.load();
                 AnchorPane.setTopAnchor(pane, 0.0);
                 AnchorPane.setLeftAnchor(pane, 0.0);
