@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -34,7 +35,7 @@ public class GlobalProjectGeneration implements Initializable {
 
     private String splitn;
     private String projectPath;
-    private List<String> recentList;
+    private List<String> recentList = new ArrayList<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -59,14 +60,14 @@ public class GlobalProjectGeneration implements Initializable {
         JsonObject projectsJson = new JsonParser().parse(fileReader).getAsJsonObject();
         if (!projectsJson.get("current").isJsonNull()) {
             Drawable.projectPath = projectsJson.get("current").getAsString();
-            JsonArray recent = projectsJson.get("recent").getAsJsonArray();
-            for (int i = 0; i < recent.size(); i++) {
-                String path = recent.get(i).getAsString();
-                recentList.add(path);
-            }
             EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
             showHome();
             return true;
+        }
+        JsonArray recent = projectsJson.get("recent").getAsJsonArray();
+        for (int i = 0; i < recent.size(); i++) {
+            String path = recent.get(i).getAsString();
+            recentList.add(path);
         }
         return false;
     }
