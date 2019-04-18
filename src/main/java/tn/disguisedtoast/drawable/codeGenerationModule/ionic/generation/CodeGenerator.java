@@ -108,6 +108,7 @@ public class CodeGenerator {
         ionMenu.getHeader().getToolbar().setIonButtons(null);
         IonContent ionContent = new IonContent();
         ionContent.setId("ion-content");
+        ionContent.setClasse("clickable");
         ionContent.setIonLists(new ArrayList<>(new ArrayList<>(Collections.singletonList(new IonList()))));
         ionMenu.setContent(ionContent);
 
@@ -224,7 +225,7 @@ public class CodeGenerator {
                 ((IonItem) view).getLabel().setLabel("Input " + k++);
             }
             if (view instanceof IonLabel) {
-                view.setId("Label" + textCounter);
+                view.setId("Label" + textCounter++);
                 ((IonLabel) view).setEllipsis(true);
             }
             if (view instanceof IonImg) {
@@ -265,11 +266,13 @@ public class CodeGenerator {
         for (List<IonView> tab : tabs) {
             IonTab ionTab = new IonTab();
             ionTab.setTab("tab" + i);
+            ionTab.setId(ionTab.getTab());
 
             IonTabButton tabButton = new IonTabButton();
+            tabButton.setId("tab-button" + i);
             tabButton.setTab(ionTab.getTab());
             tabButton.setLabel("Tab " + i);
-            tabButton.setIcon(new IonIcon(IonIcon.names.get(i - 1)));
+            tabButton.setIcon(new IonIcon(IonIcon.names.get((i - 1) % (IonIcon.names.size() - 1))));
 
             IonContent content = getContent(tab);
 
