@@ -208,7 +208,11 @@ public class ToolbarSettingsViewController implements Initializable, SettingsCon
                 this.toolbarElement.getElement().selectFirst(SupportedComponents.ION_BUTTONS.toString()),
                 (org.w3c.dom.Element) DomUtils.getChildNode(SupportedComponents.ION_BUTTONS.toString().toUpperCase(), this.toolbarElement.getDomElement()));
 
-        this.hasBackButton.setSelected(this.buttonsElement.getElement().select(SupportedComponents.ION_BACK_BUTTON.toString()).size() != 0);
+        if (this.buttonsElement.getElement().selectFirst("ion-menu-button") == null) {
+            this.hasBackButton.setSelected(this.buttonsElement.getElement().select(SupportedComponents.ION_BACK_BUTTON.toString()).size() != 0);
+        } else {
+            this.hasBackButton.setDisable(true);
+        }
 
         this.titleText.setText(this.titleElement.getElement().text());
 

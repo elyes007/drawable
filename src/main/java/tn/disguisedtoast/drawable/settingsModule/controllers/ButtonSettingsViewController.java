@@ -61,6 +61,20 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
     @FXML public Slider horizontalPosition;
     @FXML public Slider verticalPosition;
     @FXML public ComboBox icon;
+    @FXML
+    private Slider horizontalScale;
+    @FXML
+    private Label posHValue;
+    @FXML
+    private Slider verticalScale;
+    @FXML
+    private Label posVValue;
+    @FXML
+    private Label scaleHValue;
+    @FXML
+    private Label scaleVValue;
+    @FXML
+    private Label deleteButton;
 
     public CustomColorPicker textColor;
     public CustomColorPicker backgroundColor;
@@ -78,11 +92,18 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
     public void initialize(URL location, ResourceBundle resources) {
         aWriter.setContentCharset (StandardCharsets.UTF_8.name ());
 
+        this.deleteButton.setOnMouseClicked(event -> {
+            this.button.getElement().remove();
+            PreviewController.refresh();
+            SettingsViewController.getInstance().clearSettingView();
+        });
+
         initTextView();
         initThemeView();
         initBackgroundColorView();
         initIcon();
         setUpPosition();
+        setUpScale();
 
         this.buttonAction.getItems().addAll(Arrays.asList(actions));
         this.buttonAction.getSelectionModel().selectFirst();
@@ -393,7 +414,9 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
             }catch (NullPointerException e) {
                 System.out.println(e);
             }
-            button.getCssRules().addDeclaration(new CSSDeclaration("left", CSSExpression.createSimple(newValue+"%")));
+            double value = Math.round(newValue.doubleValue() * 10) / 10.0;
+            button.getCssRules().addDeclaration(new CSSDeclaration("left", CSSExpression.createSimple(value + "%")));
+            this.posHValue.setText("(" + value + "%)");
             String cssRules = aWriter.getCSSAsString (button.getCssRules());
             button.getElement().attr("style", cssRules);
             button.getDomElement().setAttribute("style", cssRules);
@@ -406,8 +429,50 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
             }catch (NullPointerException e) {
                 System.out.println(e);
             }
-            button.getCssRules().addDeclaration(new CSSDeclaration("top", CSSExpression.createSimple(newValue+"%")));
+            double value = Math.round(newValue.doubleValue() * 10) / 10.0;
+            button.getCssRules().addDeclaration(new CSSDeclaration("top", CSSExpression.createSimple(value + "%")));
+            this.posVValue.setText("(" + value + "%)");
             String cssRules = aWriter.getCSSAsString (button.getCssRules());
+            button.getElement().attr("style", cssRules);
+            button.getDomElement().setAttribute("style", cssRules);
+        });
+    }
+
+    private void setUpScale() {
+        horizontalScale.valueProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                CSSDeclaration declaration = button.getCssRules().getDeclarationOfPropertyName("width");
+                button.getCssRules().removeDeclaration(declaration);
+            } catch (NullPointerException e) {
+                System.out.println(e);
+            }
+            double value = Math.round(newValue.doubleValue() * 10) / 10.0;
+            if (value > 0) {
+                button.getCssRules().addDeclaration(new CSSDeclaration("width", CSSExpression.createSimple(value + "%")));
+                this.scaleHValue.setText("(" + value + "%)");
+            } else {
+                this.scaleHValue.setText("(Default)");
+            }
+            String cssRules = aWriter.getCSSAsString(button.getCssRules());
+            button.getElement().attr("style", cssRules);
+            button.getDomElement().setAttribute("style", cssRules);
+        });
+
+        verticalScale.valueProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                CSSDeclaration declaration = button.getCssRules().getDeclarationOfPropertyName("height");
+                button.getCssRules().removeDeclaration(declaration);
+            } catch (NullPointerException e) {
+                System.out.println(e);
+            }
+            double value = Math.round(newValue.doubleValue() * 10) / 10.0;
+            if (value > 0) {
+                button.getCssRules().addDeclaration(new CSSDeclaration("height", CSSExpression.createSimple(value + "%")));
+                this.scaleVValue.setText("(" + value + "%)");
+            } else {
+                this.scaleVValue.setText("(Default)");
+            }
+            String cssRules = aWriter.getCSSAsString(button.getCssRules());
             button.getElement().attr("style", cssRules);
             button.getDomElement().setAttribute("style", cssRules);
         });
@@ -446,6 +511,7 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
         getButtonIcon();
 
         setButtonPosition();
+        setButtonScale();
 
         if(NavigationSettingsViewController.getNavigationSetting(button.getElement())){
             this.buttonAction.getSelectionModel().select(1);
@@ -565,6 +631,7 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
             double hPos = Double.parseDouble(horizontalString.substring(0,horizontalString.length()-1));
             this.horizontalPosition.setValue(hPos);
         }catch (Exception e){
+            this.horizontalPosition.setValue(0.1);
             this.horizontalPosition.setValue(0);
         }
 
@@ -573,7 +640,28 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
             double vPos = Double.parseDouble(verticalString.substring(0, verticalString.length()-1));
             this.verticalPosition.setValue(vPos);
         }catch (Exception e){
+            this.verticalPosition.setValue(0.1);
             this.verticalPosition.setValue(0);
+        }
+    }
+
+    private void setButtonScale() {
+        try {
+            String horizontalString = CssRuleExtractor.extractValue(button.getCssRules(), "width");
+            double hPos = Double.parseDouble(horizontalString.substring(0, horizontalString.length() - 1));
+            this.horizontalScale.setValue(hPos);
+        } catch (Exception e) {
+            this.horizontalScale.setValue(0.1);
+            this.horizontalScale.setValue(0);
+        }
+
+        try {
+            String verticalString = CssRuleExtractor.extractValue(button.getCssRules(), "height");
+            double vPos = Double.parseDouble(verticalString.substring(0, verticalString.length() - 1));
+            this.verticalScale.setValue(vPos);
+        } catch (Exception e) {
+            this.verticalScale.setValue(0.1);
+            this.verticalScale.setValue(0);
         }
     }
 

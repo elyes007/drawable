@@ -84,6 +84,7 @@ public class TabSettingsController implements Initializable, SettingsControllerI
             tabElement.getDomElement().getParentNode().removeChild(tabElement.getDomElement());
             tab.getElement().remove();
             tab.getDomElement().getParentNode().removeChild(tab.getDomElement());
+            PreviewController.refresh();
         });
 
         initTextView();

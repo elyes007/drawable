@@ -281,7 +281,7 @@
                 <Insets left="30.0" right="30.0"/>
             </padding>
             <BorderPane.margin>
-                <Insets top="10.0"/>
+                <Insets top="30.0"/>
             </BorderPane.margin>
         </BorderPane>
     </center>

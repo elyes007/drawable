@@ -76,7 +76,6 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
     private String[] actions = {"Select an action", "Navigation", "Login Facebook", "Login Google"};
     private GeneratedElement button;
     private GeneratedElement buttonLabel;
-    private SettingsViewController settingsViewController;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -85,7 +84,7 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
         deleteButton.setOnMouseClicked(event -> {
             this.button.getElement().remove();
             this.button.getDomElement().getParentNode().removeChild(this.button.getDomElement());
-            this.settingsViewController.clearSettingView();
+            SettingsViewController.getInstance().clearSettingView();
         });
 
         initTextView();
@@ -300,9 +299,8 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
     }
 
     //Setup
-    public void setMenuButton(GeneratedElement button, SettingsViewController settingsViewController) {
+    public void setMenuButton(GeneratedElement button) {
         this.button = button;
-        this.settingsViewController = settingsViewController;
         this.buttonLabel = new GeneratedElement(button.getElement().selectFirst("ion-label"), (org.w3c.dom.Element) button.getDomElement().getElementsByTagName("ion-label").item(0));
 
         //Setting the botton text

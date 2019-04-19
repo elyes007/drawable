@@ -34,6 +34,8 @@ public class SettingsViewController implements Initializable {
     private SettingsControllerInterface currentController;
     public static String pageFolder;
 
+    private static SettingsViewController instance;
+
     public void init(String pageFolder) {
         SettingsViewController.pageFolder = pageFolder;
 
@@ -43,8 +45,14 @@ public class SettingsViewController implements Initializable {
         previewPane.getChildren().add(previewRoot);
     }
 
+    public static SettingsViewController getInstance() {
+        return instance;
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        instance = this;
+
         this.saveButton.setDisable(true);
         this.saveButton.setOnAction(event -> currentController.save());
         this.finishButton.setOnAction(event -> {
@@ -67,6 +75,10 @@ public class SettingsViewController implements Initializable {
                 e.printStackTrace();
             }
         });
+    }
+
+    public void clearSettingView() {
+        settingsPane.getChildren().clear();
     }
 
     public void setComponent(GeneratedElement element){
@@ -146,7 +158,7 @@ public class SettingsViewController implements Initializable {
 
                 settingsPane.getChildren().add(pane);
                 currentController = loader.getController();
-                ((MenuButtonSettingsController) currentController).setMenuButton(element, this);
+                ((MenuButtonSettingsController) currentController).setMenuButton(element);
             } else if (element.getElement().tagName().equals(SupportedComponents.ION_CONTENT.toString())) {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/menuSettings/MenuSettingsView.fxml"));
                 Pane pane = loader.load();
@@ -178,10 +190,6 @@ public class SettingsViewController implements Initializable {
         }catch (IOException e){
             e.printStackTrace();
         }
-    }
-
-    public void clearSettingView() {
-        settingsPane.getChildren().clear();
     }
 
 }

@@ -2,7 +2,7 @@
 
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.*?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
@@ -35,12 +35,12 @@
                 </BorderPane>
             </top>
             <padding>
-                <Insets left="30.0" right="30.0" top="30.0"/>
+                <Insets left="30.0" right="30.0"/>
             </padding>
             <center>
                 <VBox BorderPane.alignment="CENTER">
                     <children>
-                        <GridPane hgap="20.0" vgap="20.0">
+                        <GridPane hgap="20.0">
                             <columnConstraints>
                                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="140.0" minWidth="140.0"
                                                    prefWidth="140.0"/>
@@ -48,93 +48,10 @@
                             </columnConstraints>
                             <rowConstraints>
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                                 <RowConstraints minHeight="0.0" prefHeight="0.0" vgrow="SOMETIMES"/>
                             </rowConstraints>
                             <children>
                                 <Label text="Tab Bar Position">
-                                    <font>
-                                        <Font size="14.0"/>
-                                    </font>
-                                </Label>
-                                <Label fx:id="deleteTabButton" text="Delete Tab" textFill="#ff5e5e"
-                                       GridPane.rowIndex="1">
-                                    <font>
-                                        <Font name="System Bold" size="14.0"/>
-                                    </font>
-                                    <cursor>
-                                        <Cursor fx:constant="HAND"/>
-                                    </cursor>
-                                </Label>
-                                <HBox alignment="CENTER_LEFT" spacing="5.0" visible="false" GridPane.columnIndex="1"
-                                      GridPane.rowIndex="2">
-                                    <children>
-                                        <TextField fx:id="textValue1" minWidth="246.0"/>
-                                        <HBox alignment="CENTER" spacing="2.0">
-                                            <children>
-                                                <ToggleButton fx:id="boldButton1" mnemonicParsing="false"
-                                                              styleClass="icon_button">
-                                                    <graphic>
-                                                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true"
-                                                                   preserveRatio="true">
-                                                            <image>
-                                                                <Image url="@../../drawable/icons/bold_icon.png"/>
-                                                            </image>
-                                                        </ImageView>
-                                                    </graphic>
-                                                    <padding>
-                                                        <Insets top="1.0"/>
-                                                    </padding>
-                                                    <cursor>
-                                                        <Cursor fx:constant="HAND"/>
-                                                    </cursor>
-                                                </ToggleButton>
-                                                <ToggleButton fx:id="italicButton1" layoutX="10.0" layoutY="13.0"
-                                                              mnemonicParsing="false" styleClass="icon_button">
-                                                    <graphic>
-                                                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true"
-                                                                   preserveRatio="true">
-                                                            <image>
-                                                                <Image url="@../../drawable/icons/italic_icon.png"/>
-                                                            </image>
-                                                        </ImageView>
-                                                    </graphic>
-                                                    <padding>
-                                                        <Insets top="1.0"/>
-                                                    </padding>
-                                                    <cursor>
-                                                        <Cursor fx:constant="HAND"/>
-                                                    </cursor>
-                                                </ToggleButton>
-                                                <ToggleButton fx:id="underlinedButton1" layoutX="32.0" layoutY="13.0"
-                                                              mnemonicParsing="false" styleClass="icon_button">
-                                                    <graphic>
-                                                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true"
-                                                                   preserveRatio="true">
-                                                            <image>
-                                                                <Image url="@../../drawable/icons/underlined_icon.png"/>
-                                                            </image>
-                                                        </ImageView>
-                                                    </graphic>
-                                                    <padding>
-                                                        <Insets top="1.0"/>
-                                                    </padding>
-                                                    <cursor>
-                                                        <Cursor fx:constant="HAND"/>
-                                                    </cursor>
-                                                </ToggleButton>
-                                            </children>
-                                        </HBox>
-                                        <ComboBox fx:id="textSize1" editable="true" prefWidth="90.0"/>
-                                        <ColorPicker/>
-                                        <Label fx:id="fontColorPane1">
-                                            <tooltip>
-                                                <Tooltip text="Can't select font color when using a color theme."/>
-                                            </tooltip>
-                                        </Label>
-                                    </children>
-                                </HBox>
-                                <Label text="Background Color" visible="false" GridPane.rowIndex="2">
                                     <font>
                                         <Font size="14.0"/>
                                     </font>
@@ -148,6 +65,9 @@
                     </BorderPane.margin>
                 </VBox>
             </center>
+            <BorderPane.margin>
+                <Insets top="30.0"/>
+            </BorderPane.margin>
         </BorderPane>
     </top>
     <center>
@@ -314,11 +234,6 @@
                                 </HBox>
                             </children>
                         </GridPane>
-                        <Pane prefHeight="0.5" styleClass="light_separator">
-                            <VBox.margin>
-                                <Insets top="20.0"/>
-                            </VBox.margin>
-                        </Pane>
                     </children>
                 </VBox>
             </center>
@@ -347,11 +262,75 @@
                 </BorderPane>
             </top>
             <padding>
+                <Insets left="30.0" right="30.0" top="10.0"/>
+            </padding>
+            <BorderPane.margin>
+                <Insets/>
+            </BorderPane.margin>
+        </BorderPane>
+    </center>
+    <bottom>
+        <BorderPane BorderPane.alignment="CENTER">
+            <top>
+                <BorderPane minWidth="780.0" BorderPane.alignment="CENTER">
+                    <left>
+                        <Label styleClass="screen_message" text="Element Settings" BorderPane.alignment="CENTER">
+                            <font>
+                                <Font size="14.0"/>
+                            </font>
+                        </Label>
+                    </left>
+                    <center>
+                        <VBox alignment="CENTER" BorderPane.alignment="CENTER">
+                            <children>
+                                <Pane prefHeight="0.5" styleClass="light_separator"/>
+                            </children>
+                            <BorderPane.margin>
+                                <Insets left="10.0"/>
+                            </BorderPane.margin>
+                        </VBox>
+                    </center>
+                    <BorderPane.margin>
+                        <Insets left="10.0"/>
+                    </BorderPane.margin>
+                </BorderPane>
+            </top>
+            <padding>
                 <Insets left="30.0" right="30.0"/>
             </padding>
+            <center>
+                <VBox BorderPane.alignment="CENTER">
+                    <children>
+                        <GridPane hgap="20.0" vgap="20.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="140.0" minWidth="140.0"
+                                                   prefWidth="140.0"/>
+                                <ColumnConstraints hgrow="SOMETIMES"/>
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                <RowConstraints minHeight="0.0" prefHeight="0.0" vgrow="SOMETIMES"/>
+                            </rowConstraints>
+                            <children>
+                                <Label fx:id="deleteTabButton" text="Delete Tab" textFill="#ff5e5e">
+                                    <font>
+                                        <Font name="System Bold" size="14.0"/>
+                                    </font>
+                                    <cursor>
+                                        <Cursor fx:constant="HAND"/>
+                                    </cursor>
+                                </Label>
+                            </children>
+                        </GridPane>
+                    </children>
+                    <BorderPane.margin>
+                        <Insets left="40.0" right="40.0" top="20.0"/>
+                    </BorderPane.margin>
+                </VBox>
+            </center>
             <BorderPane.margin>
                 <Insets top="10.0"/>
             </BorderPane.margin>
         </BorderPane>
-    </center>
+    </bottom>
 </BorderPane>
