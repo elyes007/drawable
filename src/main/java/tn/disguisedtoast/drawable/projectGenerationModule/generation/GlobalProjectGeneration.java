@@ -3,10 +3,12 @@ package tn.disguisedtoast.drawable.projectGenerationModule.generation;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.DirectoryChooser;
@@ -32,16 +34,22 @@ public class GlobalProjectGeneration implements Initializable {
     public Button openProject;
     @FXML
     public BorderPane startPane;
+    @FXML
+    public ListView recentProjectsList;
 
     private String splitn;
     private String projectPath;
-    private List<String> recentList = new ArrayList<>();
+    private static List<String> recentList = new ArrayList<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         if (checkCurrentProject()) return;
         this.newProject.setOnMouseClicked(event -> createNewProject());
         this.openProject.setOnMouseClicked(event -> openProject());
+        //loadRecent();
+        // recentProjectsList.
+        System.out.println(recentList);
+        recentProjectsList.setItems(FXCollections.observableList(recentList));
     }
 
     private boolean checkCurrentProject() {
@@ -126,6 +134,30 @@ public class GlobalProjectGeneration implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static List<String> loadRecent() {
+        FileReader fileReader = null;
+        try {
+            fileReader = new FileReader("./src/main/projects.json");
+        } catch (FileNotFoundException e) {
+            String fileBody = "{\n\t\"current\":null,\n\t\"recent\":[]\n}";
+            try {
+                FileUtils.writeStringToFile(new File("./src/main/projects.json"), fileBody);
+                fileReader = new FileReader("./src/main/projects.json");
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+        JsonObject projectsJson = new JsonParser().parse(fileReader).getAsJsonObject();
+        JsonArray recent = projectsJson.get("recent").getAsJsonArray();
+
+        for (int i = 0; i < recent.size(); i++) {
+            String path = recent.get(i).getAsString();
+            System.out.println(path);
+            recentList.add(path);
+        }
+        return recentList;
     }
 
     private void showHome() {
