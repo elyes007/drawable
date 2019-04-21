@@ -5,6 +5,10 @@
     <title>storyboard</title>
     <style type="text/css">
 
+        body {
+            background-color: #585C5F;
+        }
+
         .pageDiv {
             position: absolute;
         }
@@ -13,6 +17,7 @@
             cursor: move;
             height: 20px;
             border: 1px solid lightgray;
+            background-color: lightgray;
             margin-bottom: 4px;
             border-radius: 2px;
         }
@@ -42,7 +47,7 @@
 </head>
 <body>
 
-<svg height="100%" width="100%" style="position: absolute" id="svg">
+<svg height="5000px" width="5000px" style="position: absolute" id="svg">
     <defs>
         <marker id="markerArrow" markerWidth="15" markerHeight="15" refX="2" refY="6"
                 orient="auto">
@@ -54,9 +59,28 @@
 <script type="text/javascript">
 
     window.onload = function () {
+        zoom = 70;
+        document.body.style.zoom = zoom + "%"
         drawStoryboard();
         document.onmousedown = startDrag;
         document.onmouseup = stopDrag;
+        document.onkeydown = (e) =
+    >
+        {
+            var evtobj = window.event ? event : e
+            if ((evtobj.keyCode == 107 || evtobj.keyCode == 61) && evtobj.ctrlKey) {
+                zoom = Math.min(100, zoom + 10)
+                document.body.style.zoom = zoom + "%"
+            }
+            if ((evtobj.keyCode == 109 || evtobj.keyCode == 54) && evtobj.ctrlKey) {
+                zoom = Math.max(30, zoom - 10)
+                document.body.style.zoom = zoom + "%"
+            }
+            if ((evtobj.keyCode == 96 || evtobj.keyCode == 48) && evtobj.ctrlKey) {
+                zoom = 100
+                document.body.style.zoom = zoom + "%"
+            }
+        }
     }
 
     function drawStoryboard() {
@@ -150,7 +174,7 @@
         var left2 = parseInt(destImg.parentElement.style.left.slice(0, destImg.parentElement.style.left.length - 2))
         var top2 = parseInt(destImg.parentElement.style.top.slice(0, destImg.parentElement.style.top.length - 2))
 
-        segue.setAttribute('x1', left1 + srcImg.clientWidth);
+        segue.setAttribute('x1', left1 + 191);
         segue.setAttribute('y1', top1 + 20 + 4 + srcImg.clientHeight / 2);
         segue.setAttribute('x2', left2 - 60);
         segue.setAttribute('y2', top2 + 20 + 4 + destImg.clientHeight / 2);
