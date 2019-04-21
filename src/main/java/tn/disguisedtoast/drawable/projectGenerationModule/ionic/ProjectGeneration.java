@@ -9,7 +9,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
-import tn.disguisedtoast.drawable.homeModule.controllers.HomeController;
+import tn.disguisedtoast.drawable.homeModule.controllers.ScrollHomeLayoutController;
 import tn.disguisedtoast.drawable.homeModule.models.Page;
 
 import java.io.*;
@@ -163,7 +163,7 @@ public class ProjectGeneration {
 
 
     public static void generatePages(String globalProjectPath) throws IOException {
-        HomeController hc = new HomeController();
+        ScrollHomeLayoutController hc = new ScrollHomeLayoutController();
         List<Page> PagesList = hc.loadPages();
         for (Page p : PagesList) {
             System.out.println(p.toString());

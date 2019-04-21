@@ -29,7 +29,7 @@ public class PageCellViewController implements Initializable {
 
     private ImageViewPane imageViewPane;
     private ImageView imageView;
-    private HomeController homeController;
+    private ScrollHomeLayoutController scrollHomeLayoutController;
     private Page page;
 
     @Override
@@ -58,14 +58,14 @@ public class PageCellViewController implements Initializable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            homeController.refresh();
+            scrollHomeLayoutController.refresh();
         });
 
     }
 
-    public void setPage(Page page, PageClickCallback callback, HomeController homeController) {
+    public void setPage(Page page, PageClickCallback callback, ScrollHomeLayoutController scrollHomeLayoutController) {
         this.page = page;
-        this.homeController = homeController;
+        this.scrollHomeLayoutController = scrollHomeLayoutController;
 
         imageView = new ImageView(page.getImage());
         imageView.setPreserveRatio(true);

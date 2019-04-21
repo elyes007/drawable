@@ -1,13 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>storyboard test</title>
+    <meta charset="utf-8">
+    <title>storyboard</title>
     <style type="text/css">
-        .dragme {
-            cursor: move;
+
+        .pageDiv {
             position: absolute;
+        }
+
+        .dragBar {
+            cursor: move;
+            height: 20px;
+            border: 1px solid lightgray;
+            margin-bottom: 4px;
+            border-radius: 2px;
+        }
+
+        .dragBar:hover {
+            background-color: lightgray;
+        }
+
+        .pageImg {
+            cursor: pointer;
             width: 200px;
-            height: 400px;
+            height: 398px;
             object-fit: cover;
         }
 
@@ -15,6 +32,11 @@
             stroke: rgb(0, 0, 0);
             stroke-width: 2;
             marker-end: url(#markerArrow)
+        }
+
+        .segue {
+            stroke: rgb(0, 0, 0);
+            stroke-width: 2;
         }
     </style>
 </head>
@@ -29,33 +51,121 @@
     </defs>
 </svg>
 
-<img src="https://i.imgur.com/WlVVX.jpg" class="dragme" id="1" style="left: 0; top: 0;">
-<img src="https://i.imgur.com/WlVVX.jpg" class="dragme" id="2" style="left: 600px; top: 100px;">
-
 <script type="text/javascript">
-    function setArrowPosition(arrow, id1, id2) {
-        var img1 = document.getElementById("1")
-        var img2 = document.getElementById("2")
 
-        var left1 = parseInt(img1.style.left.slice(0, img1.style.left.length - 2))
-        var top1 = parseInt(img1.style.top.slice(0, img1.style.top.length - 2))
-        var left2 = parseInt(img2.style.left.slice(0, img2.style.left.length - 2))
-        var top2 = parseInt(img2.style.top.slice(0, img2.style.top.length - 2))
-
-        arrow.setAttribute('x1', (left1 + img1.clientWidth) + "");
-        arrow.setAttribute('y1', (top1 + img1.clientHeight / 2) + "");
-        arrow.setAttribute('x2', (left2 - 30) + "");
-        arrow.setAttribute('y2', (top2 + img2.clientHeight / 2) + "");
+    window.onload = function () {
+        drawStoryboard();
+        document.onmousedown = startDrag;
+        document.onmouseup = stopDrag;
     }
 
+    function drawStoryboard() {
+
+        fetch('storyboard.json')
+            .then(response = > response.json()
+    )
+    .
+        then(json = > {
+            pages = {}
+            json.forEach(function (obj) {
+                obj.to = []
+                obj.from = []
+                pages[obj.page] = obj
+
+                const div = document.createElement("div")
+                div.style.left = obj.x + 'px'
+                div.style.top = obj.y + 'px'
+                div.className = 'pageDiv'
+
+                const dragBar = document.createElement("div")
+                dragBar.className = 'dragBar'
+
+                const img = document.createElement("img")
+                img.setAttribute("src", "./pages/" + obj.page + "/snapshot.png")
+                img.setAttribute("id", obj.page)
+                img.className = 'pageImg'
+
+                div.appendChild(dragBar)
+                div.appendChild(img)
+                document.querySelector("body").appendChild(div)
+            });
+        drawArrows()
+    })
+    }
+
+    async
+
     function drawArrows() {
-        var arrow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        arrow.setAttribute('id', 'line');
-        arrow.setAttribute("stroke", "black")
-        arrow.setAttribute("class", "arrow")
-        setArrowPosition(arrow, "1", "2")
-        var svg = document.getElementById("svg")
-        svg.appendChild(arrow)
+        for (const key in pages) {
+            if (pages.hasOwnProperty(key)) {
+                const page = pages[key];
+                const svg = document.getElementById("svg")
+
+                await
+                fetch('pages/' + key + '/conf.json')
+                    .then(response = > response.json()
+            )
+            .
+                then(json = > {
+                    json.actions.forEach(action = > {
+                        if(action.type !== 'nav'
+            )
+                return
+
+                page.to.push(action.dest)
+                pages[action.dest].from.push(key)
+                const segue = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                segue.setAttribute('id', key + '-' + action.dest);
+                segue.setAttribute("stroke", "black")
+                segue.setAttribute("class", "segue")
+                setSeguePosition(segue, page.page, action.dest)
+                svg.appendChild(segue)
+            })
+                ;
+            })
+            }
+        }
+
+        for (const key in pages) {
+            if (pages.hasOwnProperty(key)) {
+                const page = pages[key];
+                if (page.from.length == 0) continue
+
+                const enterArrow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                enterArrow.setAttribute('id', key + '-enterArrow');
+                enterArrow.setAttribute("stroke", "black")
+                enterArrow.setAttribute("class", "arrow")
+                setEnterArrowPosition(enterArrow, key)
+                svg.appendChild(enterArrow)
+            }
+        }
+    }
+
+    function setSeguePosition(segue, src, dest) {
+        var srcImg = document.getElementById(src)
+        var destImg = document.getElementById(dest)
+
+        var left1 = parseInt(srcImg.parentElement.style.left.slice(0, srcImg.parentElement.style.left.length - 2))
+        var top1 = parseInt(srcImg.parentElement.style.top.slice(0, srcImg.parentElement.style.top.length - 2))
+        var left2 = parseInt(destImg.parentElement.style.left.slice(0, destImg.parentElement.style.left.length - 2))
+        var top2 = parseInt(destImg.parentElement.style.top.slice(0, destImg.parentElement.style.top.length - 2))
+
+        segue.setAttribute('x1', left1 + srcImg.clientWidth);
+        segue.setAttribute('y1', top1 + 20 + 4 + srcImg.clientHeight / 2);
+        segue.setAttribute('x2', left2 - 60);
+        segue.setAttribute('y2', top2 + 20 + 4 + destImg.clientHeight / 2);
+    }
+
+    function setEnterArrowPosition(arrow, pageId) {
+        var pageImg = document.getElementById(pageId)
+
+        var left = parseInt(pageImg.parentElement.style.left.slice(0, pageImg.parentElement.style.left.length - 2))
+        var top = parseInt(pageImg.parentElement.style.top.slice(0, pageImg.parentElement.style.top.length - 2))
+
+        arrow.setAttribute('x1', left - 60);
+        arrow.setAttribute('y1', top + 20 + 4 + pageImg.clientHeight / 2);
+        arrow.setAttribute('x2', left - 25);
+        arrow.setAttribute('y2', top + 20 + 4 + pageImg.clientHeight / 2);
     }
 
     function startDrag(e) {
@@ -67,7 +177,7 @@
         // IE uses srcElement, others use target
         targ = e.target ? e.target : e.srcElement;
 
-        if (targ.className != 'dragme') {
+        if (targ.className != 'dragBar') {
             return
         }
         ;
@@ -76,20 +186,20 @@
         offsetX = e.clientX;
         offsetY = e.clientY;
 
-        // assign default values for top and left properties
-        if (!targ.style.left) {
-            targ.style.left = '0px'
+        // assign default values for topp and left properties
+        if (!targ.parentElement.style.left) {
+            targ.parentElement.style.left = '0px'
         }
         ;
-        if (!targ.style.top) {
-            targ.style.top = '0px'
+        if (!targ.parentElement.style.top) {
+            targ.parentElement.style.top = '0px'
         }
         ;
 
         // calculate integer values for top and left
         // properties
-        coordX = parseInt(targ.style.left);
-        coordY = parseInt(targ.style.top);
+        coordX = parseInt(targ.parentElement.style.left);
+        coordY = parseInt(targ.parentElement.style.top);
         drag = true;
 
         // move div element
@@ -107,13 +217,30 @@
             var e = window.event
         }
         ;
-        // var targ=e.target?e.target:e.srcElement;
-        // move div element
-        targ.style.left = coordX + e.clientX - offsetX + 'px';
-        targ.style.top = coordY + e.clientY - offsetY + 'px';
 
-        var newLine = document.getElementById("line")
-        setArrowPosition(newLine, "1", "2")
+        targ.parentElement.style.left = coordX + e.clientX - offsetX + 'px';
+        targ.parentElement.style.top = coordY + e.clientY - offsetY + 'px';
+
+        targ = targ.parentElement.children[1]
+
+        const enterArrow = document.getElementById(targ.id + "-enterArrow")
+        if (enterArrow) setEnterArrowPosition(enterArrow, targ.id)
+
+        let to = pages[targ.id].to
+        to.forEach(dest = > {
+            const segue = document.getElementById(targ.id + "-" + dest)
+            setSeguePosition(segue, targ.id, dest
+    )
+    })
+        ;
+
+        let from = pages[targ.id].from
+        from.forEach(src = > {
+            const segue = document.getElementById(src + "-" + targ.id)
+            setSeguePosition(segue, src, targ.id
+    )
+    })
+        ;
 
         return false;
     }
@@ -122,11 +249,6 @@
         drag = false;
     }
 
-    window.onload = function () {
-        drawArrows();
-        document.onmousedown = startDrag;
-        document.onmouseup = stopDrag;
-    }
 </script>
 </body>
 </html>

@@ -3,17 +3,14 @@ package tn.disguisedtoast.drawable.homeModule.controllers;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import org.apache.commons.io.FileUtils;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
@@ -23,18 +20,17 @@ import tn.disguisedtoast.drawable.homeModule.models.Page;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
 import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-public class HomeController implements CamChooserController.CameraButtonCallback, Initializable {
-    @FXML
-    public TextField search;
-    @FXML
-    public Button export;
+public class ScrollHomeLayoutController implements CamChooserController.CameraButtonCallback, Initializable {
     @FXML
     public AnchorPane addButtonPane;
     @FXML
@@ -60,6 +56,7 @@ public class HomeController implements CamChooserController.CameraButtonCallback
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        if (addButtonPane == null) System.out.println("button pane");
         ((Button) this.addButtonPane.getChildren().get(0)).setOnAction(event -> {
             EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
             chooserStage = new Stage();
@@ -74,31 +71,6 @@ public class HomeController implements CamChooserController.CameraButtonCallback
         });
 
         refresh();
-
-        this.search.setOnKeyReleased(event -> {
-            if (this.search.getText().isEmpty()) {
-                Platform.runLater(() -> {
-                    this.pagesPreviewHBox.getChildren().clear();
-                    this.pagesPreviewHBox.getChildren().add(addButtonPane);
-                    this.pagesPreviewHBox.getChildren().addAll(
-                            this.pageCellViewControllers.stream().map(
-                                    pageCellViewController -> pageCellViewController.getPagePane()
-                            ).collect(Collectors.toList())
-                    );
-                });
-            } else {
-                Platform.runLater(() -> {
-                    this.pagesPreviewHBox.getChildren().clear();
-                    this.pagesPreviewHBox.getChildren().addAll(
-                            this.pageCellViewControllers.stream().filter(
-                                    pageCellViewController -> pageCellViewController.getPage().getName().contains(this.search.getText())
-                            ).map(
-                                    pageCellViewController -> pageCellViewController.getPagePane()
-                            ).collect(Collectors.toList())
-                    );
-                });
-            }
-        });
 
         //check and generate ionic project in background
         /*if(!getIonicState()){
@@ -153,67 +125,6 @@ public class HomeController implements CamChooserController.CameraButtonCallback
         }
     }
 
-   @FXML
-   public void exportProject(ActionEvent event) {
-        // String command ="cmd /c ionic start newProject";
-        // Runtime rt = Runtime.getRuntime();
-        /*ProcessBuilder processBuilder = new ProcessBuilder();
-        // Windows
-        processBuilder.command("cmd.exe", "/c", "ping -n 3 google.com");
-        try {
-           // rt.exec(new String[]{"cmd.exe","/c","ionic "});
-            Process process = Runtime.getRuntime().exec(command);
-            Scanner kb = new Scanner(process.getInputStream());
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }*/
-
-
-
-
-        // Windows
-
-        Platform.runLater(() -> {
-            DirectoryChooser dc = new DirectoryChooser();
-            //dc.showDialog(primaryStage);
-            File f = dc.showDialog(primaryStage);
-            String s = f.getAbsolutePath();
-            System.out.println(s);
-
-            ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.directory(new File(s));
-            // TextField projectName = new TextField();
-
-
-            processBuilder.command("cmd.exe", "/c", "ionic start testProject blank");
-            try {
-
-                Process process = processBuilder.start();
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    System.out.println("wait");
-                    System.out.println(line);
-                }
-
-                int exitCode = process.waitFor();
-                System.out.println("\nExited with error code : " + exitCode);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-
-
-
-    }
-
     public List<Page> loadPages() {
         File root = new File(pagesPath);
         String[] directories = root.list((dir, name) -> (new File(dir, name).isDirectory()));
@@ -250,6 +161,31 @@ public class HomeController implements CamChooserController.CameraButtonCallback
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public void search(String text) {
+        if (text.isEmpty()) {
+            Platform.runLater(() -> {
+                this.pagesPreviewHBox.getChildren().clear();
+                this.pagesPreviewHBox.getChildren().add(addButtonPane);
+                this.pagesPreviewHBox.getChildren().addAll(
+                        this.pageCellViewControllers.stream().map(
+                                pageCellViewController -> pageCellViewController.getPagePane()
+                        ).collect(Collectors.toList())
+                );
+            });
+        } else {
+            Platform.runLater(() -> {
+                this.pagesPreviewHBox.getChildren().clear();
+                this.pagesPreviewHBox.getChildren().addAll(
+                        this.pageCellViewControllers.stream().filter(
+                                pageCellViewController -> pageCellViewController.getPage().getName().contains(text)
+                        ).map(
+                                pageCellViewController -> pageCellViewController.getPagePane()
+                        ).collect(Collectors.toList())
+                );
+            });
         }
     }
 }
