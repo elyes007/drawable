@@ -90,11 +90,33 @@
             top: 40px;
             width: 100px;
         }
+
+        .buttonsContainer {
+            position: absolute;
+            display: inline-block;
+            width: 150px;
+            background-color: #3C3F41;
+            border-radius: 16px;
+        }
+
+        .button-title {
+            cursor: pointer;
+            color: white;
+            padding-left: 32px;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            font-family: Helvetica;
+        }
+
+        .button-title:hover {
+            background-color: #5f6163;
+        }
+
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
-<svg height="5000px" width="5000px" style="position: absolute" id="svg">
+<svg height="5000px" width="5000px" style="position: absolute;" id="svg">
     <defs>
         <marker id="markerArrow" markerWidth="15" markerHeight="15" refX="2" refY="6"
                 orient="auto">
@@ -108,7 +130,7 @@
 </div>
 
 <script type="text/javascript">
-
+    var nav = false
     window.onload = function () {
         zoom = 70;
         document.body.style.zoom = zoom + "%"
@@ -153,16 +175,16 @@
                 div.id = obj.page + '-container'
 
                 const dragBar = document.createElement("div")
+                dragBar.id = obj.page + '-dragBar'
                 dragBar.className = 'dragBar'
-                const title = document.createElement("p")
-                title.className = "title"
-                title.innerHTML = obj.page
-                dragBar.appendChild(title)
 
                 const img = document.createElement("img")
                 img.setAttribute("src", "./pages/" + obj.page + "/snapshot.png")
                 img.setAttribute("id", obj.page)
                 img.className = 'pageImg'
+                img.onclick = (e) =
+            >
+                java.openPage(obj.page)
 
                 div.appendChild(dragBar)
                 div.appendChild(img)
@@ -186,6 +208,11 @@
             )
             .
                 then(json = > {
+                    const title = document.createElement("p")
+                    title.className = "title"
+                    title.innerHTML = json.page
+                    document.querySelector("#" + key + "-dragBar").appendChild(title)
+
                     json.actions.forEach(action = > {
                         if(action.type !== 'nav'
             )
@@ -253,15 +280,23 @@
             var e = window.event;
         }
         if (e.preventDefault) e.preventDefault();
-        // IE uses srcElement, others use target
+
         targ = e.target ? e.target : e.srcElement;
+
+        if (e.button === 2) {
+            if (targ.className != 'pageImg') return
+            startNavDrag(e)
+            return;
+        }
 
         if (targ.className != 'dragBar') {
             if (targ.className == 'title') {
                 targ = targ.parentElement
+            } else {
+                return;
             }
         }
-        ;
+
         console.log('start drag')
         // calculate event X, Y coordinates
         offsetX = e.clientX;
@@ -326,12 +361,117 @@
         return false;
     }
 
-    function stopDrag() {
+    function stopDrag(e) {
         drag = false;
+        if (nav) {
+            const target = targ
+            const element = document.elementFromPoint(e.clientX, e.clientY)
+            if (element.className != 'pageImg') {
+                const svg = document.getElementById("svg")
+                svg.removeChild(svg.getElementById("navArrow"))
+                nav = false
+                return
+            }
+            const buttons = JSON.parse(java.getButtons(target.id))
+            const buttonsContainer = document.createElement("div")
+            buttonsContainer.className = 'buttonsContainer'
+            buttonsContainer.style.left = e.clientX + 'px'
+            buttonsContainer.style.top = e.clientY + 'px'
+            const title = document.createElement("p")
+            title.style.color = "white"
+            title.style.marginLeft = "10px"
+            title.style.fontFamily = "Helvetica"
+            title.innerHTML = buttons.length == 0 ? 'No available buttons' : 'Available buttons:'
+            buttonsContainer.appendChild(title)
+            if (buttons.length > 0) {
+                buttons.forEach(button = > {
+                    let btn = document.createElement("p")
+                    btn.innerHTML = button.title
+                    btn.className = 'button-title'
+                    btn.onclick = (e) = > {
+                    //call java to add nav
+                    java.addNavigation(target.id, button.id, element.id)
+                    //remove temp segue
+                    const svg2 = document.getElementById("svg")
+                    svg2.removeChild(svg2.getElementById("navArrow"))
+                    //remove buttons container
+                    document.querySelector("body").removeChild(buttonsContainer)
+                    //add arrows to dest
+                    if(
+                !document.getElementById(element.id + '-enterArrow')
+            )
+                {
+                    const enterArrow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    enterArrow.setAttribute('id', element.id + '-enterArrow');
+                    console.log(element.id + '-enterArrow')
+                    enterArrow.setAttribute("stroke", "black")
+                    enterArrow.setAttribute("class", "arrow")
+                    setEnterArrowPosition(enterArrow, element.id)
+                    svg2.appendChild(enterArrow)
+                }
+                if (!document.getElementById(target.id + '-' + element.id)) {
+                    const segue = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    segue.setAttribute('id', target.id + '-' + element.id);
+                    console.log(target.id + '-' + element.id)
+                    segue.setAttribute("stroke", "black")
+                    segue.setAttribute("class", "segue")
+                    setSeguePosition(segue, target.id, element.id)
+                    svg2.appendChild(segue)
+                }
+                //update to and from arrays
+                pages[target.id].to.push(element.id)
+                pages[element.id].from.push(target.id)
+            }
+                buttonsContainer.appendChild(btn)
+            })
+                ;
+            }
+            document.querySelector("body").appendChild(buttonsContainer)
+            nav = false
+            return
+        }
+        java.updateStoryboard(targ.id, parseInt(targ.parentElement.style.left) + "", parseInt(targ.parentElement.style.top) + "")
+    }
+
+    function startNavDrag(e) {
+        nav = true
+
+        startX = e.clientX
+        startY = e.clientY
+
+        createNavArrow(startX, startY)
+
+        drag = true;
+        document.onmousemove = dragNav;
+    }
+
+    function createNavArrow(x, y) {
+        const element = document.elementFromPoint(x, y)
+        x = parseInt(element.parentElement.style.left) + 191
+        y = parseInt(element.parentElement.style.top) + 24 + 398 / 2
+        const segue = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        segue.setAttribute('id', 'navArrow');
+        segue.setAttribute("stroke", "black")
+        segue.setAttribute("class", "segue")
+        segue.setAttribute('x1', x);
+        segue.setAttribute('y1', y);
+        segue.setAttribute('x2', x);
+        segue.setAttribute('y2', y);
+        const svg = document.querySelector("#svg")
+        svg.appendChild(segue)
+    }
+
+    function dragNav(e) {
+        if (!drag) return
+
+        const svg = document.querySelector("#svg")
+        const segue = svg.getElementById("navArrow")
+        segue.setAttribute('x2', e.clientX);
+        segue.setAttribute('y2', e.clientY);
     }
 
     function search(text) {
-
+        document.getElementById("Page3-container").scrollIntoView()
     }
 
 </script>
