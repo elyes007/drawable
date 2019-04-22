@@ -5,6 +5,10 @@
     <title>storyboard</title>
     <style type="text/css">
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             background-color: #585C5F;
         }
@@ -26,6 +30,12 @@
             background-color: lightgray;
         }
 
+        .title {
+            text-align: center;
+            margin: 0 0 0 0;
+            font-family: Helvetica;
+        }
+
         .pageImg {
             cursor: pointer;
             width: 200px;
@@ -43,6 +53,43 @@
             stroke: rgb(0, 0, 0);
             stroke-width: 2;
         }
+
+        #add-container {
+            position: relative;
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+            left: 16px;
+            top: 16px;
+            width: 200px;
+            height: 398px;
+            border-radius: 8px;
+            border: 1px dashed black;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        #add-container:hover {
+            opacity: 1;
+        }
+
+        #add {
+            display: inline-block;
+            background: #517d5e;
+            height: 100px;
+            position: relative;
+            width: 20px;
+        }
+
+        #add:after {
+            background: #517d5e;
+            content: "";
+            height: 20px;
+            left: -40px;
+            position: absolute;
+            top: 40px;
+            width: 100px;
+        }
     </style>
 </head>
 <body>
@@ -55,6 +102,10 @@
         </marker>
     </defs>
 </svg>
+
+<div id="add-container" onclick="java.addPage()">
+    <div id="add"></div>
+</div>
 
 <script type="text/javascript">
 
@@ -84,7 +135,6 @@
     }
 
     function drawStoryboard() {
-
         fetch('storyboard.json')
             .then(response = > response.json()
     )
@@ -100,9 +150,14 @@
                 div.style.left = obj.x + 'px'
                 div.style.top = obj.y + 'px'
                 div.className = 'pageDiv'
+                div.id = obj.page + '-container'
 
                 const dragBar = document.createElement("div")
                 dragBar.className = 'dragBar'
+                const title = document.createElement("p")
+                title.className = "title"
+                title.innerHTML = obj.page
+                dragBar.appendChild(title)
 
                 const img = document.createElement("img")
                 img.setAttribute("src", "./pages/" + obj.page + "/snapshot.png")
@@ -202,7 +257,9 @@
         targ = e.target ? e.target : e.srcElement;
 
         if (targ.className != 'dragBar') {
-            return
+            if (targ.className == 'title') {
+                targ = targ.parentElement
+            }
         }
         ;
         console.log('start drag')
@@ -271,6 +328,10 @@
 
     function stopDrag() {
         drag = false;
+    }
+
+    function search(text) {
+
     }
 
 </script>
