@@ -47,7 +47,7 @@ public class SettingsViewController implements Initializable {
             EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
             PreviewController.saveSnapshot(pageFolder + File.separator + "snapshot.png", () -> {
                 try{
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/ScrollHomeLayout.fxml"));
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/HomeLayout.fxml"));
                     EveryWhereLoader.getInstance().stopLoader(loader.load());
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -57,7 +57,7 @@ public class SettingsViewController implements Initializable {
         this.cancelButton.setOnAction(event -> {
             try {
                 EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/ScrollHomeLayout.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/HomeLayout.fxml"));
                 EveryWhereLoader.getInstance().stopLoader(loader.load());
             } catch (IOException e) {
                 e.printStackTrace();

@@ -1,5 +1,8 @@
 package tn.disguisedtoast.drawable.codeGenerationModule.ionic.generation;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.io.FileUtils;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.*;
@@ -9,9 +12,7 @@ import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.N
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -392,6 +393,40 @@ public class CodeGenerator {
         //updating id file
         FileUtils.writeStringToFile(idFile, id + "");
 
+        updateStoryboard(pageName);
+
         return pagesPath + File.separator + pageName;
+    }
+
+    private static void updateStoryboard(String pageName) {
+        String path = (Drawable.projectPath + "&RelatedFiles&storyboard.json").replace("&", File.separator);
+        FileReader fileReader = null;
+        try {
+            fileReader = new FileReader(path);
+        } catch (FileNotFoundException e) {
+            String fileBody = "[{\n" +
+                    "\t\t\"page\":\"" + pageName + "\",\n" +
+                    "\t\t\"x\":\"16\",\n" +
+                    "\t\t\"y\":\"430\"\n" +
+                    "\t}]";
+            try {
+                FileUtils.writeStringToFile(new File(path), fileBody);
+                return;
+            } catch (IOException e1) {
+                e1.printStackTrace();
+                return;
+            }
+        }
+        JsonArray storyboard = new JsonParser().parse(fileReader).getAsJsonArray();
+        JsonObject object = new JsonObject();
+        object.addProperty("page", pageName);
+        object.addProperty("x", "24");
+        object.addProperty("y", "446");
+        storyboard.add(object);
+        try {
+            FileUtils.writeStringToFile(new File(path), storyboard.toString());
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
     }
 }
