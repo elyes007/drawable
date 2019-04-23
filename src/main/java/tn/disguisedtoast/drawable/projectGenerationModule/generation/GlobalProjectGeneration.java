@@ -3,14 +3,17 @@ package tn.disguisedtoast.drawable.projectGenerationModule.generation;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Paint;
 import javafx.stage.DirectoryChooser;
 import org.apache.commons.io.FileUtils;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
@@ -35,7 +38,16 @@ public class GlobalProjectGeneration implements Initializable {
     @FXML
     public BorderPane startPane;
     @FXML
-    public ListView recentProjectsList;
+    public VBox recentVBox;
+    @FXML
+    public Label openProjectLink;
+    @FXML
+    public Label createProjectLink;
+    @FXML
+    public AnchorPane menuPane;
+    @FXML
+    public BorderPane subMenu;
+
 
     private String splitn;
     private String projectPath;
@@ -46,10 +58,45 @@ public class GlobalProjectGeneration implements Initializable {
         if (checkCurrentProject()) return;
         this.newProject.setOnMouseClicked(event -> createNewProject());
         this.openProject.setOnMouseClicked(event -> openProject());
-        //loadRecent();
-        // recentProjectsList.
+        this.createProjectLink.setOnMouseEntered(event -> {
+            createProjectLink.setTextFill(Paint.valueOf("#e28d38"));
+            createProjectLink.setCursor(Cursor.HAND);
+
+        });
+        this.createProjectLink.setOnMouseExited(event -> {
+            createProjectLink.setTextFill(Paint.valueOf("#3c3c3c"));
+        });
+        this.openProjectLink.setOnMouseEntered(event -> {
+            openProjectLink.setTextFill(Paint.valueOf("#e28d38"));
+            openProjectLink.setCursor(Cursor.HAND);
+        });
+        this.openProjectLink.setOnMouseExited(event -> {
+            openProjectLink.setTextFill(Paint.valueOf("#3c3c3c"));
+        });
+        this.createProjectLink.setOnMouseClicked(event -> createNewProject());
+        this.openProjectLink.setOnMouseClicked(event -> openProject());
+
+        Label projectName = new Label();
+        projectName.setTextFill(Paint.valueOf("#bcbcbc"));
+        projectName.setCursor(Cursor.HAND);
         System.out.println(recentList);
-        recentProjectsList.setItems(FXCollections.observableList(recentList));
+        for (String p : recentList) {
+            projectName.setText(p);
+
+        }
+        if (recentList.size() == 0) {
+            recentVBox.setPrefWidth(0);
+            recentVBox.setVisible(false);
+            menuPane.setPrefWidth(600);
+            //subMenu.setAlignment(openProjectLink, Pos.CENTER_RIGHT);
+            //subMenu.setAlignment(createProjectLink,);
+            // openProject.alignmentProperty().set(Pos.CENTER);
+
+            // openProjectLink.alignmentProperty().set(Pos.CENTER);
+
+        }
+        recentVBox.getChildren().addAll(projectName);
+
     }
 
     private boolean checkCurrentProject() {
@@ -85,6 +132,9 @@ public class GlobalProjectGeneration implements Initializable {
         DirectoryChooser dc = new DirectoryChooser();
         File f = dc.showDialog(Drawable.globalStage);
         String path = f.getAbsolutePath();
+        if (f == null) {
+            return;
+        }
         Drawable.projectPath = projectPath = path;
         updateCurrentProject();
         EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
@@ -94,6 +144,9 @@ public class GlobalProjectGeneration implements Initializable {
     private void createNewProject() {
         DirectoryChooser dc = new DirectoryChooser();
         File f = dc.showDialog(Drawable.globalStage);
+        if (f == null) {
+            return;
+        }
         String s = f.getAbsolutePath();
         System.out.println(s);
         try {

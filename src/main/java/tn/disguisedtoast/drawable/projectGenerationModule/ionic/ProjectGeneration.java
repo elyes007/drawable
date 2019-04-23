@@ -162,7 +162,7 @@ public class ProjectGeneration {
     }
 
 
-    public static void generatePages(String globalProjectPath) throws IOException {
+    public static void generatePages() throws IOException {
         HomeController hc = new HomeController();
         List<Page> PagesList = hc.loadPages();
         for (Page p : PagesList) {
@@ -170,7 +170,7 @@ public class ProjectGeneration {
 
 
             ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.directory(new File(globalProjectPath+"\\ionic_project"));
+            processBuilder.directory(new File(Drawable.projectPath + "\\ionic_project"));
             // TextField projectName = new TextField();
 
 
