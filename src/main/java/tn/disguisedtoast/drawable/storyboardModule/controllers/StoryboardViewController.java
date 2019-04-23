@@ -88,12 +88,25 @@ public class StoryboardViewController implements Initializable {
 
         public void addNavigation(String source, String buttonId, String dest) {
             try {
-                String path = (Drawable.projectPath + "&RelatedFiles&pages&" + source + "&" + source + ".html")
+                //update html
+                String htmlPath = (Drawable.projectPath + "&RelatedFiles&pages&" + source + "&" + source + ".html")
                         .replace("&", File.separator);
-                File file = new File(path);
+                File file = new File(htmlPath);
                 Document document = Jsoup.parse(file, "UTF-8");
                 document.body().select("#" + buttonId).attr("[routerLink]", dest);
                 FileUtils.write(file, document.toString());
+                //update conf.json
+                String confPath = (Drawable.projectPath + "&RelatedFiles&pages&" + source + "&conf.json")
+                        .replace("&", File.separator);
+                FileReader fileReader = new FileReader(confPath);
+                JsonObject json = new JsonParser().parse(fileReader).getAsJsonObject();
+                JsonArray actions = json.get("actions").getAsJsonArray();
+                JsonObject action = new JsonObject();
+                action.addProperty("type", "nav");
+                action.addProperty("dest", dest);
+                action.addProperty("button", buttonId);
+                actions.add(action);
+                FileUtils.writeStringToFile(new File(confPath), json.toString());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -113,7 +126,7 @@ public class StoryboardViewController implements Initializable {
                     sb.append("{\"id\":\"").append(button.id()).append("\",\"title\":\"").append(button.html())
                             .append("\"},");
                 }
-                if (sb.charAt(0) == '[') return "[]";
+                if (sb.length() == 1) return "[]";
                 sb.deleteCharAt(sb.length() - 1).append("]");
                 return sb.toString();
             } catch (IOException e) {
