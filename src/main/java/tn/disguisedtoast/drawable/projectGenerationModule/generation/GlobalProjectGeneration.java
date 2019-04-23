@@ -131,10 +131,10 @@ public class GlobalProjectGeneration implements Initializable {
     private void openProject() {
         DirectoryChooser dc = new DirectoryChooser();
         File f = dc.showDialog(Drawable.globalStage);
-        String path = f.getAbsolutePath();
         if (f == null) {
             return;
         }
+        String path = f.getAbsolutePath();
         Drawable.projectPath = projectPath = path;
         updateCurrentProject();
         EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
