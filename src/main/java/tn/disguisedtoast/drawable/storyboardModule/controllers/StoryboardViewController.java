@@ -16,7 +16,6 @@ import netscape.javascript.JSObject;
 import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.detectionModule.controllers.CamChooserController;
 import tn.disguisedtoast.drawable.detectionModule.controllers.CamStreamViewController;
@@ -101,6 +100,15 @@ public class StoryboardViewController implements Initializable {
                 FileReader fileReader = new FileReader(confPath);
                 JsonObject json = new JsonParser().parse(fileReader).getAsJsonObject();
                 JsonArray actions = json.get("actions").getAsJsonArray();
+                //remove old action for same button
+                for (int i = 0; i < actions.size(); i++) {
+                    JsonObject act = actions.get(i).getAsJsonObject();
+                    if (act.get("button").getAsString().equals(buttonId)) {
+                        actions.remove(i);
+                        break;
+                    }
+                }
+                //add new action
                 JsonObject action = new JsonObject();
                 action.addProperty("type", "nav");
                 action.addProperty("dest", dest);
@@ -109,29 +117,6 @@ public class StoryboardViewController implements Initializable {
                 FileUtils.writeStringToFile(new File(confPath), json.toString());
             } catch (IOException e) {
                 e.printStackTrace();
-            }
-        }
-
-        public String getButtons(String pageName) {
-            try {
-                String path = (Drawable.projectPath + "&RelatedFiles&pages&" + pageName + "&" + pageName + ".html")
-                        .replace("&", File.separator);
-                File file = new File(path);
-                Document document = Jsoup.parse(file, "UTF-8");
-                ArrayList<Element> buttons = document.body().select("ion-button");
-                if (buttons.isEmpty()) return "[]";
-                StringBuilder sb = new StringBuilder("[");
-                for (Element button : buttons) {
-                    if (button.hasAttr("[routerLink]")) continue;
-                    sb.append("{\"id\":\"").append(button.id()).append("\",\"title\":\"").append(button.html())
-                            .append("\"},");
-                }
-                if (sb.length() == 1) return "[]";
-                sb.deleteCharAt(sb.length() - 1).append("]");
-                return sb.toString();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return "[]";
             }
         }
 
