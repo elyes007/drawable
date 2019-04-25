@@ -46,7 +46,7 @@
         .arrow {
             stroke: rgb(0, 0, 0);
             stroke-width: 2;
-            marker-end: url(#markerArrow)
+            marker-end: url(#markerArrow);
         }
 
         .segue {
@@ -112,7 +112,6 @@
             padding: 4px 8px 4px 8px;
             border-radius: 4px;
         }
-
         /*
                 .yesBtn:hover {
                     background-color: white;
@@ -130,7 +129,6 @@
             padding: 4px 8px 4px 8px;
             border-radius: 4px;
         }
-
         /*
                 .nopeBtn:hover {
                     background-color: white;
@@ -142,7 +140,16 @@
 </head>
 <body oncontextmenu="return false;" id="storybody">
 
-<svg height="5000px" width="5000px" style="position: absolute; z-index: 2; pointer-events: none;" id="svg">
+<svg height="5000px" width="5000px" style="position: absolute; pointer-events: none;" id="svg">
+    <defs>
+        <marker id="markerArrow" markerWidth="15" markerHeight="15" refX="2" refY="6"
+                orient="auto">
+            <path d="M2,2 L2,11 L10,6 L2,2" style="fill: #000000;"/>
+        </marker>
+    </defs>
+</svg>
+
+<svg height="5000px" width="5000px" style="position: absolute; z-index: 2; pointer-events: none;" id="svg-nav">
     <defs>
         <marker id="markerArrow" markerWidth="15" markerHeight="15" refX="2" refY="6"
                 orient="auto">
@@ -326,7 +333,7 @@
 
         if (shouldDismiss && targ.className != 'yesBtn' && targ.className != 'nopeBtn') {
             document.querySelector("body").removeChild(document.getElementsByClassName('navMessage')[0])
-            const svg = document.getElementById("svg")
+            const svg = document.getElementById("svg-nav")
             svg.removeChild(svg.getElementById("navArrow"))
         }
         shouldDismiss = false
@@ -363,9 +370,8 @@
         }
         ;
 
-        // calculate integer values for top and left
-        // properties
-        coordX = parseInt(targ.parentElement.style.left);
+        oldPageX = e.pageX
+        oldPageY = e.pageY
         coordY = parseInt(targ.parentElement.style.top);
         drag = true;
 
@@ -384,9 +390,12 @@
             var e = window.event
         }
         ;
-
-        targ.parentElement.style.left = coordX + e.clientX - offsetX + 'px';
-        targ.parentElement.style.top = coordY + e.clientY - offsetY + 'px';
+        const deltaX = e.pageX - oldPageX
+        const deltaY = e.pageY - oldPageY
+        targ.parentElement.style.left = parseInt(targ.parentElement.style.left) + deltaX / (zoom / 100) + 'px';
+        targ.parentElement.style.top = parseInt(targ.parentElement.style.top) + deltaY / (zoom / 100) + 'px';
+        oldPageX = e.pageX
+        oldPageY = e.pageY
 
         targ = targ.parentElement.children[1]
 
@@ -429,7 +438,7 @@
         }
 
         if (!element) {
-            const svg = document.getElementById("svg")
+            const svg = document.getElementById("svg-nav")
             svg.removeChild(svg.getElementById("navArrow"))
             return
         }
@@ -449,7 +458,7 @@
         //if button is free add navigation
         if (free) {
             //remove temp segue
-            const svg2 = document.getElementById("svg")
+            const svg2 = document.getElementById("svg-nav")
             svg2.removeChild(svg2.getElementById("navArrow"))
             addNavigation(target, element)
             return
@@ -459,8 +468,8 @@
         let offsetTop = document.body.scrollTop
         const navMessage = document.createElement("div")
         navMessage.className = 'navMessage'
-        navMessage.style.left = e.clientX + offsetLeft + 'px'
-        navMessage.style.top = e.clientY + offsetTop + 'px'
+        navMessage.style.left = e.pageX / (zoom / 100) + 'px'
+        navMessage.style.top = e.pageY / (zoom / 100) + 'px'
         const title = document.createElement("p")
         title.style.color = "white"
         title.style.marginLeft = "10px"
@@ -481,24 +490,36 @@
         {
             dismissNav(navMessage)
             //remove from 'to' array in source page
+            let connectionsCount = 0
             for (let i = 0; i < pages[target.id].to.length; i++) {
                 let nav = pages[target.id].to[i]
                 if (nav.button == buttonId) {
-                    pages[target.id].to.splice(i)
-                    break
+                    pages[target.id].to.splice(i, 1)
+                }
+                if (nav.dest == dest) {
+                    connectionsCount++
                 }
             }
-            //remove from 'from' array in destination page
+            //remove from 'from' array in destination page if there was only a single connection to that page
+            //and remove enter arrow head in the same case
             for (let i = 0; i < pages[dest].from.length; i++) {
                 let src = pages[dest].from[i]
-                if (src == target.id) {
-                    pages[dest].from.splice(i)
+                if (src == target.id && connectionsCount == 1) {
+                    console.log(pages[dest].from)
+                    pages[dest].from.splice(i, 1)
+                    if (pages[dest].from.length === 0) {
+                        console.log(pages[dest].from)
+                        let svg = document.getElementById("svg")
+                        svg.removeChild(svg.getElementById(dest + '-enterArrow'))
+                    }
                     break
                 }
             }
-            //delete old segue
-            const svg = document.getElementById("svg")
-            svg.removeChild(svg.getElementById(target.id + '-' + dest))
+            //delete old segue if no more connection to same page
+            if (connectionsCount == 1) {
+                const svg = document.getElementById("svg")
+                svg.removeChild(svg.getElementById(target.id + '-' + dest))
+            }
 
             addNavigation(target, element)
         }
@@ -515,7 +536,7 @@
         //remove buttons container
         document.querySelector("body").removeChild(navMessage)
         //remove temp segue
-        const svg = document.getElementById("svg")
+        const svg = document.getElementById("svg-nav")
         svg.removeChild(svg.getElementById("navArrow"))
     }
 
@@ -559,12 +580,10 @@
 
         nav = true
 
-        let offsetLeft = document.body.scrollLeft
-        let offsetTop = document.body.scrollTop
-        startX = e.clientX + offsetLeft
-        startY = e.clientY + offsetTop
+        oldPageX = e.pageX
+        oldPageY = e.pageY
 
-        createNavArrow(startX, startY)
+        createNavArrow(oldPageX / (zoom / 100), oldPageY / (zoom / 100))
 
         drag = true;
         document.onmousemove = dragNav;
@@ -579,19 +598,17 @@
         segue.setAttribute('y1', y);
         segue.setAttribute('x2', x);
         segue.setAttribute('y2', y);
-        const svg = document.querySelector("#svg")
+        const svg = document.querySelector("#svg-nav")
         svg.appendChild(segue)
     }
 
     function dragNav(e) {
         if (!drag) return
 
-        const svg = document.querySelector("#svg")
+        const svg = document.querySelector("#svg-nav")
         const segue = svg.getElementById("navArrow")
-        let offsetLeft = document.body.scrollLeft
-        let offsetTop = document.body.scrollTop
-        segue.setAttribute('x2', e.clientX + offsetLeft);
-        segue.setAttribute('y2', e.clientY + offsetTop);
+        segue.setAttribute('x2', e.pageX / (zoom / 100));
+        segue.setAttribute('y2', e.pageY / (zoom / 100));
     }
 
     function search(text) {

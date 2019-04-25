@@ -91,6 +91,7 @@ public class StoryboardViewController implements Initializable {
                 String htmlPath = (Drawable.projectPath + "&RelatedFiles&pages&" + source + "&" + source + ".html")
                         .replace("&", File.separator);
                 File file = new File(htmlPath);
+                String routerLink = String.format("['/%s']", dest.toLowerCase());
                 Document document = Jsoup.parse(file, "UTF-8");
                 document.body().select("#" + buttonId).attr("[routerLink]", dest);
                 FileUtils.write(file, document.toString());
