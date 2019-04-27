@@ -1,5 +1,7 @@
 package tn.disguisedtoast.drawable.settingsModule.controllers.menuSettings;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.helger.css.ECSSVersion;
 import com.helger.css.decl.CSSDeclaration;
 import com.helger.css.decl.CSSExpression;
@@ -17,9 +19,6 @@ import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.models.SupportedComponents;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
-import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.FacebookLoginSettingsViewController;
-import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.GoogleLoginSettingsViewController;
-import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.NavigationSettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
 import tn.disguisedtoast.drawable.settingsModule.models.IonIcon;
 import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
@@ -27,6 +26,8 @@ import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
 import tn.disguisedtoast.drawable.settingsModule.utils.FxUtils;
 import tn.disguisedtoast.drawable.settingsModule.utils.IconComboboxCell;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -320,12 +321,22 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
         //Setting the button icon
         getButtonIcon();
 
-        if (NavigationSettingsViewController.getNavigationSetting(button.getElement())) {
+        if (this.button.getElement().hasAttr("[routerLink]")) {
             this.buttonAction.getSelectionModel().select(1);
-        } else if (FacebookLoginSettingsViewController.getLogSetting(button.getElement())) {
-            this.buttonAction.getSelectionModel().select(2);
-        } else if (GoogleLoginSettingsViewController.getLogSetting(button.getElement())) {
-            this.buttonAction.getSelectionModel().select(3);
+        } else {
+            try {
+                JsonObject pageSettingsObject = new JsonParser().parse(new FileReader(SettingsViewController.pageFolder + "/conf.json")).getAsJsonObject();
+                if (pageSettingsObject.getAsJsonObject("actions").has(this.button.getElement().id())) {
+                    JsonObject buttonActionObject = pageSettingsObject.getAsJsonObject("actions").getAsJsonObject(this.button.getElement().id());
+                    if (buttonActionObject.get("platform").getAsString().equals("facebook")) {
+                        this.buttonAction.getSelectionModel().select(2);
+                    } else {
+                        this.buttonAction.getSelectionModel().select(3);
+                    }
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
     }
 

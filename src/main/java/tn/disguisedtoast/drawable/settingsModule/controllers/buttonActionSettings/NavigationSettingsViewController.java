@@ -106,7 +106,7 @@ public class NavigationSettingsViewController implements Initializable, Settings
     public void save() {
         try{
             Files.write(Paths.get(SettingsViewController.pageFolder+"/conf.json"), new GsonBuilder().create().toJson(jsonObject).getBytes());
-            this.buttonGeneratedElement.getElement().attr("[routerLink]", (String)this.pagesList.getValue());
+            this.buttonGeneratedElement.getElement().attr("[routerLink]", "['/" + this.pagesList.getValue() + "']");
         } catch (IOException e) {
             e.printStackTrace();
         }

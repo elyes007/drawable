@@ -6,8 +6,6 @@ import com.helger.css.decl.CSSDeclaration;
 import com.helger.css.decl.CSSExpression;
 import com.helger.css.writer.CSSWriter;
 import com.helger.css.writer.CSSWriterSettings;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -31,6 +29,7 @@ import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
 import tn.disguisedtoast.drawable.settingsModule.utils.FxUtils;
 import tn.disguisedtoast.drawable.settingsModule.utils.IconComboboxCell;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
@@ -107,46 +106,43 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
 
         this.buttonAction.getItems().addAll(Arrays.asList(actions));
         this.buttonAction.getSelectionModel().selectFirst();
-        this.buttonAction.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                int index = ((ChoiceBox)event.getTarget()).getSelectionModel().getSelectedIndex();
-                try{
-                    switch (index){
-                        case 0:
-                            actionSettingsPane.setCenter(noActionPane);
-                            settingsControllerInterface = null;
-                            System.out.println("Here None");
-                            button.getElement().removeAttr("[routerLink]");
-                            break;
-                        case 1:
-                            FXMLLoader navigationLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/NavigationSettingsView.fxml"));
-                            actionSettingsPane.setCenter(navigationLoader.load());
-                            settingsControllerInterface = navigationLoader.getController();
-                            ((NavigationSettingsViewController) settingsControllerInterface).setElement(button);
-                            break;
-                        case 2:
-                            FXMLLoader facebookLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/FacebookLoginSettingsView.fxml"));
-                            actionSettingsPane.setCenter(facebookLoader.load());
-                            settingsControllerInterface = facebookLoader.getController();
-                            ((FacebookLoginSettingsViewController)settingsControllerInterface).setElement(button.getElement());
-                            System.out.println("Here FB");
-                            button.getElement().removeAttr("[routerLink]");
-                            //save();
-                            break;
-                        case 3:
-                            FXMLLoader googleLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/GoogleLoginSettingsView.fxml"));
-                            actionSettingsPane.setCenter(googleLoader.load());
-                            settingsControllerInterface = googleLoader.getController();
-                            ((GoogleLoginSettingsViewController)settingsControllerInterface).setElement(button.getElement());
-                            System.out.println("here G");
-                            button.getElement().removeAttr("[routerLink]");
-                            //save();
-                            break;
-                    }
-                }catch (IOException ex){
-                    System.err.println(ex);
+        this.buttonAction.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            int index = (Integer) newValue;
+            try {
+                switch (index) {
+                    case 0:
+                        actionSettingsPane.setCenter(noActionPane);
+                        settingsControllerInterface = null;
+                        System.out.println("Here None");
+                        button.getElement().removeAttr("[routerLink]");
+                        break;
+                    case 1:
+                        FXMLLoader navigationLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/NavigationSettingsView.fxml"));
+                        actionSettingsPane.setCenter(navigationLoader.load());
+                        settingsControllerInterface = navigationLoader.getController();
+                        ((NavigationSettingsViewController) settingsControllerInterface).setElement(button);
+                        break;
+                    case 2:
+                        FXMLLoader facebookLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/FacebookLoginSettingsView.fxml"));
+                        actionSettingsPane.setCenter(facebookLoader.load());
+                        settingsControllerInterface = facebookLoader.getController();
+                        ((FacebookLoginSettingsViewController) settingsControllerInterface).setElement(button.getElement(), ButtonSettingsViewController.this);
+                        System.out.println("Here FB");
+                        button.getElement().removeAttr("[routerLink]");
+                        //save();
+                        break;
+                    case 3:
+                        FXMLLoader googleLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/GoogleLoginSettingsView.fxml"));
+                        actionSettingsPane.setCenter(googleLoader.load());
+                        settingsControllerInterface = googleLoader.getController();
+                        ((GoogleLoginSettingsViewController) settingsControllerInterface).setElement(button.getElement());
+                        System.out.println("here G");
+                        button.getElement().removeAttr("[routerLink]");
+                        //save();
+                        break;
                 }
+            } catch (IOException ex) {
+                System.err.println(ex);
             }
         });
     }
@@ -513,12 +509,23 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
         setButtonPosition();
         setButtonScale();
 
-        if(NavigationSettingsViewController.getNavigationSetting(button.getElement())){
+
+        if (this.button.getElement().hasAttr("[routerLink]")) {
             this.buttonAction.getSelectionModel().select(1);
-        }else if(FacebookLoginSettingsViewController.getLogSetting(button.getElement())) {
-            this.buttonAction.getSelectionModel().select(2);
-        }else if(GoogleLoginSettingsViewController.getLogSetting(button.getElement())){
-            this.buttonAction.getSelectionModel().select(3);
+        } else {
+            try {
+                JsonObject pageSettingsObject = new JsonParser().parse(new FileReader(SettingsViewController.pageFolder + "/conf.json")).getAsJsonObject();
+                if (pageSettingsObject.getAsJsonObject("actions").has(this.button.getElement().id())) {
+                    JsonObject buttonActionObject = pageSettingsObject.getAsJsonObject("actions").getAsJsonObject(this.button.getElement().id());
+                    if (buttonActionObject.get("platform").getAsString().equals("facebook")) {
+                        this.buttonAction.getSelectionModel().select(2);
+                    } else {
+                        this.buttonAction.getSelectionModel().select(3);
+                    }
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
     }
 
