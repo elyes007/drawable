@@ -14,6 +14,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import netscape.javascript.JSObject;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
@@ -36,13 +37,13 @@ public class StoryboardViewController implements Initializable {
 
     public AnchorPane root;
     public WebView webView;
-    public String pagesPath = "D:\\Headquarters\\New folder\\test";
     public JSCallback jsCallback = new JSCallback();
+    public static String pagesPath = (Drawable.projectPath + "&RelatedFiles&pages").replace("&", File.separator);
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         webView.getEngine().setJavaScriptEnabled(true);
-        String path = (pagesPath + "/RelatedFiles/storyboard.html").replace("\\", "/");
+        String path = (Drawable.projectPath + "/RelatedFiles/storyboard.html").replace("\\", "/");
         webView.getEngine().getLoadWorker().stateProperty().addListener((ObservableValue<? extends Worker.State> ov, Worker.State oldState, Worker.State newState) -> {
             if (newState == Worker.State.SUCCEEDED) {
                 JSObject jsobj = (JSObject) webView.getEngine().executeScript("window");
@@ -58,7 +59,7 @@ public class StoryboardViewController implements Initializable {
         webView.getEngine().load("file:///" + path);
     }
 
-    public List<Page> loadPages() {
+    public static List<Page> loadPages() {
         File root = new File(pagesPath);
         String[] directories = root.list((dir, name) -> (new File(dir, name).isDirectory()));
         List<Page> pages = new ArrayList<>();
@@ -85,6 +86,84 @@ public class StoryboardViewController implements Initializable {
     public class JSCallback implements CamChooserController.CameraButtonCallback {
         private Stage chooserStage;
 
+        public void deletePage(String page) {
+            System.gc();
+            //remove page directory
+            String path = (Drawable.projectPath + "&RelatedFiles&pages&" + page).replace("&", File.separator);
+            try {
+                FileUtils.deleteDirectory(new File(path));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            //remove from other pages' conf files
+            File root = new File(pagesPath);
+            String[] directories = root.list((dir, name) -> (new File(dir, name).isDirectory()));
+            for (String dir : directories) {
+                if (dir.equals("temp")) continue;
+                FileReader reader = null;
+                try {
+                    reader = new FileReader(pagesPath + "/" + dir + "/conf.json");
+                    JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
+                    JsonArray actions = jsonObject.get("actions").getAsJsonArray();
+                    for (int i = 0; i < actions.size(); i++) {
+                        String dest = actions.get(i).getAsJsonObject().get("dest").getAsString();
+                        if (dest.equals(page)) {
+                            actions.remove(i);
+                            //remove routerLink
+                            String htmlPath = (Drawable.projectPath + "&RelatedFiles&pages&" + dir + "&" + dir + ".html")
+                                    .replace("&", File.separator);
+                            File file = new File(htmlPath);
+                            String routerLink = String.format("['/%s']", dest.toLowerCase());
+                            Document document = Jsoup.parse(file, "UTF-8");
+                            document.body().getElementsByAttributeValue("[routerLink]", routerLink)
+                                    .forEach(button -> {
+                                        button.removeAttr("[routerLink]");
+                                    });
+                            FileUtils.write(file, document.toString());
+                        }
+                    }
+                    FileUtils.write(new File(pagesPath + "/" + dir + "/conf.json"), jsonObject.toString());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            //remove from storyboard
+            path = (Drawable.projectPath + "&RelatedFiles&storyboard.json").replace("&", File.separator);
+            FileReader fileReader = null;
+            try {
+                fileReader = new FileReader(path);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                return;
+            }
+            JsonObject storyboard = new JsonParser().parse(fileReader).getAsJsonObject();
+            JsonArray pages = storyboard.get("pages").getAsJsonArray();
+            for (int i = 0; i < pages.size(); i++) {
+                JsonObject object = (JsonObject) pages.get(i);
+                if (object.get("page").getAsString().equals(page)) {
+                    pages.remove(i);
+                    break;
+                }
+            }
+            try {
+                FileUtils.writeStringToFile(new File(path), storyboard.toString());
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+
+        public String getPath() {
+            return StringUtils.substringBeforeLast(getClass().getResource("/storyboardModule/delete.svg").getPath(),
+                    "/");
+        }
+
         public void addNavigation(String source, String buttonId, String dest) {
             try {
                 //update html
@@ -93,7 +172,7 @@ public class StoryboardViewController implements Initializable {
                 File file = new File(htmlPath);
                 String routerLink = String.format("['/%s']", dest.toLowerCase());
                 Document document = Jsoup.parse(file, "UTF-8");
-                document.body().select("#" + buttonId).attr("[routerLink]", dest);
+                document.body().select("#" + buttonId).attr("[routerLink]", routerLink);
                 FileUtils.write(file, document.toString());
                 //update conf.json
                 String confPath = (Drawable.projectPath + "&RelatedFiles&pages&" + source + "&conf.json")
@@ -130,14 +209,33 @@ public class StoryboardViewController implements Initializable {
                 e.printStackTrace();
                 return;
             }
-            JsonArray storyboard = new JsonParser().parse(fileReader).getAsJsonArray();
-            for (int i = 0; i < storyboard.size(); i++) {
-                JsonObject object = (JsonObject) storyboard.get(i);
+            JsonObject storyboard = new JsonParser().parse(fileReader).getAsJsonObject();
+            JsonArray pages = storyboard.get("pages").getAsJsonArray();
+            for (int i = 0; i < pages.size(); i++) {
+                JsonObject object = (JsonObject) pages.get(i);
                 if (object.get("page").getAsString().equals(page)) {
                     object.addProperty("x", x);
                     object.addProperty("y", y);
                 }
             }
+            try {
+                FileUtils.writeStringToFile(new File(path), storyboard.toString());
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+
+        public void updateStoryboardZoom(int zoom) {
+            String path = (Drawable.projectPath + "&RelatedFiles&storyboard.json").replace("&", File.separator);
+            FileReader fileReader = null;
+            try {
+                fileReader = new FileReader(path);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                return;
+            }
+            JsonObject storyboard = new JsonParser().parse(fileReader).getAsJsonObject();
+            storyboard.addProperty("zoom", zoom);
             try {
                 FileUtils.writeStringToFile(new File(path), storyboard.toString());
             } catch (IOException e1) {

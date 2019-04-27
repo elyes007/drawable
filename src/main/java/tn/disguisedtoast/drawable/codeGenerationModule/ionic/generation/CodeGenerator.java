@@ -404,11 +404,12 @@ public class CodeGenerator {
         try {
             fileReader = new FileReader(path);
         } catch (FileNotFoundException e) {
-            String fileBody = "[{\n" +
+            String fileBody = "{\"zoom\":50," +
+                    "\"pages\":[{\n" +
                     "\t\t\"page\":\"" + pageName + "\",\n" +
                     "\t\t\"x\":\"16\",\n" +
                     "\t\t\"y\":\"430\"\n" +
-                    "\t}]";
+                    "\t}]}";
             try {
                 FileUtils.writeStringToFile(new File(path), fileBody);
                 return;
@@ -417,12 +418,13 @@ public class CodeGenerator {
                 return;
             }
         }
-        JsonArray storyboard = new JsonParser().parse(fileReader).getAsJsonArray();
+        JsonObject storyboard = new JsonParser().parse(fileReader).getAsJsonObject();
+        JsonArray pages = storyboard.get("pages").getAsJsonArray();
         JsonObject object = new JsonObject();
         object.addProperty("page", pageName);
         object.addProperty("x", "24");
         object.addProperty("y", "446");
-        storyboard.add(object);
+        pages.add(object);
         try {
             FileUtils.writeStringToFile(new File(path), storyboard.toString());
         } catch (IOException e1) {

@@ -17,16 +17,29 @@
         }
 
         .dragBar {
-            cursor: move;
-            height: 20px;
+            cursor: pointer;
+            height: 29px;
             border: 1px solid lightgray;
             background-color: lightgray;
             margin-bottom: 4px;
             border-radius: 2px;
+            text-align: center;
         }
 
         .dragBar:hover {
             background-color: lightgray;
+        }
+
+        .dragBarButton {
+            height: 100%;
+            width: auto;
+            object-fit: cover;
+            padding: 4px;
+            border-radius: 2px;
+        }
+
+        .dragBarButton:hover {
+            background-color: #95999C;
         }
 
         .title {
@@ -166,11 +179,20 @@
     var nav = false
     shouldDismiss = false
     window.onload = function () {
-        zoom = 50;
-        document.body.style.zoom = zoom + "%"
         drawStoryboard();
         document.onmousedown = startDrag;
         document.onmouseup = stopDrag;
+    }
+
+    function drawStoryboard() {
+        fetch('storyboard.json')
+            .then(response = > response.json()
+    )
+    .
+        then(json = > {
+            //zoom management
+            zoom = json.zoom;
+        document.body.style.zoom = zoom + "%"
         document.onkeydown = (e) =
     >
         {
@@ -187,57 +209,142 @@
                 zoom = 100
                 document.body.style.zoom = zoom + "%"
             }
+            java.updateStoryboardZoom(zoom)
         }
+        //drawing storyboard
+        pages = {}
+        json.pages.forEach(function (obj) {
+            obj.to = []
+            obj.from = []
+            pages[obj.page] = obj
+
+            fetch('./pages/' + obj.page + '/' + obj.page + '.html')
+                .then(response = > response.text()
+        )
+        .
+            then(text = > {
+                const html = document.createElement("html")
+                html.innerHTML = text;
+
+            const div = document.createElement("div")
+            div.style.left = obj.x + 'px'
+            div.style.top = obj.y + 'px'
+            div.className = 'pageDiv'
+            div.id = obj.page + '-container'
+
+            const dragBar = document.createElement("div")
+            dragBar.id = obj.page + '-dragBar'
+            dragBar.className = 'dragBar'
+            makeDragBarButtons(dragBar, obj.page)
+
+            const pageContainer = document.createElement("div")
+            pageContainer.id = obj.page
+            pageContainer.className = 'page'
+            const ionApp = html.querySelector("ion-app")
+            for (let img of ionApp.getElementsByTagName("ion-img")) {
+                img.src = img.src.substring(img.src.search('assets'), img.src.length)
+            }
+            pageContainer.appendChild(ionApp)
+            //pageContainer.onclick = (e) => java.openPage(obj.page)
+
+            div.appendChild(dragBar)
+            div.appendChild(pageContainer)
+            document.querySelector("body").appendChild(div)
+        })
+        })
+        drawArrows()
+    })
     }
 
-    function drawStoryboard() {
-        fetch('storyboard.json')
-            .then(response = > response.json()
-    )
-    .
-        then(json = > {
-            pages = {}
-            json.forEach(function (obj) {
-                obj.to = []
-                obj.from = []
-                pages[obj.page] = obj
+    function makeDragBarButtons(dragBar, page) {
+        const path = java.getPath()
 
-                fetch('./pages/' + obj.page + '/' + obj.page + '.html')
-                    .then(response = > response.text()
-            )
-            .
-                then(text = > {
-                    const html = document.createElement("html")
-                    html.innerHTML = text;
-
-                const div = document.createElement("div")
-                div.style.left = obj.x + 'px'
-                div.style.top = obj.y + 'px'
-                div.className = 'pageDiv'
-                div.id = obj.page + '-container'
-
-                const dragBar = document.createElement("div")
-                dragBar.id = obj.page + '-dragBar'
-                dragBar.className = 'dragBar'
-
-                const pageContainer = document.createElement("div")
-                pageContainer.id = obj.page
-                pageContainer.className = 'page'
-                const ionApp = html.querySelector("ion-app")
-                for (let img of ionApp.getElementsByTagName("ion-img")) {
-                    img.src = img.src.substring(img.src.search('assets'), img.src.length)
-                }
-                pageContainer.appendChild(ionApp)
-                //pageContainer.onclick = (e) => java.openPage(obj.page)
-
-                div.appendChild(dragBar)
-                div.appendChild(pageContainer)
-                document.querySelector("body").appendChild(div)
-            })
-            })
-            drawArrows()
+        const remove = document.createElement("img")
+        remove.src = path + '/delete.svg'
+        remove.className = 'dragBarButton'
+        remove.onclick = (e) =
+    >
+        {
+            showConfirmMessage(e, () = > {
+                java.deletePage(page)
+                deletePage(page)
+            }
+        )
         }
+
+        const settings = document.createElement("img")
+        settings.src = path + '/settings.svg'
+        settings.className = 'dragBarButton'
+        settings.style.marginLeft = '16px'
+        settings.style.marginRight = '16px'
+        settings.onclick = (e) =
+    >
+        java.openPage(page)
+
+        const details = document.createElement("img")
+        details.src = path + '/details.svg'
+        details.className = 'dragBarButton'
+
+        dragBar.appendChild(details)
+        dragBar.appendChild(settings)
+        dragBar.appendChild(remove)
+    }
+
+    function deletePage(page) {
+        document.body.removeChild(document.getElementById(page + '-container'))
+        const svg = document.getElementById("svg")
+        svg.removeChild(svg.getElementById(page + '-enterArrow'))
+        pages[page].from.forEach(src = > {
+            svg.removeChild(svg.getElementById(src + '-' + page))
+            for(let i = 0;
+        i < pages[src].to.length;
+        i++
     )
+        {
+            if (pages[src].to[i].dest == page) {
+                pages[src].to.splice(i, 1)
+                i--
+            }
+        }
+    })
+    }
+
+    function showConfirmMessage(e, callback) {
+        shouldDismiss = true
+        const messageContainer = document.createElement("div")
+        messageContainer.className = 'navMessage'
+        messageContainer.style.left = e.pageX / (zoom / 100) + 'px'
+        messageContainer.style.top = e.pageY / (zoom / 100) + 'px'
+        const title = document.createElement("p")
+        title.style.color = "white"
+        title.style.marginLeft = "10px"
+        title.style.fontFamily = "Helvetica"
+        title.style.fontSize = '14px'
+        title.innerHTML = 'Are you sure you want to delete this page ?'
+        const nopeBtn = document.createElement("button")
+        nopeBtn.className = 'nopeBtn'
+        nopeBtn.innerHTML = 'No'
+        nopeBtn.onclick = (e) =
+    >
+        {
+            shouldDismiss = false
+            document.body.removeChild(messageContainer)
+        }
+        const yesBtn = document.createElement("button")
+        yesBtn.className = 'yesBtn'
+        yesBtn.innerHTML = 'Yes'
+        yesBtn.onclick = (e) =
+    >
+        {
+            shouldDismiss = false
+            document.body.removeChild(messageContainer)
+            callback()
+        }
+
+        messageContainer.appendChild(title)
+        messageContainer.appendChild(yesBtn)
+        messageContainer.appendChild(nopeBtn)
+        document.body.appendChild(messageContainer)
     }
 
     async
@@ -254,10 +361,6 @@
             )
             .
                 then(json = > {
-                    const title = document.createElement("p")
-                    title.className = "title"
-                    title.innerHTML = json.page
-                    document.querySelector("#" + key + "-dragBar").appendChild(title)
 
                     json.actions.forEach(action = > {
                         if(action.type !== 'nav'
@@ -334,7 +437,8 @@
         if (shouldDismiss && targ.className != 'yesBtn' && targ.className != 'nopeBtn') {
             document.querySelector("body").removeChild(document.getElementsByClassName('navMessage')[0])
             const svg = document.getElementById("svg-nav")
-            svg.removeChild(svg.getElementById("navArrow"))
+            const arrow = svg.getElementById("navArrow")
+            if (arrow) svg.removeChild(arrow)
         }
         shouldDismiss = false
 
