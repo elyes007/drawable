@@ -11,10 +11,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.models.SupportedComponents;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
+import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
 import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
 import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
 import tn.disguisedtoast.drawable.settingsModule.utils.DomUtils;
@@ -51,6 +51,18 @@ public class EditTextSettingsViewController implements Initializable, SettingsCo
     @FXML public ComboBox inputSize;
     @FXML public Label inputFontColorPane;
     @FXML public TextField inputPlaceholder;
+
+    @FXML
+    private Slider horizontalScale;
+    @FXML
+    private Label posHValue;
+    @FXML
+    private Label posVValue;
+    @FXML
+    private Label scaleHValue;
+    @FXML
+    private Label deleteButton;
+
     public ColorPicker inputColor;
 
     private Integer[] textSizes = {10, 12, 14, 18, 24, 36, 48, 64, 72, 96};
@@ -70,6 +82,12 @@ public class EditTextSettingsViewController implements Initializable, SettingsCo
     public void initialize(URL location, ResourceBundle resources) {
         aWriter.setContentCharset (StandardCharsets.UTF_8.name ());
 
+        this.deleteButton.setOnMouseClicked(event -> {
+            this.generatedElement.getElement().remove();
+            PreviewController.refresh();
+            SettingsViewController.getInstance().clearSettingView();
+        });
+
         initInputTextView();
         initInputTypesView();
         initInputPlaceholderView();
@@ -79,6 +97,7 @@ public class EditTextSettingsViewController implements Initializable, SettingsCo
         initLabelPosition();
 
         setUpPosition();
+        setUpScale();
     }
 
 
@@ -327,7 +346,9 @@ public class EditTextSettingsViewController implements Initializable, SettingsCo
             }catch (NullPointerException e) {
                 System.out.println(e);
             }
-            this.generatedElement.getCssRules().addDeclaration(new CSSDeclaration("left", CSSExpression.createSimple(newValue+"%")));
+            double value = Math.round(newValue.doubleValue() * 10) / 10.0;
+            this.generatedElement.getCssRules().addDeclaration(new CSSDeclaration("left", CSSExpression.createSimple(value + "%")));
+            this.posHValue.setText("(" + value + "%)");
             String cssString = aWriter.getCSSAsString (generatedElement.getCssRules());
             this.generatedElement.getElement().attr("style", cssString);
             this.generatedElement.getDomElement().setAttribute("style", cssString);
@@ -340,10 +361,33 @@ public class EditTextSettingsViewController implements Initializable, SettingsCo
             }catch (NullPointerException e) {
                 System.out.println(e);
             }
-            generatedElement.getCssRules().addDeclaration(new CSSDeclaration("top", CSSExpression.createSimple(newValue+"%")));
+            double value = Math.round(newValue.doubleValue() * 10) / 10.0;
+            generatedElement.getCssRules().addDeclaration(new CSSDeclaration("top", CSSExpression.createSimple(value + "%")));
+            this.posVValue.setText("(" + value + "%)");
             String cssString = aWriter.getCSSAsString (generatedElement.getCssRules());
             generatedElement.getElement().attr("style", cssString);
             generatedElement.getDomElement().setAttribute("style", cssString);
+        });
+    }
+
+    private void setUpScale() {
+        horizontalScale.valueProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                CSSDeclaration declaration = generatedElement.getCssRules().getDeclarationOfPropertyName("width");
+                generatedElement.getCssRules().removeDeclaration(declaration);
+            } catch (NullPointerException e) {
+                System.out.println(e);
+            }
+            double value = Math.round(newValue.doubleValue() * 10) / 10.0;
+            if (value > 0) {
+                generatedElement.getCssRules().addDeclaration(new CSSDeclaration("width", CSSExpression.createSimple(value + "%")));
+                this.scaleHValue.setText("(" + value + "%)");
+            } else {
+                this.scaleHValue.setText("(Default)");
+            }
+            String cssRules = aWriter.getCSSAsString(generatedElement.getCssRules());
+            generatedElement.getElement().attr("style", cssRules);
+            generatedElement.getDomElement().setAttribute("style", cssRules);
         });
     }
 
@@ -382,6 +426,7 @@ public class EditTextSettingsViewController implements Initializable, SettingsCo
         getLabelIsUnderlined();
         getHasLabel();
         getLabelPosition();
+        getEditTextScale();
 
         setEditTextPosition();
     }
@@ -399,6 +444,17 @@ public class EditTextSettingsViewController implements Initializable, SettingsCo
             return;
         }
         this.labelPosition.setValue(labelPositionString.substring(0, 1).toUpperCase() + labelPositionString.substring(1));
+    }
+
+    private void getEditTextScale() {
+        try {
+            String horizontalString = CssRuleExtractor.extractValue(generatedElement.getCssRules(), "width");
+            double hPos = Double.parseDouble(horizontalString.substring(0, horizontalString.length() - 1));
+            this.horizontalScale.setValue(hPos);
+        } catch (Exception e) {
+            this.horizontalScale.setValue(0.1);
+            this.horizontalScale.setValue(0);
+        }
     }
 
     private void disable_enableLabelParams(boolean active) {

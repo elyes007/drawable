@@ -5,8 +5,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
 import org.jsoup.nodes.Element;
-import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsControllerInterface;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
+import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;

@@ -7,8 +7,8 @@ import javafx.scene.control.ComboBox;
 import org.jsoup.nodes.Element;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
-import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsControllerInterface;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
+import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -106,7 +106,7 @@ public class NavigationSettingsViewController implements Initializable, Settings
     public void save() {
         try{
             Files.write(Paths.get(SettingsViewController.pageFolder+"/conf.json"), new GsonBuilder().create().toJson(jsonObject).getBytes());
-            this.buttonGeneratedElement.getElement().attr("[routerLink]", (String)this.pagesList.getValue());
+            this.buttonGeneratedElement.getElement().attr("[routerLink]", "['/" + this.pagesList.getValue() + "']");
         } catch (IOException e) {
             e.printStackTrace();
         }

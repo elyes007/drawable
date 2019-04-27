@@ -11,6 +11,10 @@ import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.models.SupportedComponents;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
+import tn.disguisedtoast.drawable.settingsModule.controllers.menuSettings.MenuBarSettingController;
+import tn.disguisedtoast.drawable.settingsModule.controllers.menuSettings.MenuButtonSettingsController;
+import tn.disguisedtoast.drawable.settingsModule.controllers.menuSettings.MenuSettingsController;
+import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
 import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 import tn.disguisedtoast.drawable.utils.JsonUtils;
 
@@ -30,6 +34,8 @@ public class SettingsViewController implements Initializable {
     private SettingsControllerInterface currentController;
     public static String pageFolder;
 
+    private static SettingsViewController instance;
+
     public void init(String pageFolder) {
         SettingsViewController.pageFolder = pageFolder;
 
@@ -39,8 +45,14 @@ public class SettingsViewController implements Initializable {
         previewPane.getChildren().add(previewRoot);
     }
 
+    public static SettingsViewController getInstance() {
+        return instance;
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        instance = this;
+
         this.saveButton.setDisable(true);
         this.saveButton.setOnAction(event -> currentController.save());
         this.finishButton.setOnAction(event -> {
@@ -65,10 +77,14 @@ public class SettingsViewController implements Initializable {
         });
     }
 
+    public void clearSettingView() {
+        settingsPane.getChildren().clear();
+    }
+
     public void setComponent(GeneratedElement element){
         settingsPane.getChildren().clear();
         try{
-            System.out.println(element.getElement().tagName());
+            System.out.println("Yoo: " + element.getElement().tagName());
             if(element.getElement().tagName().equals(SupportedComponents.ION_BUTTON.toString())){
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/ButtonSettingsView.fxml"));
                 Pane pane = loader.load();
@@ -107,7 +123,7 @@ public class SettingsViewController implements Initializable {
                 currentController = loader.getController();
                 ((LabelSettingsViewController)currentController).setLabel(element);
             } else if (element.getElement().tagName().equals(SupportedComponents.ION_TOOLBAR.toString()) && element.getElement().id().equals("menu_toolbar")) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/MenuBarSettingsView.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/menuSettings/MenuBarSettingsView.fxml"));
                 Pane pane = loader.load();
                 AnchorPane.setTopAnchor(pane, 0.0);
                 AnchorPane.setLeftAnchor(pane, 0.0);
@@ -134,7 +150,7 @@ public class SettingsViewController implements Initializable {
                 currentController = loader.getController();
                 ((GlobalPageSettingsViewController)currentController).setBodyGeneratedElement(element);
             } else if (element.getElement().tagName().equals(SupportedComponents.ION_ITEM.toString()) && element.getElement().classNames().contains("menu_item")) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/MenuButtonSettingsView.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/menuSettings/MenuButtonSettingsView.fxml"));
                 Pane pane = loader.load();
                 AnchorPane.setTopAnchor(pane, 0.0);
                 AnchorPane.setLeftAnchor(pane, 0.0);
@@ -142,9 +158,9 @@ public class SettingsViewController implements Initializable {
 
                 settingsPane.getChildren().add(pane);
                 currentController = loader.getController();
-                ((MenuButtonSettingsController) currentController).setMenuButton(element, this);
+                ((MenuButtonSettingsController) currentController).setMenuButton(element);
             } else if (element.getElement().tagName().equals(SupportedComponents.ION_CONTENT.toString())) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/MenuSettingsView.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/menuSettings/MenuSettingsView.fxml"));
                 Pane pane = loader.load();
                 AnchorPane.setTopAnchor(pane, 0.0);
                 AnchorPane.setLeftAnchor(pane, 0.0);
@@ -153,6 +169,16 @@ public class SettingsViewController implements Initializable {
                 settingsPane.getChildren().add(pane);
                 currentController = loader.getController();
                 ((MenuSettingsController) currentController).setIonContentElement(element);
+            } else if (element.getElement().tagName().equals(SupportedComponents.ION_TAB_BUTTON.toString())) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/TabSettingsView.fxml"));
+                Pane pane = loader.load();
+                AnchorPane.setTopAnchor(pane, 0.0);
+                AnchorPane.setLeftAnchor(pane, 0.0);
+                AnchorPane.setRightAnchor(pane, 0.0);
+
+                settingsPane.getChildren().add(pane);
+                currentController = loader.getController();
+                ((TabSettingsController) currentController).setTabElement(element);
             }
 
             //HomeController.primaryStage.sizeToScene();
@@ -164,10 +190,6 @@ public class SettingsViewController implements Initializable {
         }catch (IOException e){
             e.printStackTrace();
         }
-    }
-
-    public void clearSettingView() {
-        settingsPane.getChildren().clear();
     }
 
 }

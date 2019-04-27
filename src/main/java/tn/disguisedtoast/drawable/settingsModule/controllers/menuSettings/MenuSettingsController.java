@@ -1,11 +1,14 @@
-package tn.disguisedtoast.drawable.settingsModule.controllers;
+package tn.disguisedtoast.drawable.settingsModule.controllers.menuSettings;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.jsoup.nodes.Element;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.models.SupportedComponents;
+import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
+import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -20,32 +23,36 @@ public class MenuSettingsController implements Initializable, SettingsController
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         this.addButtonButton.setOnAction(event -> {
-            double id = Math.random();
+            String id = RandomStringUtils.randomAlphanumeric(5);
             Element menuButtonJSoupElement = createMenuButtonJSoup(id);
             org.w3c.dom.Element menuButtonDom = createMenuButtonDom(id);
 
             this.ionContentGElement.getElement().selectFirst("ion-list").appendChild(menuButtonJSoupElement);
             this.ionContentGElement.getDomElement().getElementsByTagName("ion-list").item(0).appendChild(menuButtonDom);
+            PreviewController.updateClickableElements();
+            PreviewController.saveDocument();
         });
     }
 
-    private org.w3c.dom.Element createMenuButtonDom(double id) {
+    private org.w3c.dom.Element createMenuButtonDom(String id) {
         org.w3c.dom.Element menuButtonDom = this.ionContentGElement.getDomElement().getOwnerDocument().createElement(SupportedComponents.ION_ITEM.toString().toUpperCase());
         menuButtonDom.setAttribute("style", "");
         menuButtonDom.setAttribute("class", "clickable menu_item");
-        menuButtonDom.setAttribute("id", "menu_item" + id);
+        menuButtonDom.setAttribute("id", "menu_item_" + id);
 
         org.w3c.dom.Element menuButtonTitleDom = this.ionContentGElement.getDomElement().getOwnerDocument().createElement(SupportedComponents.ION_LABEL.toString().toUpperCase());
         menuButtonTitleDom.setAttribute("style", "");
-        menuButtonDom.appendChild(this.ionContentGElement.getDomElement().getOwnerDocument().createTextNode("Button"));
+        menuButtonTitleDom.appendChild(this.ionContentGElement.getDomElement().getOwnerDocument().createTextNode("Button"));
+
+        menuButtonDom.appendChild(menuButtonTitleDom);
 
         return menuButtonDom;
     }
 
-    private Element createMenuButtonJSoup(double id) {
+    private Element createMenuButtonJSoup(String id) {
         Element menuButtonJSoupElement = new Element(SupportedComponents.ION_ITEM.toString());
         menuButtonJSoupElement.attr("class", "clickable menu_item");
-        menuButtonJSoupElement.attr("id", "menu_item" + id);
+        menuButtonJSoupElement.attr("id", "menu_item_" + id);
         menuButtonJSoupElement.attr("style", "");
 
         Element menuButtonTitle = new Element(SupportedComponents.ION_LABEL.toString());
@@ -62,6 +69,6 @@ public class MenuSettingsController implements Initializable, SettingsController
 
     @Override
     public void save() {
-
+        PreviewController.saveDocument();
     }
 }

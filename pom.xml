@@ -120,5 +120,12 @@
             <version>1.7.10</version>
         </dependency>
     </dependencies>
-    
+
+    <repositories>
+        <repository>
+            <id>terminalfx-repo</id>
+            <url>https://github.com/javaterminal/terminalfx/raw/master/releases</url>
+        </repository>
+    </repositories>
+
 </project>
