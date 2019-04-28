@@ -52,7 +52,7 @@ public class ProjectGeneration {
             installFirebaseDependency();
             installFacebookCordovaPlugin();
 
-            System.out.println("\nExited with code : " + exitCode);
+            System.out.println("\nThis Exited with code : " + exitCode);
             generationInProcess = false;
             return exitCode == 0;
         } catch (IOException e) {

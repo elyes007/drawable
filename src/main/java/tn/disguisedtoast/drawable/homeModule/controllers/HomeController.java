@@ -142,7 +142,7 @@ public class HomeController implements CamChooserController.CameraButtonCallback
             }
             globalSettingsJson.addProperty("ionic_state", state);
             Files.write(Paths.get(filePath), new Gson().toJson(globalSettingsJson).getBytes());
-
+            System.out.println("Changed state to " + state);
         } catch (IOException e) {
             e.printStackTrace();
         }
