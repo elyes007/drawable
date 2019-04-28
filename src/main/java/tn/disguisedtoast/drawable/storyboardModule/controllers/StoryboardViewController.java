@@ -83,8 +83,45 @@ public class StoryboardViewController implements Initializable {
         webView.getEngine().executeScript("search('" + text + "')");
     }
 
-    public class JSCallback implements CamChooserController.CameraButtonCallback {
+    public static class JSCallback implements CamChooserController.CameraButtonCallback {
         private Stage chooserStage;
+
+        public void removeNav(String src, String dest, String button) {
+            String path = (Drawable.projectPath + "&RelatedFiles&pages&" + src).replace("&", File.separator);
+            FileReader reader = null;
+            try {
+                reader = new FileReader(path + "/conf.json");
+                JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
+                JsonArray actions = jsonObject.get("actions").getAsJsonArray();
+                for (int i = 0; i < actions.size(); i++) {
+                    String actionDest = actions.get(i).getAsJsonObject().get("dest").getAsString();
+                    String actionButton = actions.get(i).getAsJsonObject().get("button").getAsString();
+                    if (actionDest.equals(dest) && actionButton.equals(button)) {
+                        actions.remove(i);
+                        //remove routerLink
+                        String htmlPath = (path + "&" + src + ".html")
+                                .replace("&", File.separator);
+                        File file = new File(htmlPath);
+                        String routerLink = String.format("['/%s']", dest.toLowerCase());
+                        Document document = Jsoup.parse(file, "UTF-8");
+                        document.body().getElementsByAttributeValue("[routerLink]", routerLink)
+                                .forEach(btn -> btn.removeAttr("[routerLink]"));
+                        FileUtils.write(file, document.toString());
+                        break;
+                    }
+                }
+                FileUtils.write(new File(path + "/conf.json"), jsonObject.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
         public void deletePage(String page) {
             System.gc();
@@ -108,7 +145,7 @@ public class StoryboardViewController implements Initializable {
                     for (int i = 0; i < actions.size(); i++) {
                         String dest = actions.get(i).getAsJsonObject().get("dest").getAsString();
                         if (dest.equals(page)) {
-                            actions.remove(i);
+                            actions.remove(i--);
                             //remove routerLink
                             String htmlPath = (Drawable.projectPath + "&RelatedFiles&pages&" + dir + "&" + dir + ".html")
                                     .replace("&", File.separator);
@@ -116,9 +153,7 @@ public class StoryboardViewController implements Initializable {
                             String routerLink = String.format("['/%s']", dest.toLowerCase());
                             Document document = Jsoup.parse(file, "UTF-8");
                             document.body().getElementsByAttributeValue("[routerLink]", routerLink)
-                                    .forEach(button -> {
-                                        button.removeAttr("[routerLink]");
-                                    });
+                                    .forEach(button -> button.removeAttr("[routerLink]"));
                             FileUtils.write(file, document.toString());
                         }
                     }

@@ -8,15 +8,11 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-import org.apache.commons.io.FileUtils;
 import tn.disguisedtoast.drawable.homeModule.models.Page;
+import tn.disguisedtoast.drawable.storyboardModule.controllers.StoryboardViewController;
 import tn.disguisedtoast.drawable.utils.ImageViewPane;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
 public class PageCellViewController implements Initializable {
@@ -52,12 +48,8 @@ public class PageCellViewController implements Initializable {
             this.page.setImage(null);
             System.gc();
 
-            Path path = Paths.get(this.page.getFolderName());
-            try {
-                FileUtils.deleteDirectory(new File(path.toUri()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            new StoryboardViewController.JSCallback().deletePage(page.getFolderName());
+
             scrollHomeLayoutController.refresh();
         });
 
