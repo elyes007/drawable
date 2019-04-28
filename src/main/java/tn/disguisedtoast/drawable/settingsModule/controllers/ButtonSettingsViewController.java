@@ -682,6 +682,7 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
         PreviewController.saveDocument();
     }
 
+    //TODO: Fix deletion (button with no action)
     private void deleteActionElement(){
         try{
             String configPath = SettingsViewController.pageFolder+"/conf.json";

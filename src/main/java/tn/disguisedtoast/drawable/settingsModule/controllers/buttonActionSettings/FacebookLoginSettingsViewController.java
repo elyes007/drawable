@@ -12,6 +12,7 @@ import javafx.scene.control.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
+import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
 import tn.disguisedtoast.drawable.settingsModule.controllers.ButtonSettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
@@ -121,8 +122,8 @@ public class FacebookLoginSettingsViewController implements Initializable, Setti
 
         Platform.runLater(() -> {
             ProcessBuilder processBuilder = new ProcessBuilder();
-            String ionitToolsFolder = System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "RelatedFiles" + File.separator + "KeyHashTools";
-            processBuilder.command("cmd.exe", "/c", "keytool -exportcert -alias androiddebugkey -keystore \"" + ionitToolsFolder + File.separator + "debug.keystore\" -storepass android | \"" + ionitToolsFolder + File.separator + "openssl\" sha1 -binary | \"" + ionitToolsFolder + File.separator + "openssl\" base64");
+            String ionicToolsPath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "RelatedFiles" + File.separator + "FirebaseLoginTools" + File.separator + "KeyHashTools";
+            processBuilder.command("cmd.exe", "/c", "keytool -exportcert -alias androiddebugkey -keystore \"" + ionicToolsPath + File.separator + "debug.keystore\" -storepass android | \"" + ionicToolsPath + File.separator + "openssl\" sha1 -binary | \"" + ionicToolsPath + File.separator + "openssl\" base64");
             try {
 
                 Process process = processBuilder.start();
@@ -226,6 +227,7 @@ public class FacebookLoginSettingsViewController implements Initializable, Setti
         }
 
         if (this.facebookLogObject != null) {
+            System.out.println("facebook login not null");
             this.facebookLogObject.addProperty("appId", this.appId.getText());
             this.facebookLogObject.addProperty("appName", this.appName.getText());
         } else {
@@ -234,6 +236,7 @@ public class FacebookLoginSettingsViewController implements Initializable, Setti
             newFacebookLogObject.addProperty("appName", this.appName.getText());
 
             this.globalSettingsObject.getAsJsonObject("firebase").getAsJsonObject("platforms").add("facebook", newFacebookLogObject);
+            System.out.println(this.globalSettingsObject);
             this.facebookLogObject = newFacebookLogObject;
         }
 
@@ -243,6 +246,9 @@ public class FacebookLoginSettingsViewController implements Initializable, Setti
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        this.element.attr("(click)", "logFacebook" + this.element.id() + "()");
+        PreviewController.saveDocument();
 
         /*try{
             Path confFilePath = Paths.get(SettingsViewController.pageFolder + "/conf.json");

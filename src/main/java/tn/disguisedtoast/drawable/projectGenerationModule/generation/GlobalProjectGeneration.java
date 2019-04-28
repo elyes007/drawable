@@ -214,9 +214,11 @@ public class GlobalProjectGeneration implements Initializable {
     }
 
     private void showHome() {
+        Drawable.globalStage.setMaximized(true);
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/homeLayouts/HomeLayout.fxml"));
         try {
             EveryWhereLoader.getInstance().stopLoader(loader.load());
+            System.out.println("Loader should be stopped");
         } catch (IOException e) {
             e.printStackTrace();
         }

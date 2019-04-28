@@ -1,5 +1,6 @@
 package tn.disguisedtoast.drawable.homeModule.controllers;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import javafx.application.Platform;
@@ -28,9 +29,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class HomeController implements CamChooserController.CameraButtonCallback, Initializable {
@@ -104,10 +108,10 @@ public class HomeController implements CamChooserController.CameraButtonCallback
         });
 
         //check and generate ionic project in background
-        /*if(!getIonicState()){
+        if (!getIonicState()) {
             CompletableFuture.supplyAsync(ProjectGeneration::generateBlankProject)
                     .thenAccept(this::setIonicState);
-        }*/
+        }
     }
 
     private boolean getIonicState() {
@@ -129,13 +133,25 @@ public class HomeController implements CamChooserController.CameraButtonCallback
     }
 
     private void setIonicState(boolean state) {
-        String filePath = Drawable.projectPath + File.separator + "state.json";
-        String fileBody = "{\n\t\"ionic_state\":" + state + "\n}";
+        try {
+            String filePath = Drawable.projectPath + File.separator + "state.json";
+
+            JsonObject globalSettingsJson = new JsonParser().parse(filePath).getAsJsonObject();
+            if (globalSettingsJson == null) {
+                globalSettingsJson = new JsonObject();
+            }
+            globalSettingsJson.addProperty("ionic_state", state);
+            Files.write(Paths.get(filePath), new Gson().toJson(globalSettingsJson).getBytes());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        /*String fileBody = "{\n\t\"ionic_state\":" + state + "\n}";
         try {
             FileUtils.writeStringToFile(new File(filePath), fileBody);
         } catch (IOException e1) {
             e1.printStackTrace();
-        }
+        }*/
     }
 
     @Override
@@ -162,6 +178,7 @@ public class HomeController implements CamChooserController.CameraButtonCallback
        EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
        try {
            ProjectGeneration.generatePages();
+
        } catch (IOException e) {
            e.printStackTrace();
        }
