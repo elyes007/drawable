@@ -48,6 +48,7 @@ public class StoryboardViewController implements Initializable {
             if (newState == Worker.State.SUCCEEDED) {
                 JSObject jsobj = (JSObject) webView.getEngine().executeScript("window");
                 jsobj.setMember("java", jsCallback);
+                webView.requestFocus();
             }
         });
         WebConsoleListener.setDefaultListener(new WebConsoleListener() {
