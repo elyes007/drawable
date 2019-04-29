@@ -6,12 +6,13 @@ import com.google.gson.JsonParser;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.stage.DirectoryChooser;
@@ -40,54 +41,76 @@ public class GlobalProjectGeneration implements Initializable {
     @FXML
     public VBox recentVBox;
     @FXML
+    public VBox mainVbox;
+    @FXML
+    public HBox openVbox;
+    @FXML
+    public HBox newVbox;
+    @FXML
     public Label openProjectLink;
     @FXML
     public Label createProjectLink;
-    @FXML
-    public AnchorPane menuPane;
     @FXML
     public BorderPane subMenu;
 
 
     private String splitn;
+    private Label projectName;
     private String projectPath;
     private static List<String> recentList = new ArrayList<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         if (checkCurrentProject()) return;
-        this.newProject.setOnMouseClicked(event -> createNewProject());
-        this.openProject.setOnMouseClicked(event -> openProject());
+        this.newProject.setOnMouseClicked(event -> {
+            newProject.setCursor(Cursor.HAND);
+            createNewProject();
+        });
+        this.openProject.setOnMouseClicked(event -> {
+            openProject();
+            openProject.setCursor(Cursor.HAND);
+        });
         this.createProjectLink.setOnMouseEntered(event -> {
             createProjectLink.setTextFill(Paint.valueOf("#e28d38"));
             createProjectLink.setCursor(Cursor.HAND);
 
         });
         this.createProjectLink.setOnMouseExited(event -> {
-            createProjectLink.setTextFill(Paint.valueOf("#3c3c3c"));
+            createProjectLink.setTextFill(Paint.valueOf("#d9d9db"));
         });
         this.openProjectLink.setOnMouseEntered(event -> {
             openProjectLink.setTextFill(Paint.valueOf("#e28d38"));
             openProjectLink.setCursor(Cursor.HAND);
         });
         this.openProjectLink.setOnMouseExited(event -> {
-            openProjectLink.setTextFill(Paint.valueOf("#3c3c3c"));
+            openProjectLink.setTextFill(Paint.valueOf("#d9d9db"));
         });
         this.createProjectLink.setOnMouseClicked(event -> createNewProject());
         this.openProjectLink.setOnMouseClicked(event -> openProject());
 
-        Label projectName = new Label();
-        projectName.setTextFill(Paint.valueOf("#bcbcbc"));
-        projectName.setCursor(Cursor.HAND);
-        System.out.println(recentList);
-        for (String p : recentList) {
-            projectName.setText(p);
 
+        System.out.println(recentList);
+
+        for (String p : recentList) {
+            Label projectName = new Label();
+            projectName.setTextFill(Paint.valueOf("#bcbcbc"));
+            projectName.setCursor(Cursor.HAND);
+            projectName.setAlignment(Pos.CENTER_LEFT);
+            System.out.println(p);
+            projectName.setText(p);
+            recentVBox.getChildren().addAll(projectName);
+            projectName.setOnMouseClicked(event -> {
+                openRecentProject(p);
+            });
+            projectName.setOnMouseEntered(event -> projectName.setTextFill(Paint.valueOf("#e28d38")));
+            projectName.setOnMouseExited(event -> projectName.setTextFill(Paint.valueOf("#d9d9db")));
         }
         if (recentList.size() == 0) {
             recentVBox.setPrefWidth(0);
             recentVBox.setVisible(false);
-            menuPane.setPrefWidth(600);
+            mainVbox.setPrefWidth(600);
+            mainVbox.setAlignment(Pos.CENTER);
+
             //subMenu.setAlignment(openProjectLink, Pos.CENTER_RIGHT);
             //subMenu.setAlignment(createProjectLink,);
             // openProject.alignmentProperty().set(Pos.CENTER);
@@ -95,7 +118,7 @@ public class GlobalProjectGeneration implements Initializable {
             // openProjectLink.alignmentProperty().set(Pos.CENTER);
 
         }
-        recentVBox.getChildren().addAll(projectName);
+
 
     }
 
@@ -127,6 +150,13 @@ public class GlobalProjectGeneration implements Initializable {
         return false;
     }
 
+    private void openRecentProject(String path) {
+
+        Drawable.projectPath = projectPath = path;
+        updateCurrentProject();
+        EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
+        showHome();
+    }
     //TODO: check if project structure is respected before opening
     private void openProject() {
         DirectoryChooser dc = new DirectoryChooser();

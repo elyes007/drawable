@@ -85,14 +85,32 @@ public class ProjectGeneration {
         return textFiles;
     }
 
+    private static void deletePageExists(String pageName) {
+        File root = new File(Drawable.projectPath + "\\ionic_project\\src\\app\\");
+        String[] directories = root.list((dir, name) -> (new File(dir, name).isDirectory()));
+        List<Page> pages = new ArrayList<>();
+        for (String dir : directories) {
+            if (dir.equals(pageName)) {
+                try {
+                    FileUtils.deleteDirectory(new File(Drawable.projectPath + "\\ionic_project\\src\\app\\" + pageName));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     public static void generatePages() throws IOException {
         List<Page> PagesList = HomeController.loadPages();
         for (Page p : PagesList) {
             try {
                 System.out.println(p.toString());
+                deletePageExists(p.getName().trim().replace(" ", "_").toLowerCase());
+                System.out.println("page deleted!!");
                 //create blank page
                 ProcessBuilder processBuilder = new ProcessBuilder();
                 processBuilder.directory(new File(Drawable.projectPath + "\\ionic_project"));
+
                 processBuilder.command("cmd.exe", "/c", "ionic generate page" + " " + p.getName().trim()
                         .replace(" ", "_"));
                 Process process = processBuilder.start();

@@ -2,16 +2,15 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.Group?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<BorderPane fx:id="startPane" prefHeight="550.0" prefWidth="650.0" stylesheets="@../../css/global.css"
+<BorderPane fx:id="startPane" prefHeight="450.0" prefWidth="650.0" stylesheets="@../../css/global.css"
             xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="tn.disguisedtoast.drawable.projectGenerationModule.generation.GlobalProjectGeneration">
    <left>
       <VBox fx:id="recentVBox" alignment="TOP_CENTER" prefHeight="500.0" prefWidth="299.0"
-            style="-fx-background-color: #666668;" BorderPane.alignment="TOP_CENTER">
+            style="-fx-background-color: #666668;" BorderPane.alignment="CENTER_LEFT">
          <children>
             <Label alignment="TOP_CENTER" contentDisplay="CENTER" style="-fx-text-fill: #d9d9db;"
                    text="Recent Projects">
@@ -27,64 +26,6 @@
    </left>
    <right>
       <BorderPane fx:id="subMenu" BorderPane.alignment="CENTER">
-         <center>
-            <AnchorPane fx:id="menuPane" prefHeight="500.0" prefWidth="359.0" BorderPane.alignment="CENTER">
-               <children>
-                  <StackPane layoutX="70.0" layoutY="158.0" AnchorPane.bottomAnchor="206.0">
-                     <children>
-                        <Group>
-                           <children>
-                              <Button fx:id="openProject" alignment="CENTER_RIGHT" contentDisplay="CENTER"
-                                      layoutX="77.0" layoutY="189.0" mnemonicParsing="false" prefHeight="28.0"
-                                      prefWidth="35.0" style="-fx-background-color: transparent;"
-                                      textAlignment="CENTER">
-                                 <graphic>
-                                    <ImageView fitHeight="23.0" fitWidth="20.0" pickOnBounds="true"
-                                               preserveRatio="true">
-                                       <image>
-                                          <Image url="@../../drawable/folder.png"/>
-                                       </image>
-                                    </ImageView>
-                                 </graphic>
-                              </Button>
-                              <Button fx:id="newProject" alignment="CENTER_RIGHT" contentDisplay="CENTER" layoutX="78.0"
-                                      layoutY="150.0" mnemonicParsing="false" style="-fx-background-color: transparent;"
-                                      textAlignment="CENTER">
-                                 <graphic>
-                                    <ImageView fitHeight="14.0" fitWidth="13.0" pickOnBounds="true"
-                                               preserveRatio="true">
-                                       <image>
-                                          <Image url="@../../drawable/add.png"/>
-                                       </image>
-                                    </ImageView>
-                                 </graphic>
-                              </Button>
-                              <Label fx:id="createProjectLink" alignment="CENTER_RIGHT" contentDisplay="CENTER"
-                                     layoutX="119.0" layoutY="149.0" text="Create new project" textAlignment="CENTER"
-                                     textFill="#3c3c3c">
-                                 <font>
-                                    <Font size="16.0"/>
-                                 </font>
-                              </Label>
-                              <Label fx:id="openProjectLink" alignment="CENTER_RIGHT" contentDisplay="CENTER"
-                                     layoutX="119.0" layoutY="189.0" text="Open  an existing project"
-                                     textAlignment="CENTER" textFill="#00000080">
-                                 <font>
-                                    <Font size="16.0"/>
-                                 </font>
-                              </Label>
-                           </children>
-                        </Group>
-                     </children>
-                  </StackPane>
-
-
-               </children>
-               <BorderPane.margin>
-                  <Insets/>
-               </BorderPane.margin>
-            </AnchorPane>
-         </center>
          <top>
             <ImageView fitHeight="71.0" fitWidth="284.0" pickOnBounds="true" preserveRatio="true"
                        BorderPane.alignment="CENTER">
@@ -96,6 +37,53 @@
                </BorderPane.margin>
             </ImageView>
          </top>
+         <center>
+            <VBox fx:id="mainVbox" alignment="CENTER" BorderPane.alignment="CENTER">
+               <children>
+                  <HBox fx:id="newVbox" alignment="CENTER">
+                     <children>
+                        <Button fx:id="newProject" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false"
+                                style="-fx-background-color: transparent;" textAlignment="CENTER">
+                           <graphic>
+                              <ImageView fitHeight="14.0" fitWidth="13.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../../drawable/add.png"/>
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
+                        <Label fx:id="createProjectLink" alignment="CENTER" contentDisplay="CENTER"
+                               text="Create new project" textFill="#d9d9db">
+                           <font>
+                              <Font size="16.0"/>
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <HBox fx:id="openVbox" alignment="CENTER">
+                     <children>
+                        <Button fx:id="openProject" alignment="CENTER_RIGHT" contentDisplay="CENTER"
+                                mnemonicParsing="false" prefHeight="28.0" prefWidth="35.0"
+                                style="-fx-background-color: transparent;" textAlignment="CENTER">
+                           <graphic>
+                              <ImageView fitHeight="15.0" fitWidth="17.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../../drawable/folder.png"/>
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
+                        <Label fx:id="openProjectLink" alignment="CENTER" contentDisplay="CENTER"
+                               text="Open existing project" textAlignment="CENTER" textFill="#d9d9d9">
+                           <font>
+                              <Font size="16.0"/>
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </center>
       </BorderPane>
    </right>
 </BorderPane>
