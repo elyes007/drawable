@@ -92,8 +92,7 @@ public class FacebookLoginSettingsViewController implements Initializable, Setti
         });
 
         try {
-            //TODO: Change config.xml file to relative project path
-            String id = Jsoup.parse(new File(System.getProperty("user.dir") + "/src/main/RelatedFiles/ionic_project/config.xml"), "UTF-8").selectFirst("widget").attr("id");
+            String id = Jsoup.parse(new File(Drawable.projectPath + File.separator + "ionic_project" + File.separator + "config.xml"), "UTF-8").selectFirst("widget").attr("id");
             this.packageName.setText(id);
         } catch (IOException e) {
             e.printStackTrace();
