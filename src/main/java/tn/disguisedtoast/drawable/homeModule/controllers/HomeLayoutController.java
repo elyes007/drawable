@@ -1,8 +1,8 @@
 package tn.disguisedtoast.drawable.homeModule.controllers;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,14 +11,19 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
-import javafx.stage.DirectoryChooser;
 import org.apache.commons.io.FileUtils;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.projectGenerationModule.ionic.ProjectGeneration;
 import tn.disguisedtoast.drawable.storyboardModule.controllers.StoryboardViewController;
+import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
@@ -67,50 +72,29 @@ public class HomeLayoutController implements Initializable {
     }
 
     private void setIonicState(boolean state) {
-        String filePath = Drawable.projectPath + File.separator + "state.json";
-        String fileBody = "{\n\t\"ionic_state\":" + state + "\n}";
         try {
-            FileUtils.writeStringToFile(new File(filePath), fileBody);
-        } catch (IOException e1) {
-            e1.printStackTrace();
+            String filePath = Drawable.projectPath + File.separator + "state.json";
+
+            JsonObject globalSettingsJson = new JsonParser().parse(filePath).getAsJsonObject();
+            if (globalSettingsJson == null) {
+                globalSettingsJson = new JsonObject();
+            }
+            globalSettingsJson.addProperty("ionic_state", state);
+            Files.write(Paths.get(filePath), new Gson().toJson(globalSettingsJson).getBytes());
+            System.out.println("Changed state to " + state);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     public void exportProject(ActionEvent actionEvent) {
-        Platform.runLater(() -> {
-            DirectoryChooser dc = new DirectoryChooser();
-            //dc.showDialog(primaryStage);
-            File f = dc.showDialog(Drawable.globalStage);
-            String s = f.getAbsolutePath();
-            System.out.println(s);
-
-            ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.directory(new File(s));
-            // TextField projectName = new TextField();
-
-
-            processBuilder.command("cmd.exe", "/c", "ionic start testProject blank");
-            try {
-
-                Process process = processBuilder.start();
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    System.out.println("wait");
-                    System.out.println(line);
-                }
-
-                int exitCode = process.waitFor();
-                System.out.println("\nExited with error code : " + exitCode);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
+        EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
+        try {
+            ProjectGeneration.generatePages();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        EveryWhereLoader.getInstance().stopLoader(null);
     }
 
     public void showStoryboard() {

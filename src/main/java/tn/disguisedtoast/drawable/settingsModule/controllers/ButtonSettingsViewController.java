@@ -1,6 +1,9 @@
 package tn.disguisedtoast.drawable.settingsModule.controllers;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.helger.css.ECSSVersion;
 import com.helger.css.decl.CSSDeclaration;
 import com.helger.css.decl.CSSExpression;
@@ -29,6 +32,7 @@ import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
 import tn.disguisedtoast.drawable.settingsModule.utils.FxUtils;
 import tn.disguisedtoast.drawable.settingsModule.utils.IconComboboxCell;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -36,10 +40,10 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 public class ButtonSettingsViewController implements Initializable, SettingsControllerInterface {
     @FXML public BorderPane actionSettingsPane;
@@ -683,7 +687,22 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
     }
 
     private void deleteActionElement(){
-        try{
+        try {
+            String pageConfPath = SettingsViewController.pageFolder + File.separator + "conf.json";
+            JsonObject jsonObject = new JsonParser().parse(new FileReader(pageConfPath)).getAsJsonObject();
+            JsonObject actionObject = jsonObject.getAsJsonObject("actions");
+            Set<Map.Entry<String, JsonElement>> entries = actionObject.entrySet();
+            for (Map.Entry<String, JsonElement> entry : entries) {
+                actionObject.remove(entry.getKey());
+            }
+
+            Files.write(Paths.get(pageConfPath), new Gson().toJson(jsonObject).getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        /*try{
             String configPath = SettingsViewController.pageFolder+"/conf.json";
             JsonObject jsonObject = new JsonParser().parse(new FileReader(configPath)).getAsJsonObject();
             JsonArray actionsArray = jsonObject.get("actions").getAsJsonArray();
@@ -701,6 +720,6 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
             Files.write(Paths.get(configPath), new Gson().toJson(jsonObject).getBytes());
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 }
