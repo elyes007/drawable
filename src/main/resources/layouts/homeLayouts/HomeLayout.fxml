@@ -1,76 +1,134 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<BorderPane fx:id="root" stylesheets="@../../css/global.css" xmlns="http://javafx.com/javafx/8.0.171"
-            xmlns:fx="http://javafx.com/fxml/1"
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" stylesheets="@../../css/global.css"
+            xmlns="http://javafx.com/javafx/10.0.1"
             fx:controller="tn.disguisedtoast.drawable.homeModule.controllers.HomeLayoutController">
    <top>
       <BorderPane style="-fx-background-color: #3c3f41;" BorderPane.alignment="CENTER">
          <BorderPane.margin>
-            <Insets/>
+             <Insets/>
          </BorderPane.margin>
          <right>
-            <HBox spacing="20.0" BorderPane.alignment="CENTER">
+             <HBox alignment="CENTER" spacing="10.0" BorderPane.alignment="CENTER">
                <children>
-                  <Button fx:id="storyboardBtn" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-                          minWidth="-Infinity" mnemonicParsing="false" onAction="#showStoryboard" text="Storyboard"
-                          textFill="WHITE">
+                   <Button fx:id="storyboardBtn" graphicTextGap="10.0" mnemonicParsing="false"
+                           onAction="#showStoryboard" text="Storyboard" textFill="WHITE">
                      <graphic>
-                        <ImageView fitHeight="18.0" fitWidth="20.0">
+                         <ImageView fitHeight="15.0" fitWidth="15.0">
                            <image>
-                              <Image url="@../../drawable/shuffle.png"/>
+                               <Image url="@../../drawable/shuffle.png"/>
                            </image>
                         </ImageView>
                      </graphic>
                      <font>
-                        <Font name="System Bold" size="14.0"/>
+                         <Font name="System Bold" size="12.0"/>
                      </font>
                   </Button>
-                  <Button fx:id="scrollBtn" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-                          minWidth="-Infinity" mnemonicParsing="false" onAction="#showScrollView" text="Scroll View">
+                   <Button fx:id="scrollBtn" graphicTextGap="10.0" mnemonicParsing="false" onAction="#showScrollView"
+                           text="Scroll View">
                      <graphic>
-                        <ImageView fitHeight="18.0" fitWidth="20.0">
+                         <ImageView fitHeight="15.0" fitWidth="15.0">
                            <image>
-                              <Image url="@../../drawable/scroll.png"/>
+                               <Image url="@../../drawable/scroll.png"/>
                            </image>
                         </ImageView>
                      </graphic>
                      <font>
-                        <Font name="System Bold" size="14.0"/>
+                         <Font name="System Bold" size="12.0"/>
+                     </font>
+                   </Button>
+                   <Button fx:id="export" alignment="BASELINE_CENTER" contentDisplay="CENTER"
+                           maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
+                           onAction="#exportProject" text="Export" textAlignment="CENTER">
+                       <font>
+                           <Font name="System Bold" size="12.0"/>
                      </font>
                   </Button>
-                  <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-                          mnemonicParsing="false">
-                     <graphic>
-                        <ImageView fx:id="settings" fitHeight="18.0" fitWidth="20.0">
-                           <image>
-                              <Image url="@../../drawable/homeDrawables/gear.png"/>
-                           </image>
-                        </ImageView>
-                     </graphic>
-                     <font>
-                        <Font size="14.0"/>
-                     </font>
-                  </Button>
-                  <Button fx:id="export" alignment="BASELINE_CENTER" contentDisplay="CENTER" mnemonicParsing="false"
-                          onAction="#exportProject" text="Export" textAlignment="CENTER">
-                     <font>
-                        <Font name="System Bold" size="14.0"/>
-                     </font>
-                  </Button>
+                   <HBox alignment="CENTER">
+                       <children>
+                           <Button fx:id="playButton" graphicTextGap="0.0" mnemonicParsing="false"
+                                   styleClass="icon_button">
+                               <graphic>
+                                   <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                           <Image url="@../../drawable/icons/play.png"/>
+                                       </image>
+                                   </ImageView>
+                               </graphic>
+                           </Button>
+                           <Button contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" mnemonicParsing="false"
+                                   styleClass="icon_button">
+                               <graphic>
+                                   <ImageView fx:id="settings" fitHeight="15.0" fitWidth="15.0">
+                                       <image>
+                                           <Image url="@../../drawable/icons/settings.png"/>
+                                       </image>
+                                   </ImageView>
+                               </graphic>
+                           </Button>
+                       </children>
+                   </HBox>
                </children>
+                 <BorderPane.margin>
+                     <Insets left="10.0"/>
+                 </BorderPane.margin>
             </HBox>
          </right>
          <left>
-            <TextField fx:id="search" prefWidth="300.0" promptText="Search" BorderPane.alignment="CENTER"/>
+             <TextField fx:id="search" prefWidth="300.0" promptText="Search" BorderPane.alignment="CENTER"/>
          </left>
          <padding>
-            <Insets bottom="5.0" left="10.0" right="10.0" top="5.0"/>
+             <Insets bottom="5.0" left="10.0" right="5.0" top="5.0"/>
          </padding>
       </BorderPane>
    </top>
+    <bottom>
+        <BorderPane style="-fx-background-color: #3c3f41;" BorderPane.alignment="CENTER">
+            <left>
+                <SplitMenuButton fx:id="projectNameMenu" mnemonicParsing="false" text="Project Name"
+                                 BorderPane.alignment="CENTER">
+                    <items>
+                        <MenuItem fx:id="closeProjectuButton" mnemonicParsing="false" text="Close"/>
+                    </items>
+                </SplitMenuButton>
+            </left>
+            <right>
+                <HBox alignment="CENTER" BorderPane.alignment="CENTER">
+                    <children>
+                        <HBox fx:id="backgroundProcessIndicator" alignment="CENTER" spacing="5.0">
+                            <children>
+                                <ProgressIndicator maxHeight="15.0" maxWidth="15.0"/>
+                                <Label fx:id="processName" text="creating ionic project" textFill="#0096c9"/>
+                            </children>
+                        </HBox>
+                        <HBox fx:id="doneIndicator" alignment="CENTER" spacing="5.0">
+                            <children>
+                                <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@../../drawable/icons/done.png"/>
+                                    </image>
+                                </ImageView>
+                                <Label text="Done" textFill="#08754b">
+                                    <font>
+                                        <Font name="System Bold" size="12.0"/>
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+                    </children>
+                </HBox>
+            </right>
+            <BorderPane.margin>
+                <Insets/>
+            </BorderPane.margin>
+            <padding>
+                <Insets bottom="5.0" left="10.0" right="10.0" top="5.0"/>
+         </padding>
+      </BorderPane>
+    </bottom>
 </BorderPane>

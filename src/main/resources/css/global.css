@@ -35,3 +35,7 @@ ScrollPane {
     -fx-padding: 0 0 0 0;
     -fx-font-size: 12;
 }
+
+.split-menu-button .menu-button {
+    -fx-background-color: yellow;
+}
