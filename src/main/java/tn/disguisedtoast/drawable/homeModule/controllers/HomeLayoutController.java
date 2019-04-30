@@ -14,11 +14,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.DirectoryChooser;
 import org.apache.commons.io.FileUtils;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
+import tn.disguisedtoast.drawable.projectGenerationModule.ionic.ProjectGeneration;
 import tn.disguisedtoast.drawable.storyboardModule.controllers.StoryboardViewController;
 
 import java.io.*;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
 
 public class HomeLayoutController implements Initializable {
 
@@ -40,10 +42,10 @@ public class HomeLayoutController implements Initializable {
         showStoryboard();
 
         //check and generate ionic project in background
-        /*if(!getIonicState()){
+        if (!getIonicState()) {
             CompletableFuture.supplyAsync(ProjectGeneration::generateBlankProject)
                     .thenAccept(this::setIonicState);
-        }*/
+        }
     }
 
     private boolean getIonicState() {

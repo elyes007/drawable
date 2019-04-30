@@ -308,7 +308,8 @@
     function deletePage(page) {
         document.body.removeChild(document.getElementById(page + '-container'))
         const svg = document.getElementById("svg")
-        svg.removeChild(svg.getElementById(page + '-enterArrow'))
+        const enterArrow = svg.getElementById(page + '-enterArrow')
+        if (enterArrow) svg.removeChild(enterArrow)
         pages[page].from.forEach(src = > {
             svg.removeChild(svg.getElementById(src + '-' + page))
             for(let i = 0;
@@ -439,24 +440,26 @@
                 then(json = > {
                     page.title = json.page
                     //makeDragBarTitle(key, page.title)
-                    json.actions.forEach(action = > {
-                        if(action.type !== 'nav'
+                    for(const button in json.actions
             )
-                return
+                {
+                    if (json.actions.hasOwnProperty(button)) {
+                        const action = json.actions[button]
+                        if (action.hasOwnProperty('platform')) continue
 
-                page.to.push({
-                    dest: action.dest,
-                    button: action.button
-                })
-                pages[action.dest].from.push(key)
-                const segue = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                segue.setAttribute('id', key + '-' + action.dest);
-                segue.setAttribute("stroke", "black")
-                segue.setAttribute("class", "segue")
-                setSeguePosition(segue, page.page, action.dest)
-                svg.appendChild(segue)
-            })
-                ;
+                        page.to.push({
+                            dest: action.dest,
+                            button: button
+                        })
+                        pages[action.dest].from.push(key)
+                        const segue = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        segue.setAttribute('id', key + '-' + action.dest);
+                        segue.setAttribute("stroke", "black")
+                        segue.setAttribute("class", "segue")
+                        setSeguePosition(segue, page.page, action.dest)
+                        svg.appendChild(segue)
+                    }
+                }
             })
             }
         }

@@ -93,24 +93,29 @@ public class StoryboardViewController implements Initializable {
             try {
                 reader = new FileReader(path + "/conf.json");
                 JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
-                JsonArray actions = jsonObject.get("actions").getAsJsonArray();
-                for (int i = 0; i < actions.size(); i++) {
-                    String actionDest = actions.get(i).getAsJsonObject().get("dest").getAsString();
-                    String actionButton = actions.get(i).getAsJsonObject().get("button").getAsString();
+                JsonObject actions = jsonObject.get("actions").getAsJsonObject();
+                actions.entrySet().removeIf(action -> {
+                    String actionDest = action.getValue().getAsJsonObject().get("dest").getAsString();
+                    String actionButton = action.getKey();
                     if (actionDest.equals(dest) && actionButton.equals(button)) {
-                        actions.remove(i);
                         //remove routerLink
                         String htmlPath = (path + "&" + src + ".html")
                                 .replace("&", File.separator);
                         File file = new File(htmlPath);
                         String routerLink = String.format("['/%s']", dest.toLowerCase());
-                        Document document = Jsoup.parse(file, "UTF-8");
-                        document.body().getElementsByAttributeValue("[routerLink]", routerLink)
-                                .forEach(btn -> btn.removeAttr("[routerLink]"));
-                        FileUtils.write(file, document.toString());
-                        break;
+                        Document document = null;
+                        try {
+                            document = Jsoup.parse(file, "UTF-8");
+                            document.body().getElementsByAttributeValue("[routerLink]", routerLink)
+                                    .forEach(btn -> btn.removeAttr("[routerLink]"));
+                            FileUtils.write(file, document.toString());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return true;
                     }
-                }
+                    return false;
+                });
                 FileUtils.write(new File(path + "/conf.json"), jsonObject.toString());
             } catch (IOException e) {
                 e.printStackTrace();
@@ -142,22 +147,28 @@ public class StoryboardViewController implements Initializable {
                 try {
                     reader = new FileReader(pagesPath + "/" + dir + "/conf.json");
                     JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
-                    JsonArray actions = jsonObject.get("actions").getAsJsonArray();
-                    for (int i = 0; i < actions.size(); i++) {
-                        String dest = actions.get(i).getAsJsonObject().get("dest").getAsString();
+                    JsonObject actions = jsonObject.get("actions").getAsJsonObject();
+                    actions.entrySet().removeIf(action -> {
+                        String dest = action.getValue().getAsJsonObject().get("dest").getAsString();
                         if (dest.equals(page)) {
-                            actions.remove(i--);
                             //remove routerLink
                             String htmlPath = (Drawable.projectPath + "&RelatedFiles&pages&" + dir + "&" + dir + ".html")
                                     .replace("&", File.separator);
                             File file = new File(htmlPath);
                             String routerLink = String.format("['/%s']", dest.toLowerCase());
-                            Document document = Jsoup.parse(file, "UTF-8");
-                            document.body().getElementsByAttributeValue("[routerLink]", routerLink)
-                                    .forEach(button -> button.removeAttr("[routerLink]"));
-                            FileUtils.write(file, document.toString());
+                            Document document = null;
+                            try {
+                                document = Jsoup.parse(file, "UTF-8");
+                                document.body().getElementsByAttributeValue("[routerLink]", routerLink)
+                                        .forEach(button -> button.removeAttr("[routerLink]"));
+                                FileUtils.write(file, document.toString());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            return true;
                         }
-                    }
+                        return false;
+                    });
                     FileUtils.write(new File(pagesPath + "/" + dir + "/conf.json"), jsonObject.toString());
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -215,21 +226,10 @@ public class StoryboardViewController implements Initializable {
                         .replace("&", File.separator);
                 FileReader fileReader = new FileReader(confPath);
                 JsonObject json = new JsonParser().parse(fileReader).getAsJsonObject();
-                JsonArray actions = json.get("actions").getAsJsonArray();
-                //remove old action for same button
-                for (int i = 0; i < actions.size(); i++) {
-                    JsonObject act = actions.get(i).getAsJsonObject();
-                    if (act.get("button").getAsString().equals(buttonId)) {
-                        actions.remove(i);
-                        break;
-                    }
-                }
-                //add new action
+                JsonObject actions = json.get("actions").getAsJsonObject();
                 JsonObject action = new JsonObject();
-                action.addProperty("type", "nav");
                 action.addProperty("dest", dest);
-                action.addProperty("button", buttonId);
-                actions.add(action);
+                actions.add(buttonId, action);
                 FileUtils.writeStringToFile(new File(confPath), json.toString());
             } catch (IOException e) {
                 e.printStackTrace();

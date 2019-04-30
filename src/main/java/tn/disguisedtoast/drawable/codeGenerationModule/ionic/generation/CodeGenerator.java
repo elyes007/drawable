@@ -386,7 +386,7 @@ public class CodeGenerator {
         FileUtils.writeStringToFile(newHtmlFile, htmlString);
 
         //writing config file
-        String configString = String.format("{\n\t\"page\": \"%s\",\n\t\"html\": \"%s.html\",\n\t\"actions\":[\n\n\t]\n}", pageName, pageName);
+        String configString = String.format("{\n\t\"page\": \"%s\",\n\t\"html\": \"%s.html\",\n\t\"actions\":{\n\n\t}\n}", pageName, pageName);
         File configFile = new File((pagesPath + "&" + pageName + "&" + "conf.json").replace("&", File.separator));
         FileUtils.writeStringToFile(configFile, configString);
 
