@@ -16,7 +16,6 @@ import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.detectionModule.controllers.CamChooserController;
 import tn.disguisedtoast.drawable.detectionModule.controllers.CamStreamViewController;
 import tn.disguisedtoast.drawable.homeModule.models.Page;
-import tn.disguisedtoast.drawable.projectGenerationModule.ionic.ProjectGeneration;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
 import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 
