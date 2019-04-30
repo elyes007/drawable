@@ -8,7 +8,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
-import tn.disguisedtoast.drawable.homeModule.controllers.HomeController;
+import tn.disguisedtoast.drawable.homeModule.controllers.ScrollHomeLayoutController;
 import tn.disguisedtoast.drawable.homeModule.models.Page;
 
 import java.io.BufferedReader;
@@ -86,7 +86,7 @@ public class ProjectGeneration {
     }
 
     public static void generatePages() throws IOException {
-        List<Page> PagesList = HomeController.loadPages();
+        List<Page> PagesList = ScrollHomeLayoutController.loadPages();
         for (Page p : PagesList) {
             try {
                 System.out.println(p.toString());
