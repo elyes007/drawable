@@ -26,6 +26,7 @@ import org.jsoup.nodes.Document;
 import org.w3c.dom.Element;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
+import tn.disguisedtoast.drawable.models.SupportedComponents;
 import tn.disguisedtoast.drawable.previewModule.models.Device;
 
 import javax.imageio.ImageIO;
@@ -225,9 +226,17 @@ public class PreviewController {
     public class AppInterface {
 
         public void setEelement(Object dom) {
+            System.out.println(dom);
             if(dom instanceof Element) {
-                org.jsoup.nodes.Element element = PreviewController.ionicDocument.select("#"+((Element) dom).getAttribute("id")).first();
-                GeneratedElement generatedElement = new GeneratedElement(element, (Element)dom);
+                Element domElement = (Element) dom;
+                org.jsoup.nodes.Element element;
+                if (domElement.getTagName().equals(SupportedComponents.ION_TAB_BUTTON.toString().toUpperCase())) {
+                    element = PreviewController.ionicDocument.selectFirst(SupportedComponents.ION_TAB_BUTTON.toString() + "[tab=" + domElement.getAttribute("tab") + "]");
+                } else {
+                    element = PreviewController.ionicDocument.select("#" + domElement.getAttribute("id")).first();
+                }
+                System.out.println(element);
+                GeneratedElement generatedElement = new GeneratedElement(element, domElement);
                 callBack.clicked(generatedElement);
             }else{
                 System.out.println("Not Element");

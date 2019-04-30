@@ -13,7 +13,8 @@ public enum SupportedComponents {
     ION_BACK_BUTTON("ion-back-button"),
     ION_ICON("ion-icon"),
     BODY("body"),
-    ION_CONTENT("ion-content");
+    ION_CONTENT("ion-content"),
+    ION_TAB_BUTTON("ion-tab-button");
 
     private String value;
 

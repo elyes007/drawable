@@ -1,4 +1,4 @@
-package tn.disguisedtoast.drawable.settingsModule.controllers;
+package tn.disguisedtoast.drawable.settingsModule.interfaces;
 
 public interface SettingsControllerInterface {
     public void save();

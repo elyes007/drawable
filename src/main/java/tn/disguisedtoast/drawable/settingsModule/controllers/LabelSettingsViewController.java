@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
+import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
 import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
 import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
 import tn.disguisedtoast.drawable.settingsModule.utils.FxUtils;
@@ -30,6 +31,24 @@ public class LabelSettingsViewController implements Initializable, SettingsContr
 
     @FXML public Slider horizontalPosition;
     @FXML public Slider verticalPosition;
+    @FXML
+    private Slider horizontalScale;
+    @FXML
+    private Slider verticalScale;
+
+    @FXML
+    private Label posHValue;
+    @FXML
+    private Label posVValue;
+    @FXML
+    private Label scaleHValue;
+    @FXML
+    private Label scaleVValue;
+
+    @FXML
+    private Label deleteButton;
+    @FXML
+    private CheckBox textWrap;
 
     private CustomColorPicker textColor;
     private GeneratedElement element;
@@ -40,8 +59,35 @@ public class LabelSettingsViewController implements Initializable, SettingsContr
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         aWriter.setContentCharset (StandardCharsets.UTF_8.name ());
+
+        this.deleteButton.setOnMouseClicked(event -> {
+            this.element.getElement().remove();
+            PreviewController.refresh();
+            SettingsViewController.getInstance().clearSettingView();
+        });
+
+        this.textWrap.setOnAction(event -> {
+            try {
+                try {
+                    CSSDeclaration declaration = element.getCssRules().getDeclarationOfPropertyName("white-space");
+                    element.getCssRules().removeDeclaration(declaration);
+                } catch (NullPointerException e) {
+                    System.out.println(e);
+                }
+                if (!this.textWrap.isSelected()) {
+                    element.getCssRules().addDeclaration(new CSSDeclaration("white-space", CSSExpression.createSimple("nowrap")));
+                }
+                String cssString = aWriter.getCSSAsString(element.getCssRules());
+                element.getElement().attr("style", cssString);
+                element.getDomElement().setAttribute("style", cssString);
+            } catch (NumberFormatException ex) {
+                ex.printStackTrace();
+            }
+        });
+
         initTextView();
         initPosition();
+        initScale();
     }
 
     //Init
@@ -142,7 +188,10 @@ public class LabelSettingsViewController implements Initializable, SettingsContr
             }catch (NullPointerException e) {
                 System.out.println(e);
             }
-            element.getCssRules().addDeclaration(new CSSDeclaration("left", CSSExpression.createSimple(newValue+"%")));
+            double value = Math.round(newValue.doubleValue() * 10) / 10.0;
+            element.getCssRules().addDeclaration(new CSSDeclaration("left", CSSExpression.createSimple(value + "%")));
+            this.posHValue.setText("(" + value + "%)");
+
             String cssString = aWriter.getCSSAsString (element.getCssRules());
             element.getElement().attr("style", cssString);
             element.getDomElement().setAttribute("style", cssString);
@@ -155,10 +204,53 @@ public class LabelSettingsViewController implements Initializable, SettingsContr
             }catch (NullPointerException e) {
                 System.out.println(e);
             }
+            double value = Math.round(newValue.doubleValue() * 10) / 10.0;
             element.getCssRules().addDeclaration(new CSSDeclaration("top", CSSExpression.createSimple(newValue+"%")));
+            this.posVValue.setText("(" + value + "%)");
+
             String cssString = aWriter.getCSSAsString (element.getCssRules());
             element.getElement().attr("style", cssString);
             element.getDomElement().setAttribute("style", cssString);
+        });
+    }
+
+    private void initScale() {
+        horizontalScale.valueProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                CSSDeclaration declaration = element.getCssRules().getDeclarationOfPropertyName("width");
+                element.getCssRules().removeDeclaration(declaration);
+            } catch (NullPointerException e) {
+                System.out.println(e);
+            }
+            double value = Math.round(newValue.doubleValue() * 10) / 10.0;
+            if (value > 0) {
+                element.getCssRules().addDeclaration(new CSSDeclaration("width", CSSExpression.createSimple(value + "%")));
+                this.scaleHValue.setText("(" + value + "%)");
+            } else {
+                this.scaleHValue.setText("(Default)");
+            }
+            String cssRules = aWriter.getCSSAsString(element.getCssRules());
+            element.getElement().attr("style", cssRules);
+            element.getDomElement().setAttribute("style", cssRules);
+        });
+
+        verticalScale.valueProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                CSSDeclaration declaration = element.getCssRules().getDeclarationOfPropertyName("height");
+                element.getCssRules().removeDeclaration(declaration);
+            } catch (NullPointerException e) {
+                System.out.println(e);
+            }
+            double value = Math.round(newValue.doubleValue() * 10) / 10.0;
+            if (value > 0) {
+                element.getCssRules().addDeclaration(new CSSDeclaration("height", CSSExpression.createSimple(value + "%")));
+                this.scaleVValue.setText("(" + value + "%)");
+            } else {
+                this.scaleVValue.setText("(Default)");
+            }
+            String cssRules = aWriter.getCSSAsString(element.getCssRules());
+            element.getElement().attr("style", cssRules);
+            element.getDomElement().setAttribute("style", cssRules);
         });
     }
 
@@ -167,6 +259,12 @@ public class LabelSettingsViewController implements Initializable, SettingsContr
         System.out.println(this.element);
         this.textValue.setText(element.getElement().text().trim());
 
+        try {
+            CssRuleExtractor.extractValue(element.getCssRules(), "white-space");
+        } catch (Exception e) {
+            this.textWrap.setSelected(true);
+        }
+
         getLabelFontSize();
         getLabelFontColor();
         getLabelIsBold();
@@ -174,6 +272,7 @@ public class LabelSettingsViewController implements Initializable, SettingsContr
         getLabelIsUnderlined();
 
         getLabelPosition();
+        getLabelScale();
     }
 
     private void getLabelPosition() {
@@ -191,6 +290,26 @@ public class LabelSettingsViewController implements Initializable, SettingsContr
             this.verticalPosition.setValue(vPos);
         }catch (Exception e){
             this.verticalPosition.setValue(0);
+        }
+    }
+
+    private void getLabelScale() {
+        try {
+            String horizontalString = CssRuleExtractor.extractValue(element.getCssRules(), "width");
+            double hPos = Double.parseDouble(horizontalString.substring(0, horizontalString.length() - 1));
+            this.horizontalScale.setValue(hPos);
+        } catch (Exception e) {
+            this.horizontalScale.setValue(0.1);
+            this.horizontalScale.setValue(0);
+        }
+
+        try {
+            String verticalString = CssRuleExtractor.extractValue(element.getCssRules(), "height");
+            double vPos = Double.parseDouble(verticalString.substring(0, verticalString.length() - 1));
+            this.verticalScale.setValue(vPos);
+        } catch (Exception e) {
+            this.verticalScale.setValue(0.1);
+            this.verticalScale.setValue(0);
         }
     }
 

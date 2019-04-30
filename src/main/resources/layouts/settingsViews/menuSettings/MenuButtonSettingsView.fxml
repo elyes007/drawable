@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/10.0.1"
-            fx:controller="tn.disguisedtoast.drawable.settingsModule.controllers.MenuButtonSettingsController">
+            fx:controller="tn.disguisedtoast.drawable.settingsModule.controllers.menuSettings.MenuButtonSettingsController">
     <center>
         <BorderPane>
             <center>
@@ -26,7 +26,6 @@
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                                 <RowConstraints vgrow="SOMETIMES"/>
                                 <RowConstraints vgrow="SOMETIMES"/>
-                                <RowConstraints vgrow="SOMETIMES"/>
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                             </rowConstraints>
                             <children>
@@ -42,7 +41,7 @@
                                                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true"
                                                                    preserveRatio="true">
                                                             <image>
-                                                                <Image url="@../../drawable/icons/bold_icon.png"/>
+                                                                <Image url="@../../../drawable/icons/bold_icon.png"/>
                                                             </image>
                                                         </ImageView>
                                                     </graphic>
@@ -59,7 +58,7 @@
                                                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true"
                                                                    preserveRatio="true">
                                                             <image>
-                                                                <Image url="@../../drawable/icons/italic_icon.png"/>
+                                                                <Image url="@../../../drawable/icons/italic_icon.png"/>
                                                             </image>
                                                         </ImageView>
                                                     </graphic>
@@ -76,7 +75,7 @@
                                                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true"
                                                                    preserveRatio="true">
                                                             <image>
-                                                                <Image url="@../../drawable/icons/underlined_icon.png"/>
+                                                                <Image url="@../../../drawable/icons/underlined_icon.png"/>
                                                             </image>
                                                         </ImageView>
                                                     </graphic>
@@ -102,18 +101,13 @@
                                         <Font size="14.0"/>
                                     </font>
                                 </Label>
-                                <Label text="Background Color" GridPane.rowIndex="2">
-                                    <font>
-                                        <Font size="14.0"/>
-                                    </font>
-                                </Label>
-                                <Label text="Action" GridPane.rowIndex="4">
+                                <Label text="Action" GridPane.rowIndex="3">
                                     <font>
                                         <Font size="14.0"/>
                                     </font>
                                 </Label>
                                 <ChoiceBox fx:id="buttonAction" minWidth="223.0" prefHeight="25.0"
-                                           GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                                           GridPane.columnIndex="1" GridPane.rowIndex="3"/>
                                 <Label text="Theme">
                                     <font>
                                         <Font size="14.0"/>
@@ -140,24 +134,13 @@
                                         </Label>
                                     </children>
                                 </HBox>
-                                <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="1"
-                                      GridPane.rowIndex="2">
-                                    <children>
-                                        <Label fx:id="backgroundColorPane">
-                                            <tooltip>
-                                                <Tooltip
-                                                        text="Can't select button background color when using 'Solid' theme."/>
-                                            </tooltip>
-                                        </Label>
-                                    </children>
-                                </HBox>
-                                <Label text="Icon" GridPane.rowIndex="3">
+                                <Label text="Icon" GridPane.rowIndex="2">
                                     <font>
                                         <Font size="14.0"/>
                                     </font>
                                 </Label>
                                 <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1"
-                                      GridPane.rowIndex="3">
+                                      GridPane.rowIndex="2">
                                     <children>
                                         <ComboBox fx:id="icon"/>
                                         <HBox alignment="CENTER" spacing="2.0">
@@ -170,7 +153,7 @@
                                                                 <ImageView fitHeight="20.0" fitWidth="20.0"
                                                                            pickOnBounds="true" preserveRatio="true">
                                                                     <image>
-                                                                        <Image url="@../../drawable/icons/border_left.png"/>
+                                                                        <Image url="@../../../drawable/icons/border_left.png"/>
                                                                     </image>
                                                                 </ImageView>
                                                             </graphic>
@@ -197,7 +180,7 @@
                                                                 <ImageView fitHeight="20.0" fitWidth="20.0"
                                                                            pickOnBounds="true" preserveRatio="true">
                                                                     <image>
-                                                                        <Image url="@../../drawable/icons/border_right.png"/>
+                                                                        <Image url="@../../../drawable/icons/border_right.png"/>
                                                                     </image>
                                                                 </ImageView>
                                                             </graphic>
@@ -298,7 +281,7 @@
                 <Insets left="30.0" right="30.0"/>
             </padding>
             <BorderPane.margin>
-                <Insets top="10.0"/>
+                <Insets top="30.0"/>
             </BorderPane.margin>
         </BorderPane>
     </center>

@@ -6,8 +6,6 @@ import com.helger.css.decl.CSSDeclaration;
 import com.helger.css.decl.CSSExpression;
 import com.helger.css.writer.CSSWriter;
 import com.helger.css.writer.CSSWriterSettings;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -24,12 +22,14 @@ import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
 import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.FacebookLoginSettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.GoogleLoginSettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.NavigationSettingsViewController;
+import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
 import tn.disguisedtoast.drawable.settingsModule.models.IonIcon;
 import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
 import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
 import tn.disguisedtoast.drawable.settingsModule.utils.FxUtils;
 import tn.disguisedtoast.drawable.settingsModule.utils.IconComboboxCell;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
@@ -60,6 +60,20 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
     @FXML public Slider horizontalPosition;
     @FXML public Slider verticalPosition;
     @FXML public ComboBox icon;
+    @FXML
+    private Slider horizontalScale;
+    @FXML
+    private Label posHValue;
+    @FXML
+    private Slider verticalScale;
+    @FXML
+    private Label posVValue;
+    @FXML
+    private Label scaleHValue;
+    @FXML
+    private Label scaleVValue;
+    @FXML
+    private Label deleteButton;
 
     public CustomColorPicker textColor;
     public CustomColorPicker backgroundColor;
@@ -77,54 +91,58 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
     public void initialize(URL location, ResourceBundle resources) {
         aWriter.setContentCharset (StandardCharsets.UTF_8.name ());
 
+        this.deleteButton.setOnMouseClicked(event -> {
+            this.button.getElement().remove();
+            PreviewController.refresh();
+            SettingsViewController.getInstance().clearSettingView();
+        });
+
         initTextView();
         initThemeView();
         initBackgroundColorView();
         initIcon();
         setUpPosition();
+        setUpScale();
 
         this.buttonAction.getItems().addAll(Arrays.asList(actions));
         this.buttonAction.getSelectionModel().selectFirst();
-        this.buttonAction.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                int index = ((ChoiceBox)event.getTarget()).getSelectionModel().getSelectedIndex();
-                try{
-                    switch (index){
-                        case 0:
-                            actionSettingsPane.setCenter(noActionPane);
-                            settingsControllerInterface = null;
-                            System.out.println("Here None");
-                            button.getElement().removeAttr("[routerLink]");
-                            break;
-                        case 1:
-                            FXMLLoader navigationLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/NavigationSettingsView.fxml"));
-                            actionSettingsPane.setCenter(navigationLoader.load());
-                            settingsControllerInterface = navigationLoader.getController();
-                            ((NavigationSettingsViewController) settingsControllerInterface).setElement(button);
-                            break;
-                        case 2:
-                            FXMLLoader facebookLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/FacebookLoginSettingsView.fxml"));
-                            actionSettingsPane.setCenter(facebookLoader.load());
-                            settingsControllerInterface = facebookLoader.getController();
-                            ((FacebookLoginSettingsViewController)settingsControllerInterface).setElement(button.getElement());
-                            System.out.println("Here FB");
-                            button.getElement().removeAttr("[routerLink]");
-                            //save();
-                            break;
-                        case 3:
-                            FXMLLoader googleLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/GoogleLoginSettingsView.fxml"));
-                            actionSettingsPane.setCenter(googleLoader.load());
-                            settingsControllerInterface = googleLoader.getController();
-                            ((GoogleLoginSettingsViewController)settingsControllerInterface).setElement(button.getElement());
-                            System.out.println("here G");
-                            button.getElement().removeAttr("[routerLink]");
-                            //save();
-                            break;
-                    }
-                }catch (IOException ex){
-                    System.err.println(ex);
+        this.buttonAction.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            int index = (Integer) newValue;
+            try {
+                switch (index) {
+                    case 0:
+                        actionSettingsPane.setCenter(noActionPane);
+                        settingsControllerInterface = null;
+                        System.out.println("Here None");
+                        button.getElement().removeAttr("[routerLink]");
+                        break;
+                    case 1:
+                        FXMLLoader navigationLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/NavigationSettingsView.fxml"));
+                        actionSettingsPane.setCenter(navigationLoader.load());
+                        settingsControllerInterface = navigationLoader.getController();
+                        ((NavigationSettingsViewController) settingsControllerInterface).setElement(button);
+                        break;
+                    case 2:
+                        FXMLLoader facebookLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/FacebookLoginSettingsView.fxml"));
+                        actionSettingsPane.setCenter(facebookLoader.load());
+                        settingsControllerInterface = facebookLoader.getController();
+                        ((FacebookLoginSettingsViewController) settingsControllerInterface).setElement(button.getElement(), ButtonSettingsViewController.this);
+                        System.out.println("Here FB");
+                        button.getElement().removeAttr("[routerLink]");
+                        //save();
+                        break;
+                    case 3:
+                        FXMLLoader googleLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/GoogleLoginSettingsView.fxml"));
+                        actionSettingsPane.setCenter(googleLoader.load());
+                        settingsControllerInterface = googleLoader.getController();
+                        ((GoogleLoginSettingsViewController) settingsControllerInterface).setElement(button.getElement());
+                        System.out.println("here G");
+                        button.getElement().removeAttr("[routerLink]");
+                        //save();
+                        break;
                 }
+            } catch (IOException ex) {
+                System.err.println(ex);
             }
         });
     }
@@ -392,7 +410,9 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
             }catch (NullPointerException e) {
                 System.out.println(e);
             }
-            button.getCssRules().addDeclaration(new CSSDeclaration("left", CSSExpression.createSimple(newValue+"%")));
+            double value = Math.round(newValue.doubleValue() * 10) / 10.0;
+            button.getCssRules().addDeclaration(new CSSDeclaration("left", CSSExpression.createSimple(value + "%")));
+            this.posHValue.setText("(" + value + "%)");
             String cssRules = aWriter.getCSSAsString (button.getCssRules());
             button.getElement().attr("style", cssRules);
             button.getDomElement().setAttribute("style", cssRules);
@@ -405,8 +425,50 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
             }catch (NullPointerException e) {
                 System.out.println(e);
             }
-            button.getCssRules().addDeclaration(new CSSDeclaration("top", CSSExpression.createSimple(newValue+"%")));
+            double value = Math.round(newValue.doubleValue() * 10) / 10.0;
+            button.getCssRules().addDeclaration(new CSSDeclaration("top", CSSExpression.createSimple(value + "%")));
+            this.posVValue.setText("(" + value + "%)");
             String cssRules = aWriter.getCSSAsString (button.getCssRules());
+            button.getElement().attr("style", cssRules);
+            button.getDomElement().setAttribute("style", cssRules);
+        });
+    }
+
+    private void setUpScale() {
+        horizontalScale.valueProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                CSSDeclaration declaration = button.getCssRules().getDeclarationOfPropertyName("width");
+                button.getCssRules().removeDeclaration(declaration);
+            } catch (NullPointerException e) {
+                System.out.println(e);
+            }
+            double value = Math.round(newValue.doubleValue() * 10) / 10.0;
+            if (value > 0) {
+                button.getCssRules().addDeclaration(new CSSDeclaration("width", CSSExpression.createSimple(value + "%")));
+                this.scaleHValue.setText("(" + value + "%)");
+            } else {
+                this.scaleHValue.setText("(Default)");
+            }
+            String cssRules = aWriter.getCSSAsString(button.getCssRules());
+            button.getElement().attr("style", cssRules);
+            button.getDomElement().setAttribute("style", cssRules);
+        });
+
+        verticalScale.valueProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                CSSDeclaration declaration = button.getCssRules().getDeclarationOfPropertyName("height");
+                button.getCssRules().removeDeclaration(declaration);
+            } catch (NullPointerException e) {
+                System.out.println(e);
+            }
+            double value = Math.round(newValue.doubleValue() * 10) / 10.0;
+            if (value > 0) {
+                button.getCssRules().addDeclaration(new CSSDeclaration("height", CSSExpression.createSimple(value + "%")));
+                this.scaleVValue.setText("(" + value + "%)");
+            } else {
+                this.scaleVValue.setText("(Default)");
+            }
+            String cssRules = aWriter.getCSSAsString(button.getCssRules());
             button.getElement().attr("style", cssRules);
             button.getDomElement().setAttribute("style", cssRules);
         });
@@ -445,13 +507,25 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
         getButtonIcon();
 
         setButtonPosition();
+        setButtonScale();
 
-        if(NavigationSettingsViewController.getNavigationSetting(button.getElement())){
+
+        if (this.button.getElement().hasAttr("[routerLink]")) {
             this.buttonAction.getSelectionModel().select(1);
-        }else if(FacebookLoginSettingsViewController.getLogSetting(button.getElement())) {
-            this.buttonAction.getSelectionModel().select(2);
-        }else if(GoogleLoginSettingsViewController.getLogSetting(button.getElement())){
-            this.buttonAction.getSelectionModel().select(3);
+        } else {
+            try {
+                JsonObject pageSettingsObject = new JsonParser().parse(new FileReader(SettingsViewController.pageFolder + "/conf.json")).getAsJsonObject();
+                if (pageSettingsObject.getAsJsonObject("actions").has(this.button.getElement().id())) {
+                    JsonObject buttonActionObject = pageSettingsObject.getAsJsonObject("actions").getAsJsonObject(this.button.getElement().id());
+                    if (buttonActionObject.get("platform").getAsString().equals("facebook")) {
+                        this.buttonAction.getSelectionModel().select(2);
+                    } else {
+                        this.buttonAction.getSelectionModel().select(3);
+                    }
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -564,6 +638,7 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
             double hPos = Double.parseDouble(horizontalString.substring(0,horizontalString.length()-1));
             this.horizontalPosition.setValue(hPos);
         }catch (Exception e){
+            this.horizontalPosition.setValue(0.1);
             this.horizontalPosition.setValue(0);
         }
 
@@ -572,7 +647,28 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
             double vPos = Double.parseDouble(verticalString.substring(0, verticalString.length()-1));
             this.verticalPosition.setValue(vPos);
         }catch (Exception e){
+            this.verticalPosition.setValue(0.1);
             this.verticalPosition.setValue(0);
+        }
+    }
+
+    private void setButtonScale() {
+        try {
+            String horizontalString = CssRuleExtractor.extractValue(button.getCssRules(), "width");
+            double hPos = Double.parseDouble(horizontalString.substring(0, horizontalString.length() - 1));
+            this.horizontalScale.setValue(hPos);
+        } catch (Exception e) {
+            this.horizontalScale.setValue(0.1);
+            this.horizontalScale.setValue(0);
+        }
+
+        try {
+            String verticalString = CssRuleExtractor.extractValue(button.getCssRules(), "height");
+            double vPos = Double.parseDouble(verticalString.substring(0, verticalString.length() - 1));
+            this.verticalScale.setValue(vPos);
+        } catch (Exception e) {
+            this.verticalScale.setValue(0.1);
+            this.verticalScale.setValue(0);
         }
     }
 

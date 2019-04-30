@@ -12,11 +12,10 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
-import org.jsoup.select.Elements;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.models.SupportedComponents;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
+import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
 import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
 import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
 import tn.disguisedtoast.drawable.settingsModule.utils.DomUtils;
@@ -209,7 +208,11 @@ public class ToolbarSettingsViewController implements Initializable, SettingsCon
                 this.toolbarElement.getElement().selectFirst(SupportedComponents.ION_BUTTONS.toString()),
                 (org.w3c.dom.Element) DomUtils.getChildNode(SupportedComponents.ION_BUTTONS.toString().toUpperCase(), this.toolbarElement.getDomElement()));
 
-        this.hasBackButton.setSelected(this.buttonsElement.getElement().select(SupportedComponents.ION_BACK_BUTTON.toString()).size() != 0);
+        if (this.buttonsElement.getElement().selectFirst("ion-menu-button") == null) {
+            this.hasBackButton.setSelected(this.buttonsElement.getElement().select(SupportedComponents.ION_BACK_BUTTON.toString()).size() != 0);
+        } else {
+            this.hasBackButton.setDisable(true);
+        }
 
         this.titleText.setText(this.titleElement.getElement().text());
 

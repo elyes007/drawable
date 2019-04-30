@@ -6,7 +6,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.*?>
 <BorderPane xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings.FacebookLoginSettingsViewController">
     <center>
         <GridPane hgap="20.0" vgap="20.0" BorderPane.alignment="CENTER">
@@ -16,35 +16,37 @@
             </columnConstraints>
             <rowConstraints>
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                 <RowConstraints vgrow="SOMETIMES" />
                 <RowConstraints vgrow="SOMETIMES" />
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
             </rowConstraints>
             <children>
-                <Label text="Facebook App Name" GridPane.rowIndex="1">
+                <Label text="Facebook App Name" GridPane.rowIndex="2">
                     <font>
                         <Font size="14.0"/>
                     </font>
                 </Label>
-                <Label text="Facebook App ID" GridPane.rowIndex="2">
+                <Label text="Facebook App ID" GridPane.rowIndex="3">
                     <font>
                         <Font size="14.0" />
                     </font>
                 </Label>
                 <TextField fx:id="appName" minWidth="300.0" prefHeight="25.0" GridPane.columnIndex="1"
-                           GridPane.rowIndex="1"/>
+                           GridPane.rowIndex="2"/>
                 <TextField fx:id="appId" layoutX="129.0" layoutY="10.0" minWidth="300.0" prefHeight="25.0"
-                           GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-                <Label text="Success destination" GridPane.rowIndex="3">
+                           GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                <Label text="Success destination" GridPane.rowIndex="4">
                     <font>
                         <Font size="14.0"/>
                     </font>
                 </Label>
-                <ComboBox fx:id="destination" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                <ComboBox fx:id="destination" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
                 <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1">
                     <children>
-                        <TextField fx:id="packageName" editable="false" minWidth="375.0"/>
-                        <Label fx:id="infoLabel">
+                        <TextField fx:id="packageName" editable="false" minWidth="375.0"
+                                   style="-fx-background-color: #6C7275;"/>
+                        <Label fx:id="appIdInfoLabel">
                             <graphic>
                                 <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                                     <image>
@@ -62,7 +64,7 @@
                                             <children>
                                                 <Label style="-fx-font-size: 12;"
                                                        text="Use IONIC app ID to create an app in Facebook. Click this"/>
-                                                <Hyperlink fx:id="infoHyperlink" text="link"/>
+                                                <Hyperlink fx:id="appIdInfoHyperlink" text="link"/>
                                                 <Label style="-fx-font-size: 12;" text="for more informations."/>
                                             </children>
                                         </HBox>
@@ -75,7 +77,51 @@
                         </Label>
                     </children>
                 </HBox>
-                <Label text="IONIC App ID"/>
+                <Label text="IONIC App ID">
+                    <font>
+                        <Font size="14.0"/>
+                    </font>
+                </Label>
+                <Label text="Keyhash" GridPane.rowIndex="1">
+                    <font>
+                        <Font size="14.0"/>
+                    </font>
+                </Label>
+                <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <children>
+                        <TextField fx:id="keyhash" editable="false" minWidth="375.0"
+                                   style="-fx-background-color: #6C7275;"/>
+                        <Label fx:id="keyhashInfoLabel">
+                            <graphic>
+                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@../../../drawable/icons/info_icon.png"/>
+                                    </image>
+                                    <cursor>
+                                        <Cursor fx:constant="HAND"/>
+                                    </cursor>
+                                </ImageView>
+                            </graphic>
+                            <tooltip>
+                                <Tooltip wrapText="true">
+                                    <graphic>
+                                        <HBox spacing="5.0">
+                                            <children>
+                                                <Label style="-fx-font-size: 12;"
+                                                       text="Use this keyhash to create Facebook app. Click this"/>
+                                                <Hyperlink fx:id="keyhashInfoHyperlink" text="link"/>
+                                                <Label style="-fx-font-size: 12;" text="for more informations."/>
+                                            </children>
+                                        </HBox>
+                                    </graphic>
+                                </Tooltip>
+                            </tooltip>
+                            <cursor>
+                                <Cursor fx:constant="HAND"/>
+                            </cursor>
+                        </Label>
+                    </children>
+                </HBox>
             </children>
             <BorderPane.margin>
                 <Insets/>

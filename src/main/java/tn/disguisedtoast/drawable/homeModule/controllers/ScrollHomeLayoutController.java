@@ -16,6 +16,7 @@ import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.detectionModule.controllers.CamChooserController;
 import tn.disguisedtoast.drawable.detectionModule.controllers.CamStreamViewController;
 import tn.disguisedtoast.drawable.homeModule.models.Page;
+import tn.disguisedtoast.drawable.projectGenerationModule.ionic.ProjectGeneration;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
 import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 
@@ -37,7 +38,7 @@ public class ScrollHomeLayoutController implements CamChooserController.CameraBu
 
     public static Stage primaryStage;
     private List<PageCellViewController> pageCellViewControllers;
-    private String pagesPath = (Drawable.projectPath + "&RelatedFiles&pages").replace("&", File.separator);
+    private static String pagesPath = (Drawable.projectPath + "&RelatedFiles&pages").replace("&", File.separator);
 
     private PageCellViewController.PageClickCallback pageClickCallback = page -> {
         try {
@@ -55,7 +56,6 @@ public class ScrollHomeLayoutController implements CamChooserController.CameraBu
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        if (addButtonPane == null) System.out.println("button pane");
         ((Button) this.addButtonPane.getChildren().get(0)).setOnAction(event -> {
             EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
             chooserStage = new Stage();
@@ -90,7 +90,7 @@ public class ScrollHomeLayoutController implements CamChooserController.CameraBu
         }
     }
 
-    public List<Page> loadPages() {
+    public static List<Page> loadPages() {
         File root = new File(pagesPath);
         String[] directories = root.list((dir, name) -> (new File(dir, name).isDirectory()));
         List<Page> pages = new ArrayList<>();
@@ -99,7 +99,7 @@ public class ScrollHomeLayoutController implements CamChooserController.CameraBu
             try {
                 JsonObject jsonObject = new JsonParser().parse(new FileReader(pagesPath + "/" + dir + "/conf.json")).getAsJsonObject();
                 String pageName = jsonObject.get("page").getAsString();
-                Page pg = new Page(pageName, pagesPath + "/" + dir);
+                Page pg = new Page(pageName, pagesPath + File.separator + dir);
                 pages.add(pg);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
