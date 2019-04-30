@@ -181,7 +181,7 @@ public class SettingsViewController implements Initializable {
                 ((TabSettingsController) currentController).setTabElement(element);
             }
 
-            //HomeController.primaryStage.sizeToScene();
+            //ScrollHomeLayoutController.primaryStage.sizeToScene();
             if(currentController == null) {
                 this.saveButton.setDisable(true);
             }else{

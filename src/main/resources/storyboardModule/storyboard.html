@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>storyboard</title>
+    <style type="text/css">
+
+        #storybody {
+            background-color: #585C5F;
+            position: relative;
+            overflow: auto;
+        }
+
+        .pageDiv {
+            position: absolute;
+            z-index: 1;
+            transition: box-shadow 0.5s;
+        }
+
+        .dragBar {
+            position: relative;
+            cursor: pointer;
+            height: 29px;
+            border: 1px solid lightgray;
+            background-color: lightgray;
+            margin-bottom: 4px;
+            border-radius: 2px;
+            text-align: center;
+        }
+
+        .dragBar:hover {
+            background-color: lightgray;
+        }
+
+        .dragBarButton {
+            /*display: none;*/
+            height: 100%;
+            width: auto;
+            object-fit: cover;
+            padding: 4px;
+            border-radius: 2px;
+        }
+
+        .dragBarButton:hover {
+            background-color: #95999C;
+        }
+
+        .title {
+            text-align: center;
+            margin: 0 0 0 0;
+            font-family: Helvetica;
+        }
+
+        .page {
+            position: relative;
+            width: 200px;
+            height: 398px;
+            overflow: hidden;
+            background-color: white;
+        }
+
+        .arrow {
+            stroke: rgb(0, 0, 0);
+            stroke-width: 2;
+            marker-end: url(#markerArrow);
+        }
+
+        .segue {
+            stroke: rgb(0, 0, 0);
+            stroke-width: 2;
+        }
+
+        #add-container {
+            position: relative;
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+            left: 16px;
+            top: 16px;
+            width: 200px;
+            height: 398px;
+            border-radius: 8px;
+            border: 1px dashed black;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        #add-container:hover {
+            opacity: 1;
+        }
+
+        #add {
+            display: inline-block;
+            background: #517d5e;
+            height: 100px;
+            position: relative;
+            width: 20px;
+        }
+
+        #add:after {
+            background: #517d5e;
+            content: "";
+            height: 20px;
+            left: -40px;
+            position: absolute;
+            top: 40px;
+            width: 100px;
+        }
+
+        .navMessage {
+            position: absolute;
+            display: inline-block;
+            width: 200px;
+            background-color: #3C3F41;
+            border-radius: 16px;
+            z-index: 2;
+            padding-bottom: 16px;
+        }
+
+        .yesBtn {
+            position: relative;
+            right: -57%;
+            cursor: pointer;
+            background-color: transparent;
+            font-family: Helvetica;
+            font-weight: bold;
+            color: white;
+            padding: 4px 8px 4px 8px;
+            border-radius: 4px;
+        }
+
+        .nopeBtn {
+            position: relative;
+            right: -57%;
+            margin: 8px 4px 0 4px;
+            cursor: pointer;
+            background-color: transparent;
+            font-family: Helvetica;
+            font-weight: bold;
+            color: white;
+            padding: 4px 8px 4px 8px;
+            border-radius: 4px;
+        }
+
+        .shade {
+            position: fixed;
+            height: 100%;
+            width: 100%;
+            z-index: 3;
+            background-color: #000000;
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+        }
+
+    </style>
+    <script src="https://unpkg.com/@ionic/core@latest/dist/ionic.js"></script>
+    <link href="https://unpkg.com/@ionic/core@latest/css/ionic.bundle.css" rel="stylesheet">
+</head>
+<body oncontextmenu="return false;" id="storybody">
+
+<div class="shade" id="shade"></div>
+
+<svg height="5000px" width="5000px" style="position: absolute; pointer-events: none;" id="svg">
+    <defs>
+        <marker id="markerArrow" markerWidth="15" markerHeight="15" refX="2" refY="6"
+                orient="auto">
+            <path d="M2,2 L2,11 L10,6 L2,2" style="fill: #000000;"/>
+        </marker>
+    </defs>
+</svg>
+
+<svg height="5000px" width="5000px" style="position: absolute; z-index: 2; pointer-events: none;" id="svg-nav">
+    <defs>
+        <marker id="markerArrow" markerWidth="15" markerHeight="15" refX="2" refY="6"
+                orient="auto">
+            <path d="M2,2 L2,11 L10,6 L2,2" style="fill: #000000;"/>
+        </marker>
+    </defs>
+</svg>
+
+<div id="add-container" onclick="java.addPage()">
+    <div id="add"></div>
+</div>
+
+<script type="text/javascript">
+    var nav = false
+    shouldDismiss = false
+    window.onload = function () {
+        drawStoryboard();
+        document.onmousedown = startDrag;
+        document.onmouseup = stopDrag;
+    }
+
+    function drawStoryboard() {
+        fetch('storyboard.json')
+            .then(response = > response.json()
+    )
+    .
+        then(json = > {
+            //zoom management
+            zoom = json.zoom;
+        document.body.style.zoom = zoom + "%"
+        document.onkeydown = (e) =
+    >
+        {
+            var evtobj = window.event ? event : e
+            if ((evtobj.keyCode == 107 || evtobj.keyCode == 61) && evtobj.ctrlKey) {
+                zoom = Math.min(100, zoom + 10)
+                document.body.style.zoom = zoom + "%"
+            }
+            if ((evtobj.keyCode == 109 || evtobj.keyCode == 54) && evtobj.ctrlKey) {
+                zoom = Math.max(30, zoom - 10)
+                document.body.style.zoom = zoom + "%"
+            }
+            if ((evtobj.keyCode == 96 || evtobj.keyCode == 48) && evtobj.ctrlKey) {
+                zoom = 100
+                document.body.style.zoom = zoom + "%"
+            }
+            java.updateStoryboardZoom(zoom)
+        }
+        //drawing storyboard
+        pages = {}
+        let promises = []
+        json.pages.forEach(obj = > {
+            obj.to = []
+            obj.from = []
+            pages[obj.page] = obj
+
+            const promise = fetch('./pages/' + obj.page + '/' + obj.page + '.html')
+                .then(response = > response.text()
+    )
+    .
+        then(text = > {
+            const html = document.createElement("html")
+            html.innerHTML = text;
+
+        const div = document.createElement("div")
+        div.style.left = obj.x + 'px'
+        div.style.top = obj.y + 'px'
+        div.className = 'pageDiv'
+        div.id = obj.page + '-container'
+
+        const dragBar = document.createElement("div")
+        dragBar.id = obj.page + '-dragBar'
+        dragBar.className = 'dragBar'
+        makeDragBarButtons(dragBar, obj.page)
+
+        const pageContainer = document.createElement("div")
+        pageContainer.id = obj.page
+        pageContainer.className = 'page'
+        const ionApp = html.querySelector("ion-app")
+        for (let img of ionApp.getElementsByTagName("ion-img")) {
+            img.src = img.src.substring(img.src.search('assets'), img.src.length)
+        }
+        pageContainer.appendChild(ionApp)
+
+        div.appendChild(dragBar)
+        div.appendChild(pageContainer)
+        document.querySelector("body").appendChild(div)
+    })
+        promises.push(promise)
+    })
+        Promise.all(promises).then(() = > {
+            drawArrows()
+        }
+    )
+    })
+    }
+
+    function makeDragBarButtons(dragBar, page) {
+        const path = java.getPath()
+
+        const remove = document.createElement("img")
+        remove.src = path + '/delete.svg'
+        remove.className = 'dragBarButton'
+        remove.onclick = (e) =
+    >
+        {
+            showConfirmMessage(e, 'Are you sure you want to delete this page ?', () = > {
+                java.deletePage(page)
+                deletePage(page)
+            }
+        )
+        }
+
+        const settings = document.createElement("img")
+        settings.src = path + '/settings.svg'
+        settings.className = 'dragBarButton'
+        settings.style.marginLeft = '16px'
+        settings.style.marginRight = '16px'
+        settings.onclick = (e) =
+    >
+        java.openPage(page)
+
+        const details = document.createElement("img")
+        details.src = path + '/details.svg'
+        details.className = 'dragBarButton'
+        details.onclick = (e) =
+    >
+        showPageDetails(e, page)
+
+        dragBar.appendChild(details)
+        dragBar.appendChild(settings)
+        dragBar.appendChild(remove)
+    }
+
+    function deletePage(page) {
+        document.body.removeChild(document.getElementById(page + '-container'))
+        const svg = document.getElementById("svg")
+        const enterArrow = svg.getElementById(page + '-enterArrow')
+        if (enterArrow) svg.removeChild(enterArrow)
+        pages[page].from.forEach(src = > {
+            svg.removeChild(svg.getElementById(src + '-' + page))
+            for(let i = 0;
+        i < pages[src].to.length;
+        i++
+    )
+        {
+            if (pages[src].to[i].dest == page) {
+                pages[src].to.splice(i, 1)
+                i--
+            }
+        }
+    })
+    }
+
+    function showConfirmMessage(e, msg, callback) {
+        shouldDismiss = true
+        const messageContainer = document.createElement("div")
+        messageContainer.className = 'navMessage'
+        messageContainer.style.left = e.pageX / (zoom / 100) + 'px'
+        messageContainer.style.top = e.pageY / (zoom / 100) + 'px'
+        const title = document.createElement("p")
+        title.style.color = "white"
+        title.style.marginLeft = "10px"
+        title.style.fontFamily = "Helvetica"
+        title.style.fontSize = '14px'
+        title.innerHTML = msg
+        const nopeBtn = document.createElement("button")
+        nopeBtn.className = 'nopeBtn'
+        nopeBtn.innerHTML = 'No'
+        nopeBtn.onclick = (e) =
+    >
+        {
+            shouldDismiss = false
+            document.body.removeChild(messageContainer)
+        }
+        const yesBtn = document.createElement("button")
+        yesBtn.className = 'yesBtn'
+        yesBtn.innerHTML = 'Yes'
+        yesBtn.onclick = (e) =
+    >
+        {
+            shouldDismiss = false
+            document.body.removeChild(messageContainer)
+            callback()
+        }
+
+        messageContainer.appendChild(title)
+        messageContainer.appendChild(yesBtn)
+        messageContainer.appendChild(nopeBtn)
+        document.body.appendChild(messageContainer)
+    }
+
+    function showPageDetails(e, page) {
+        shouldDismiss = true
+
+        const messageContainer = document.createElement("div")
+        messageContainer.className = 'navMessage'
+        messageContainer.style.left = e.pageX / (zoom / 100) + 'px'
+        messageContainer.style.top = e.pageY / (zoom / 100) + 'px'
+
+        const title = document.createElement("p")
+        title.style.color = "gray"
+        title.style.marginLeft = "10px"
+        title.style.fontFamily = "Helvetica"
+        title.style.fontSize = '14px'
+        title.innerHTML = 'Title: <span style="color: white; font-weight: bold;">' + page + '</span>'
+        messageContainer.appendChild(title)
+
+        const actions = document.createElement("p")
+        actions.style.color = "gray"
+        actions.style.marginLeft = "10px"
+        actions.style.fontFamily = "Helvetica"
+        actions.style.fontSize = '14px'
+        actions.innerHTML = 'Actions:'
+        messageContainer.appendChild(actions)
+
+        pages[page].to.forEach(nav = > {
+            let action = document.createElement("div")
+            action.style.padding = "4px 10px 4px 10px"
+            action.style.height = '29px'
+            action.style.position = 'relative'
+
+            let actionTitle = document.createElement("span")
+            actionTitle.style.color = 'white'
+            actionTitle.style.fontFamily = "Helvetica"
+            actionTitle.style.fontSize = '14px'
+            actionTitle.innerHTML = nav.button + ' -> ' + nav.dest
+            action.appendChild(actionTitle)
+
+            let remove = document.createElement("img")
+            remove.src = java.getPath() + '/delete-gray.svg'
+            remove.style.height = '60%'
+            remove.style.width = 'auto'
+            remove.style.objectFit = 'cover'
+            remove.style.position = 'absolute'
+            remove.style.right = '10px'
+            remove.style.cursor = 'pointer'
+            remove.className = 'remove-link'
+            remove.onclick = (e) = > {
+            document.body.removeChild(messageContainer)
+            removeConnection(page, nav.dest, nav.button
+    )
+        java.removeNav(page, nav.dest, nav.button)
+    }
+        action.appendChild(remove)
+
+        messageContainer.appendChild(action)
+    })
+        ;
+
+        document.body.appendChild(messageContainer)
+    }
+
+    async
+
+    function drawArrows() {
+        for (const key in pages) {
+            if (pages.hasOwnProperty(key)) {
+                const page = pages[key];
+                const svg = document.getElementById("svg")
+
+                await
+                fetch('pages/' + key + '/conf.json')
+                    .then(response = > response.json()
+            )
+            .
+                then(json = > {
+                    page.title = json.page
+                    //makeDragBarTitle(key, page.title)
+                    for(const button in json.actions
+            )
+                {
+                    if (json.actions.hasOwnProperty(button)) {
+                        const action = json.actions[button]
+                        if (action.hasOwnProperty('platform')) continue
+
+                        page.to.push({
+                            dest: action.dest,
+                            button: button
+                        })
+                        pages[action.dest].from.push(key)
+                        const segue = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        segue.setAttribute('id', key + '-' + action.dest);
+                        segue.setAttribute("stroke", "black")
+                        segue.setAttribute("class", "segue")
+                        setSeguePosition(segue, page.page, action.dest)
+                        svg.appendChild(segue)
+                    }
+                }
+            })
+            }
+        }
+
+        for (const key in pages) {
+            if (pages.hasOwnProperty(key)) {
+                const page = pages[key];
+                if (page.from.length == 0) continue
+
+                const enterArrow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                enterArrow.setAttribute('id', key + '-enterArrow');
+                enterArrow.setAttribute("stroke", "black")
+                enterArrow.setAttribute("class", "arrow")
+                setEnterArrowPosition(enterArrow, key)
+                svg.appendChild(enterArrow)
+            }
+        }
+    }
+
+    function makeDragBarTitle(page, title) {
+        const dragBar = document.getElementById(page + '-dragBar')
+        const titleElement = document.createElement("p")
+        titleElement.style.color = "black"
+        titleElement.style.fontFamily = "Helvetica"
+        titleElement.style.fontSize = '14px'
+        titleElement.style.fontWeight = 'bold'
+        titleElement.style.textAlign = 'center'
+        titleElement.style.pointerEvents = 'none'
+        titleElement.style.position = 'absolute'
+        titleElement.style.marginBottom = '20px'
+        titleElement.style.marginRight = '0'
+        titleElement.innerHTML = title
+        dragBar.appendChild(titleElement)
+    }
+
+    function setSeguePosition(segue, src, dest) {
+        src = document.getElementById(src)
+        dest = document.getElementById(dest)
+
+        let left1 = parseInt(src.parentElement.style.left.slice(0, src.parentElement.style.left.length - 2))
+        let top1 = parseInt(src.parentElement.style.top.slice(0, src.parentElement.style.top.length - 2))
+        let left2 = parseInt(dest.parentElement.style.left.slice(0, dest.parentElement.style.left.length - 2))
+        let top2 = parseInt(dest.parentElement.style.top.slice(0, dest.parentElement.style.top.length - 2))
+
+        segue.setAttribute('x1', left1 + 202);
+        segue.setAttribute('y1', top1 + 20 + 4 + src.clientHeight / 2);
+        segue.setAttribute('x2', left2 - 60);
+        segue.setAttribute('y2', top2 + 20 + 4 + dest.clientHeight / 2);
+    }
+
+    function setEnterArrowPosition(arrow, pageId) {
+        let page = document.getElementById(pageId)
+
+        let left = parseInt(page.parentElement.style.left.slice(0, page.parentElement.style.left.length - 2))
+        let top = parseInt(page.parentElement.style.top.slice(0, page.parentElement.style.top.length - 2))
+
+        arrow.setAttribute('x1', left - 60);
+        arrow.setAttribute('y1', top + 20 + 4 + page.clientHeight / 2);
+        arrow.setAttribute('x2', left - 16);
+        arrow.setAttribute('y2', top + 20 + 4 + page.clientHeight / 2);
+    }
+
+    function startDrag(e) {
+        // determine event object
+        if (!e) {
+            var e = window.event;
+        }
+
+        targ = e.target ? e.target : e.srcElement;
+
+        if (shouldDismiss && targ.className != 'yesBtn' && targ.className != 'nopeBtn' && targ.className != 'remove-link') {
+            document.querySelector("body").removeChild(document.getElementsByClassName('navMessage')[0])
+            const svg = document.getElementById("svg-nav")
+            const arrow = svg.getElementById("navArrow")
+            if (arrow) svg.removeChild(arrow)
+        }
+        shouldDismiss = false
+
+        if (e.button === 2) {
+            if (targ.tagName.toLowerCase() != 'ion-button') return
+            startNavDrag(e)
+            if (e.preventDefault) e.preventDefault();
+            return;
+        }
+
+        if (targ.className != 'dragBar') {
+            if (targ.className == 'title') {
+                targ = targ.parentElement
+            } else {
+                return;
+            }
+        }
+
+        if (e.preventDefault) e.preventDefault();
+
+        console.log('start drag')
+        // calculate event X, Y coordinates
+        offsetX = e.clientX;
+        offsetY = e.clientY;
+
+        // assign default values for topp and left properties
+        if (!targ.parentElement.style.left) {
+            targ.parentElement.style.left = '0px'
+        }
+        ;
+        if (!targ.parentElement.style.top) {
+            targ.parentElement.style.top = '0px'
+        }
+        ;
+
+        oldPageX = e.pageX
+        oldPageY = e.pageY
+        coordY = parseInt(targ.parentElement.style.top);
+        drag = true;
+
+        // move div element
+        document.onmousemove = dragDiv;
+        return false;
+
+    }
+
+    function dragDiv(e) {
+        if (!drag) {
+            return
+        }
+        ;
+        if (!e) {
+            var e = window.event
+        }
+        ;
+        const deltaX = e.pageX - oldPageX
+        const deltaY = e.pageY - oldPageY
+        targ.parentElement.style.left = parseInt(targ.parentElement.style.left) + deltaX / (zoom / 100) + 'px';
+        targ.parentElement.style.top = parseInt(targ.parentElement.style.top) + deltaY / (zoom / 100) + 'px';
+        oldPageX = e.pageX
+        oldPageY = e.pageY
+
+        targ = targ.parentElement.children[1]
+
+        const enterArrow = document.getElementById(targ.id + "-enterArrow")
+        if (enterArrow) setEnterArrowPosition(enterArrow, targ.id)
+
+        let to = pages[targ.id].to
+        to.forEach(nav = > {
+            const segue = document.getElementById(targ.id + "-" + nav.dest)
+            setSeguePosition(segue, targ.id, nav.dest
+    )
+    })
+        ;
+
+        let from = pages[targ.id].from
+        from.forEach(src = > {
+            const segue = document.getElementById(src + "-" + targ.id)
+            setSeguePosition(segue, src, targ.id
+    )
+    })
+        ;
+
+        return false;
+    }
+
+    function stopDrag(e) {
+        drag = false;
+        if (!nav) {
+            java.updateStoryboard(targ.id, parseInt(targ.parentElement.style.left) + "", parseInt(targ.parentElement.style.top) + "")
+            return
+        }
+        nav = false
+        const target = targ
+        let element = document.elementFromPoint(e.clientX, e.clientY)
+        while (element) {
+            if (element.className == 'page') {
+                break
+            }
+            element = element.parentNode;
+        }
+
+        if (!element) {
+            const svg = document.getElementById("svg-nav")
+            svg.removeChild(svg.getElementById("navArrow"))
+            return
+        }
+        //check if button is free of actions
+        let free = true
+        let dest
+        pages[target.id].to.forEach(nav = > {
+            if(nav.button == buttonId
+    )
+        {
+            free = false
+            dest = nav.dest
+        }
+    })
+        ;
+
+        //if button is free add navigation
+        if (free) {
+            //remove temp segue
+            const svg2 = document.getElementById("svg-nav")
+            svg2.removeChild(svg2.getElementById("navArrow"))
+            addNavigation(target, element)
+            return
+        }
+        //else show confirmation message to overwrite current action
+        let offsetLeft = document.body.scrollLeft
+        let offsetTop = document.body.scrollTop
+        const navMessage = document.createElement("div")
+        navMessage.className = 'navMessage'
+        navMessage.style.left = e.pageX / (zoom / 100) + 'px'
+        navMessage.style.top = e.pageY / (zoom / 100) + 'px'
+        const title = document.createElement("p")
+        title.style.color = "white"
+        title.style.marginLeft = "10px"
+        title.style.fontFamily = "Helvetica"
+        title.style.fontSize = '14px'
+        title.innerHTML = 'This button already links to "' + dest + '".<br>Do you want to overwrite ?'
+        const nopeBtn = document.createElement("button")
+        nopeBtn.className = 'nopeBtn'
+        nopeBtn.innerHTML = 'No'
+        nopeBtn.onclick = (e) =
+    >
+        dismissNav(navMessage)
+        const yesBtn = document.createElement("button")
+        yesBtn.className = 'yesBtn'
+        yesBtn.innerHTML = 'Yes'
+        yesBtn.onclick = (e) =
+    >
+        {
+            dismissNav(navMessage)
+            removeConnection(target.id, dest, buttonId)
+            addNavigation(target, element)
+        }
+
+        navMessage.appendChild(title)
+        navMessage.appendChild(yesBtn)
+        navMessage.appendChild(nopeBtn)
+        document.querySelector("body").appendChild(navMessage)
+
+        shouldDismiss = true
+    }
+
+    function dismissNav(navMessage) {
+        //remove buttons container
+        document.querySelector("body").removeChild(navMessage)
+        //remove temp segue
+        const svg = document.getElementById("svg-nav")
+        svg.removeChild(svg.getElementById("navArrow"))
+    }
+
+    function removeConnection(src, dest, button) {
+        //remove from 'to' array in source page
+        let connectionsCount = 0
+        for (let i = 0; i < pages[src].to.length; i++) {
+            let nav = pages[src].to[i]
+            if (nav.button == button) {
+                pages[src].to.splice(i, 1)
+            }
+            if (nav.dest == dest) {
+                connectionsCount++
+            }
+        }
+        //remove from 'from' array in destination page if there was only a single connection to that page
+        //and remove enter arrow head in the same case
+        for (let i = 0; i < pages[dest].from.length; i++) {
+            let src = pages[dest].from[i]
+            if (src == src && connectionsCount == 1) {
+                pages[dest].from.splice(i, 1)
+                if (pages[dest].from.length === 0) {
+                    let svg = document.getElementById("svg")
+                    svg.removeChild(svg.getElementById(dest + '-enterArrow'))
+                }
+                break
+            }
+        }
+        //delete old segue if no more connection to same page
+        if (connectionsCount == 1) {
+            const svg = document.getElementById("svg")
+            svg.removeChild(svg.getElementById(src + '-' + dest))
+        }
+    }
+
+    function addNavigation(target, element) {
+        java.addNavigation(target.id, buttonId, element.id)
+        //add arrows to dest
+        const svg = document.getElementById("svg")
+        if (!document.getElementById(element.id + '-enterArrow')) {
+            const enterArrow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            enterArrow.setAttribute('id', element.id + '-enterArrow');
+            enterArrow.setAttribute("stroke", "black")
+            enterArrow.setAttribute("class", "arrow")
+            setEnterArrowPosition(enterArrow, element.id)
+            svg.appendChild(enterArrow)
+        }
+        if (!document.getElementById(target.id + '-' + element.id)) {
+            const segue = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            segue.setAttribute('id', target.id + '-' + element.id);
+            segue.setAttribute("stroke", "black")
+            segue.setAttribute("class", "segue")
+            setSeguePosition(segue, target.id, element.id)
+            svg.appendChild(segue)
+        }
+        //update to and from arrays
+        pages[target.id].to.push({
+            dest: element.id,
+            button: buttonId
+        })
+        pages[element.id].from.push(target.id)
+        buttonId = null
+    }
+
+    function startNavDrag(e) {
+        buttonId = targ.id
+
+        while (targ.parentNode) {
+            targ = targ.parentNode;
+            if (targ.className == 'page')
+                break
+        }
+
+        nav = true
+
+        oldPageX = e.pageX
+        oldPageY = e.pageY
+
+        createNavArrow(oldPageX / (zoom / 100), oldPageY / (zoom / 100))
+
+        drag = true;
+        document.onmousemove = dragNav;
+    }
+
+    function createNavArrow(x, y) {
+        const segue = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        segue.setAttribute('id', 'navArrow');
+        segue.setAttribute("stroke", "black")
+        segue.setAttribute("class", "segue")
+        segue.setAttribute('x1', x);
+        segue.setAttribute('y1', y);
+        segue.setAttribute('x2', x);
+        segue.setAttribute('y2', y);
+        const svg = document.querySelector("#svg-nav")
+        svg.appendChild(segue)
+    }
+
+    function dragNav(e) {
+        if (!drag) return
+
+        const svg = document.querySelector("#svg-nav")
+        const segue = svg.getElementById("navArrow")
+        segue.setAttribute('x2', e.pageX / (zoom / 100));
+        segue.setAttribute('y2', e.pageY / (zoom / 100));
+    }
+
+    function search(text) {
+        const shade = document.getElementById("shade")
+        const pageDivs = document.getElementsByClassName('pageDiv')
+
+        if (text.length == 0) {
+            shade.style.opacity = '0'
+            for (let i = 0; i < pageDivs.length; i++) {
+                const pageDiv = pageDivs[i]
+                pageDiv.style.zIndex = '1'
+                pageDiv.style.boxShadow = 'inherit'
+            }
+            return
+        }
+
+        let count = 0
+        for (let i = 0; i < pageDivs.length; i++) {
+            const pageDiv = pageDivs[i]
+            const title = pages[pageDiv.children[1].id].title
+            if (title.toLowerCase().includes(text)) {
+                count++
+                pageDiv.style.zIndex = '4'
+                pageDiv.style.boxShadow = '0px 0px 24px 4px #9ecaed'
+            } else {
+                pageDiv.style.zIndex = '1'
+                pageDiv.style.boxShadow = 'inherit'
+            }
+        }
+        shade.style.opacity = count == 0 ? '0' : '0.5'
+
+        //document.getElementById("Page3-container").scrollIntoView()
+
+    }
+
+</script>
+</body>
+</html>

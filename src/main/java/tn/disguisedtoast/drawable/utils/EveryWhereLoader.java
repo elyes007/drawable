@@ -24,8 +24,6 @@ public class EveryWhereLoader {
     private EveryWhereLoader() {
     }
 
-    ;
-
     public static EveryWhereLoader getInstance() {
         if (instance == null) {
             instance = new EveryWhereLoader();

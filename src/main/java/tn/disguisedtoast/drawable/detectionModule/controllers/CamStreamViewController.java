@@ -177,10 +177,11 @@ public class CamStreamViewController implements Initializable, UploadInterface, 
     @Override
     public void back() {
         try {
+            EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
             webCamController.setShoudUpload(false);
             webCamController.stopWebCamCamera();
             Parent root = (new FXMLLoader(getClass().getResource("/layouts/homeLayouts/HomeLayout.fxml"))).load();
-            Drawable.globalStage.getScene().setRoot(root);
+            EveryWhereLoader.getInstance().stopLoader(root);
         } catch (IOException e) {
             e.printStackTrace();
         }

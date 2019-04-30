@@ -3,6 +3,7 @@ package tn.disguisedtoast.drawable.projectGenerationModule.generation;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -151,6 +152,7 @@ public class GlobalProjectGeneration implements Initializable {
         System.out.println(s);
         try {
             splitn = dialogSplit();
+            if (splitn == null) return;
             System.out.println(splitn);
         } catch (IOException e) {
             e.printStackTrace();
@@ -163,7 +165,7 @@ public class GlobalProjectGeneration implements Initializable {
                 .runAsync(GlobalProjectGeneration.this::createprojectHierarchy)
                 .thenAccept(aVoid -> {
                     updateCurrentProject();
-                    showHome();
+                    Platform.runLater(this::showHome);
                 });
     }
 
@@ -232,13 +234,15 @@ public class GlobalProjectGeneration implements Initializable {
             FileUtils.copyDirectory(new File(System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\previewModule"),
                     new File(projectPath + "\\RelatedFiles\\previewModule"));
             FileUtils.copyToDirectory(new File(System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\assets\\drawable\\placeholder.png"),new File(projectPath + "\\RelatedFiles\\assets"));
+            FileUtils.copyToDirectory(new File(getClass().getResource("/storyboardModule/storyboard.html").getPath()), new File(projectPath + "\\RelatedFiles"));
+            FileUtils.writeStringToFile(new File(Drawable.projectPath + "&RelatedFiles&storyboard.json".replace("&", File.separator)),
+                    "{\"zoom\":70,\"pages\":[]}");
             FileUtils.writeStringToFile(new File(Drawable.projectPath + File.separator + "state.json"),
                     "{\n\t\"ionic_state\":false\n}");
             System.out.println("Done!");
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     private String dialogSplit() throws IOException {

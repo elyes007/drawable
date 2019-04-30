@@ -3,23 +3,19 @@ package tn.disguisedtoast.drawable.homeModule.controllers;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import org.apache.commons.io.FileUtils;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.detectionModule.controllers.CamChooserController;
 import tn.disguisedtoast.drawable.detectionModule.controllers.CamStreamViewController;
 import tn.disguisedtoast.drawable.homeModule.models.Page;
-import tn.disguisedtoast.drawable.projectGenerationModule.ionic.ProjectGeneration;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
 import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 
@@ -33,11 +29,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-public class HomeController implements CamChooserController.CameraButtonCallback, Initializable {
-    @FXML
-    public TextField search;
-    @FXML
-    public Button export;
+public class ScrollHomeLayoutController implements CamChooserController.CameraButtonCallback, Initializable {
     @FXML
     public AnchorPane addButtonPane;
     @FXML
@@ -77,65 +69,6 @@ public class HomeController implements CamChooserController.CameraButtonCallback
         });
 
         refresh();
-
-        this.search.setOnKeyReleased(event -> {
-            if (this.search.getText().isEmpty()) {
-                Platform.runLater(() -> {
-                    this.pagesPreviewHBox.getChildren().clear();
-                    this.pagesPreviewHBox.getChildren().add(addButtonPane);
-                    this.pagesPreviewHBox.getChildren().addAll(
-                            this.pageCellViewControllers.stream().map(
-                                    pageCellViewController -> pageCellViewController.getPagePane()
-                            ).collect(Collectors.toList())
-                    );
-                });
-            } else {
-                Platform.runLater(() -> {
-                    this.pagesPreviewHBox.getChildren().clear();
-                    this.pagesPreviewHBox.getChildren().addAll(
-                            this.pageCellViewControllers.stream().filter(
-                                    pageCellViewController -> pageCellViewController.getPage().getName().contains(this.search.getText())
-                            ).map(
-                                    pageCellViewController -> pageCellViewController.getPagePane()
-                            ).collect(Collectors.toList())
-                    );
-                });
-            }
-        });
-
-        //check and generate ionic project in background
-        /*if(!getIonicState()){
-            CompletableFuture.supplyAsync(ProjectGeneration::generateBlankProject)
-                    .thenAccept(this::setIonicState);
-        }*/
-    }
-
-    private boolean getIonicState() {
-        FileReader fileReader;
-        String filePath = Drawable.projectPath + File.separator + "state.json";
-        try {
-            fileReader = new FileReader(filePath);
-        } catch (FileNotFoundException e) {
-            String fileBody = "{\n\t\"ionic_state\":false\n}";
-            try {
-                FileUtils.writeStringToFile(new File(filePath), fileBody);
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-            return false;
-        }
-        JsonObject projectsJson = new JsonParser().parse(fileReader).getAsJsonObject();
-        return projectsJson.get("ionic_state").getAsBoolean();
-    }
-
-    private void setIonicState(boolean state) {
-        String filePath = Drawable.projectPath + File.separator + "state.json";
-        String fileBody = "{\n\t\"ionic_state\":" + state + "\n}";
-        try {
-            FileUtils.writeStringToFile(new File(filePath), fileBody);
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
     }
 
     @Override
@@ -155,18 +88,6 @@ public class HomeController implements CamChooserController.CameraButtonCallback
             }
         }
     }
-
-   @FXML
-   public void exportProject(ActionEvent event) {
-
-       EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
-       try {
-           ProjectGeneration.generatePages();
-       } catch (IOException e) {
-           e.printStackTrace();
-       }
-
-   }
 
     public static List<Page> loadPages() {
         File root = new File(pagesPath);
@@ -204,6 +125,31 @@ public class HomeController implements CamChooserController.CameraButtonCallback
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public void search(String text) {
+        if (text.isEmpty()) {
+            Platform.runLater(() -> {
+                this.pagesPreviewHBox.getChildren().clear();
+                this.pagesPreviewHBox.getChildren().add(addButtonPane);
+                this.pagesPreviewHBox.getChildren().addAll(
+                        this.pageCellViewControllers.stream().map(
+                                pageCellViewController -> pageCellViewController.getPagePane()
+                        ).collect(Collectors.toList())
+                );
+            });
+        } else {
+            Platform.runLater(() -> {
+                this.pagesPreviewHBox.getChildren().clear();
+                this.pagesPreviewHBox.getChildren().addAll(
+                        this.pageCellViewControllers.stream().filter(
+                                pageCellViewController -> pageCellViewController.getPage().getName().contains(text)
+                        ).map(
+                                pageCellViewController -> pageCellViewController.getPagePane()
+                        ).collect(Collectors.toList())
+                );
+            });
         }
     }
 }
