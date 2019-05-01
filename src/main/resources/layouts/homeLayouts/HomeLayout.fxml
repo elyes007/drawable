@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
@@ -87,48 +87,4 @@
          </padding>
       </BorderPane>
    </top>
-    <bottom>
-        <BorderPane style="-fx-background-color: #3c3f41;" BorderPane.alignment="CENTER">
-            <left>
-                <SplitMenuButton fx:id="projectNameMenu" mnemonicParsing="false" text="Project Name"
-                                 BorderPane.alignment="CENTER">
-                    <items>
-                        <MenuItem fx:id="closeProjectuButton" mnemonicParsing="false" text="Close"/>
-                    </items>
-                </SplitMenuButton>
-            </left>
-            <right>
-                <HBox alignment="CENTER" BorderPane.alignment="CENTER">
-                    <children>
-                        <HBox fx:id="backgroundProcessIndicator" alignment="CENTER" spacing="5.0">
-                            <children>
-                                <ProgressIndicator maxHeight="15.0" maxWidth="15.0"/>
-                                <Label fx:id="processName" text="creating ionic project" textFill="#0096c9"/>
-                            </children>
-                        </HBox>
-                        <HBox fx:id="doneIndicator" alignment="CENTER" spacing="5.0">
-                            <children>
-                                <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@../../drawable/icons/done.png"/>
-                                    </image>
-                                </ImageView>
-                                <Label text="Done" textFill="#08754b">
-                                    <font>
-                                        <Font name="System Bold" size="12.0"/>
-                                    </font>
-                                </Label>
-                            </children>
-                        </HBox>
-                    </children>
-                </HBox>
-            </right>
-            <BorderPane.margin>
-                <Insets/>
-            </BorderPane.margin>
-            <padding>
-                <Insets bottom="5.0" left="10.0" right="10.0" top="5.0"/>
-         </padding>
-      </BorderPane>
-    </bottom>
 </BorderPane>

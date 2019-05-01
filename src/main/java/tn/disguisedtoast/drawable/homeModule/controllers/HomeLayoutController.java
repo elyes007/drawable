@@ -3,20 +3,14 @@ package tn.disguisedtoast.drawable.homeModule.controllers;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import javafx.animation.FadeTransition;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.util.Duration;
 import org.apache.commons.io.FileUtils;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.projectGenerationModule.ionic.ProjectGeneration;
@@ -45,21 +39,8 @@ public class HomeLayoutController implements Initializable {
     public TextField search;
     @FXML
     public Button export;
-    private static HomeLayoutController instance;
     @FXML
     public Button playButton;
-    @FXML
-    public HBox backgroundProcessIndicator;
-    @FXML
-    public Label processName;
-    @FXML
-    public SplitMenuButton projectNameMenu;
-    @FXML
-    public HBox doneIndicator;
-
-    public static HomeLayoutController getInstance() {
-        return instance;
-    }
 
     private boolean getIonicState() {
         FileReader fileReader;
@@ -137,54 +118,11 @@ public class HomeLayoutController implements Initializable {
         }
     }
 
-    public static void startBackgroundProcess(String name) {
-        if (instance != null && instance.projectNameMenu.isVisible()) {
-            Platform.runLater(() -> {
-                instance.processName.setText(name);
-                instance.backgroundProcessIndicator.setVisible(true);
-            });
-        }
-    }
-
-    public static void stopBackgroundProcess() {
-        if (instance != null && instance.projectNameMenu.isVisible()) {
-            new Thread(() -> {
-                Platform.runLater(() -> {
-                    instance.backgroundProcessIndicator.setVisible(false);
-                    instance.doneIndicator.setVisible(true);
-                });
-
-                try {
-                    Thread.sleep(4000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                Platform.runLater(() -> {
-                    FadeTransition ft = new FadeTransition(Duration.millis(3000), instance.doneIndicator);
-                    ft.setFromValue(1.0);
-                    ft.setToValue(0.0);
-
-                    ft.setOnFinished(event -> {
-                        instance.doneIndicator.setVisible(false);
-                    });
-                    ft.play();
-                });
-            }).start();
-        }
-    }
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        instance = this;
         storyboardBtn.managedProperty().bind(storyboardBtn.visibleProperty());
         scrollBtn.managedProperty().bind(scrollBtn.visibleProperty());
         showStoryboard();
-
-        doneIndicator.managedProperty().bind(doneIndicator.visibleProperty());
-        backgroundProcessIndicator.managedProperty().bind(backgroundProcessIndicator.visibleProperty());
-        doneIndicator.setVisible(false);
-        backgroundProcessIndicator.setVisible(false);
 
         //check and generate ionic project in background
         if (!getIonicState()) {
