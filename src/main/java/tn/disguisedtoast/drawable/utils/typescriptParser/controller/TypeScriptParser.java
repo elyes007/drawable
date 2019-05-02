@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -50,21 +51,45 @@ public final class TypeScriptParser {
             SearchResult searchResult = searchLastWordPos(typescriptPath, functionName);
             if (searchResult != null && searchResult.getPos() != -1) {
                 String line = searchResult.getLines().get(searchResult.getPos());
-                if (!line.contains(param.getName())) {
-                    String paramDeclaration = StringUtils.substringBetween(searchResult.getLines().get(searchResult.getPos()), "(", ")");
-                    String[] paramCouples = paramDeclaration.split(",", -1);
-                    String remaining = line.substring(line.lastIndexOf(')'), line.length());
-                    line = line.substring(0, line.lastIndexOf(')')) + (paramCouples[0].isEmpty() ? "" : ", ") + param.getAccessibility() + " " + param.getName() + ": " + param.getType() + remaining;
-
-                    searchResult.getLines().remove(searchResult.getPos());
-                    searchResult.getLines().add(searchResult.getPos(), line);
-
-                    Files.write(typescriptPath, searchResult.getLines(), StandardCharsets.UTF_8);
-                } else {
-                    throw new Exception("Param already existing.");
+                String paramDefinition = param.getAccessibility() + " " + param.getName() + ": " + param.getType();
+                if (line.contains(param.getName())) {
+                    int indexParam = line.indexOf(paramDefinition);
+                    int endIndexToDelete = indexParam + paramDefinition.length();
+                    System.out.println(line.charAt(endIndexToDelete));
+                    if (line.charAt(endIndexToDelete) == ',') {
+                        endIndexToDelete += 2;
+                    }
+                    line = line.substring(0, indexParam) + line.substring(endIndexToDelete);
+                    System.out.println("LINEEE: " + line);
                 }
+
+                String paramDeclaration = StringUtils.substringBetween(line, "(", ")");
+                String[] paramCouples = paramDeclaration.split(",", -1);
+                String remaining = line.substring(line.lastIndexOf(')'), line.length());
+                line = line.substring(0, line.lastIndexOf(')')) + (paramCouples[0].isEmpty() ? "" : ", ") + paramDefinition + remaining;
+
+                searchResult.getLines().remove(searchResult.getPos());
+                searchResult.getLines().add(searchResult.getPos(), line);
+
+                Files.write(typescriptPath, searchResult.getLines(), StandardCharsets.UTF_8);
             }
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void removeAllParams(Path typescriptPath, String functionName) {
+        try {
+            SearchResult searchResult = searchLastWordPos(typescriptPath, functionName);
+            if (searchResult != null && searchResult.getPos() != -1) {
+                String line = searchResult.getLines().get(searchResult.getPos());
+                line = line.substring(0, line.indexOf('(') + 1) + line.substring(line.indexOf(')'));
+                searchResult.getLines().remove(searchResult.getPos());
+                searchResult.getLines().add(searchResult.getPos(), line);
+
+                Files.write(typescriptPath, searchResult.getLines(), StandardCharsets.UTF_8);
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -99,31 +124,54 @@ public final class TypeScriptParser {
         }
     }*/
 
-    public static void addFunction(Path typescriptPath, Path templateFilePath, String functionName, List<Param> params) {
+    public static void addFunction(Path typescriptPath, Path templateFilePath, String functionName, List<Param> params, List<String> extras) {
         try {
+            deleteFunction(typescriptPath, functionName);
             SearchResult searchResult = searchLastWordPos(typescriptPath, "}");
             if (searchResult != null && searchResult.getPos() != -1) {
-                if (getLastWordPos(searchResult.getLines(), functionName) == -1) {
 
-                    String builtParams = "";
-                    if (params != null) {
-                        for (Param param : params) {
-                            builtParams += param.getAccessibility() + " " + param.getName() + ": " + param.getType() + ", ";
-                        }
-                        builtParams = builtParams.substring(0, builtParams.length() - 2);
+                String builtParams = "";
+                if (params != null) {
+                    for (Param param : params) {
+                        builtParams += param.getAccessibility() + " " + param.getName() + ": " + param.getType() + ", ";
                     }
-
-                    String functionTemplate = new String(Files.readAllBytes(templateFilePath));
-                    functionTemplate = functionTemplate.replaceAll("#functionName#", functionName).replaceAll("#params#", builtParams);
-
-                    searchResult.getLines().add(searchResult.getPos(), functionTemplate);
-
-                    Files.write(typescriptPath, searchResult.getLines(), StandardCharsets.UTF_8);
-                } else {
-                    throw new Exception("Function with name '" + functionName + "' already exists.");
+                    builtParams = builtParams.substring(0, builtParams.length() - 2);
                 }
+
+                String builtExtras = "";
+                if (extras != null) {
+                    for (String extra : extras) {
+                        builtExtras += extra;
+                    }
+                }
+
+                String functionTemplate = new String(Files.readAllBytes(templateFilePath));
+                functionTemplate = functionTemplate.replaceAll("#functionName#", functionName).replaceAll("#params#", builtParams).replace("#extras#", builtExtras);
+
+                searchResult.getLines().add(searchResult.getPos(), functionTemplate);
+
+                Files.write(typescriptPath, searchResult.getLines(), StandardCharsets.UTF_8);
             }
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void deleteFunction(Path typescriptPath, String functionName) {
+        try {
+            SearchResult startSearchResult = searchLastWordPos(typescriptPath, "/*start" + functionName + "*/");
+            if (startSearchResult != null && startSearchResult.getPos() != -1) {
+                SearchResult endSearchResult = searchLastWordPos(typescriptPath, "/*end" + functionName + "*/");
+                List<String> newLines = new ArrayList<>();
+                for (int i = 0; i < endSearchResult.getLines().size(); i++) {
+                    if (i < startSearchResult.getPos() || i > endSearchResult.getPos()) {
+                        newLines.add(endSearchResult.getLines().get(i));
+                    }
+                }
+
+                Files.write(typescriptPath, newLines, StandardCharsets.UTF_8);
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

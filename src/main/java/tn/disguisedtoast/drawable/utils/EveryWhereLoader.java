@@ -75,12 +75,13 @@ public class EveryWhereLoader {
     }
 
     public void stopLoader(Parent parent) {
-        if (instance != null && instance.stage != null) {
+        if (instance != null) {
             Platform.runLater(() -> {
                 FadeTransition ft = new FadeTransition(Duration.millis(500), vBox);
                 ft.setFromValue(0.5);
                 ft.setToValue(0.0);
                 ft.setOnFinished(event -> {
+                    if (instance.stage == null) return;
                     Parent root = instance.stage.getScene().getRoot();
                     System.out.println("Parent (in param):" + parent);
                     System.out.println("root: " + root);

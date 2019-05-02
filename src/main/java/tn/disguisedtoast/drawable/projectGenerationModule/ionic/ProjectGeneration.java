@@ -211,14 +211,31 @@ public class ProjectGeneration {
                                 importElement.getDependencies().add("auth");
                                 TypeScriptParser.addImport(pageTsPage, importElement);
 
+                                TypeScriptParser.removeAllParams(pageTsPage, "constructor");
+
                                 TypeScriptParser.addParameterToFunction(pageTsPage, "constructor", new Param("private", "afAuth", "AngularFireAuth"));
                                 TypeScriptParser.addParameterToFunction(pageTsPage, "constructor", new Param("private", "platfom", "Platform"));
                                 TypeScriptParser.addParameterToFunction(pageTsPage, "constructor", new Param("private", "fb", "Facebook"));
 
+                                List<String> extras = new ArrayList<>();
+
+                                String destination = action.get("destinationPageName").getAsString();
+                                if (!destination.isEmpty()) {
+                                    importElement = new ImportElement("@angular/router");
+                                    importElement.getDependencies().add("Router");
+                                    TypeScriptParser.addImport(pageTsPage, importElement);
+                                    TypeScriptParser.addParameterToFunction(pageTsPage, "constructor", new Param("private", "router", "Router"));
+
+                                    //TODO: Get the right router url
+                                    extras.add("this.router.navigateByUrl('/" + destination.toLowerCase() + "');");
+                                }
+
+                                System.out.println("EXTRAASS: " + extras);
+
                                 TypeScriptParser.addFunction(pageTsPage,
                                         Paths.get(System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "RelatedFiles" + File.separator + "FirebaseLoginTools" + File.separator + "facebookLoginTemplate.txt"),
                                         "logFacebook" + prop.getKey(),
-                                        null);
+                                        null, extras);
                             }
                         }
                     }

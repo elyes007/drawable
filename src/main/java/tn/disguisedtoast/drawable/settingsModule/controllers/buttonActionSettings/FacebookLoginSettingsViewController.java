@@ -92,9 +92,15 @@ public class FacebookLoginSettingsViewController implements Initializable, Setti
     public void setElement(Element element, ButtonSettingsViewController buttonSettingsViewController) {
         this.element = element;
         getLogJsonObject();
-        if (this.facebookLogObject != null) {
+        if (this.facebookLogObject != null && this.buttonLogObject != null) {
             this.appName.setText(this.facebookLogObject.get("appName").getAsString());
             this.appId.setText(this.facebookLogObject.get("appId").getAsString());
+            String destination = this.buttonLogObject.get("destinationPageName").getAsString();
+            if (destination.isEmpty()) {
+                this.destination.getSelectionModel().select(0);
+            } else {
+                this.destination.setValue(this.buttonLogObject.get("destinationPageName").getAsString());
+            }
         }
 
         Platform.runLater(() -> {
