@@ -11,6 +11,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
+import tn.disguisedtoast.drawable.ProjectMain.GlobalViewController;
 import tn.disguisedtoast.drawable.homeModule.controllers.ScrollHomeLayoutController;
 import tn.disguisedtoast.drawable.homeModule.models.Page;
 import tn.disguisedtoast.drawable.utils.typescriptParser.controller.TypeScriptParser;
@@ -35,6 +36,8 @@ public class ProjectGeneration {
 
     public static boolean generateBlankProject() {
         generationInProcess = true;
+
+        GlobalViewController.startBackgroundProcess("Resolving IONIC project.");
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.directory(new File(Drawable.projectPath));
         processBuilder.command("cmd.exe", "/c", "ionic start ionic_project blank --cordova --package-id tn.esprit.TestApp");
@@ -48,11 +51,15 @@ public class ProjectGeneration {
             }
             int exitCode = process.exitValue();
 
+            GlobalViewController.startBackgroundProcess("Resolving Firebase dependency.");
             installFirebaseDependency();
+            GlobalViewController.startBackgroundProcess("Resolving Facebook dependency.");
             installFacebookCordovaPlugin();
 
             System.out.println("\nThis Exited with code : " + exitCode);
             generationInProcess = false;
+
+            GlobalViewController.stopBackgroundProcess();
             return exitCode == 0;
         } catch (IOException e) {
             e.printStackTrace();

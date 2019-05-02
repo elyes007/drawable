@@ -39,19 +39,8 @@ public class HomeLayoutController implements Initializable {
     public TextField search;
     @FXML
     public Button export;
-
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        storyboardBtn.managedProperty().bind(storyboardBtn.visibleProperty());
-        scrollBtn.managedProperty().bind(scrollBtn.visibleProperty());
-        showStoryboard();
-
-        //check and generate ionic project in background
-        if (!getIonicState()) {
-            CompletableFuture.supplyAsync(ProjectGeneration::generateBlankProject)
-                    .thenAccept(this::setIonicState);
-        }
-    }
+    @FXML
+    public Button playButton;
 
     private boolean getIonicState() {
         FileReader fileReader;
@@ -126,6 +115,19 @@ public class HomeLayoutController implements Initializable {
             this.search.setOnKeyReleased(event -> scrollController.search(this.search.getText()));
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        storyboardBtn.managedProperty().bind(storyboardBtn.visibleProperty());
+        scrollBtn.managedProperty().bind(scrollBtn.visibleProperty());
+        showStoryboard();
+
+        //check and generate ionic project in background
+        if (!getIonicState()) {
+            CompletableFuture.supplyAsync(ProjectGeneration::generateBlankProject)
+                    .thenAccept(this::setIonicState);
         }
     }
 }
