@@ -3,6 +3,9 @@ package tn.disguisedtoast.drawable.projectGenerationModule.ionic;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +17,7 @@ import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.ProjectMain.GlobalViewController;
 import tn.disguisedtoast.drawable.homeModule.controllers.ScrollHomeLayoutController;
 import tn.disguisedtoast.drawable.homeModule.models.Page;
+import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 import tn.disguisedtoast.drawable.utils.typescriptParser.controller.TypeScriptParser;
 import tn.disguisedtoast.drawable.utils.typescriptParser.models.ImportElement;
 import tn.disguisedtoast.drawable.utils.typescriptParser.models.Param;
@@ -36,30 +40,33 @@ public class ProjectGeneration {
 
     public static boolean generateBlankProject() {
         generationInProcess = true;
+        GlobalViewController.BackgroundProcess backgroundProcess1 = GlobalViewController.startBackgroundProcess(new GlobalViewController.BackgroundProcess("Resolving IONIC project.", null));
 
-        GlobalViewController.startBackgroundProcess("Resolving IONIC project.");
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.directory(new File(Drawable.projectPath));
         processBuilder.command("cmd.exe", "/c", "ionic start ionic_project blank --cordova --package-id tn.esprit.TestApp");
         processBuilder.redirectErrorStream(true);
         try {
-            Process process = processBuilder.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            backgroundProcess1.setProcess(processBuilder.start());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(backgroundProcess1.getProcess().getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
                 System.out.println(line);
             }
-            int exitCode = process.exitValue();
+            int exitCode = backgroundProcess1.getProcess().exitValue();
+            GlobalViewController.stopBackgroundProcess(backgroundProcess1);
 
-            GlobalViewController.startBackgroundProcess("Resolving Firebase dependency.");
-            installFirebaseDependency();
-            GlobalViewController.startBackgroundProcess("Resolving Facebook dependency.");
-            installFacebookCordovaPlugin();
+            GlobalViewController.BackgroundProcess backgroundProcess2 = GlobalViewController.startBackgroundProcess(new GlobalViewController.BackgroundProcess("Resolving Firebase dependency.", null));
+            installFirebaseDependency(backgroundProcess2);
+            GlobalViewController.stopBackgroundProcess(backgroundProcess2);
+
+            GlobalViewController.BackgroundProcess backgroundProcess3 = GlobalViewController.startBackgroundProcess(new GlobalViewController.BackgroundProcess("Resolving Facebook dependency.", null));
+            installFacebookCordovaPlugin(backgroundProcess3);
+            GlobalViewController.stopBackgroundProcess(backgroundProcess3);
 
             System.out.println("\nThis Exited with code : " + exitCode);
             generationInProcess = false;
 
-            GlobalViewController.stopBackgroundProcess();
             return exitCode == 0;
         } catch (IOException e) {
             e.printStackTrace();
@@ -68,33 +75,36 @@ public class ProjectGeneration {
         }
     }
 
-    private static void installFacebookCordovaPlugin() throws IOException {
+    private static void installFacebookCordovaPlugin(GlobalViewController.BackgroundProcess backgroundProcess) throws IOException {
+
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.directory(new File(Drawable.projectPath + File.separator + "ionic_project"));
         processBuilder.command("cmd.exe", "/c", "npm install --save @ionic-native/facebook");
         processBuilder.redirectErrorStream(true);
-        Process process = processBuilder.start();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        backgroundProcess.setProcess(processBuilder.start());
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(backgroundProcess.getProcess().getInputStream()));
         String line;
         while ((line = reader.readLine()) != null) {
             System.out.println("Installing fb: " + line);
         }
-        int exitCode = process.exitValue();
+        int exitCode = backgroundProcess.getProcess().exitValue();
         System.out.println("\nExited with code : " + exitCode);
     }
 
-    private static void installFirebaseDependency() throws IOException {
+    private static void installFirebaseDependency(GlobalViewController.BackgroundProcess backgroundProcess) throws IOException {
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.directory(new File(Drawable.projectPath + File.separator + "ionic_project"));
         processBuilder.command("cmd.exe", "/c", "npm install firebase @angular/fire");
         processBuilder.redirectErrorStream(true);
-        Process process = processBuilder.start();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        backgroundProcess.setProcess(processBuilder.start());
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(backgroundProcess.getProcess().getInputStream()));
         String line;
         while ((line = reader.readLine()) != null) {
             System.out.println("Installing fb: " + line);
         }
-        int exitCode = process.exitValue();
+        int exitCode = backgroundProcess.getProcess().exitValue();
         System.out.println("\nExited with code : " + exitCode);
     }
 
@@ -133,73 +143,102 @@ public class ProjectGeneration {
         return textFiles;
     }
 
-    public static void generatePages() throws IOException {
-        installLoginDependencies();
-        setUpFirebase();
-        List<Page> PagesList = ScrollHomeLayoutController.loadPages();
-        for (Page p : PagesList) {
-            try {
-                System.out.println(p.toString());
+    public static void generatePages() {
+        EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Run this task in the background?", ButtonType.YES, ButtonType.NO);
+            alert.setHeaderText("This task can take a lot of time!");
+            alert.setTitle("Run this task in the background?");
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.YES) {
+                EveryWhereLoader.getInstance().stopLoader(null);
+            }
+        });
+        new Thread(() -> {
+            GlobalViewController.BackgroundProcess backgroundProcess1 = GlobalViewController.startBackgroundProcess(new GlobalViewController.BackgroundProcess("Resolving Login dependencies.", null));
+            installLoginDependencies(backgroundProcess1);
+            GlobalViewController.stopBackgroundProcess(backgroundProcess1);
 
-                String folderName = StringUtils.substringAfterLast(p.getFolderName(), File.separator);
-                String pageName = getPageName(p.getName());
+            GlobalViewController.BackgroundProcess backgroundProcess2 = GlobalViewController.startBackgroundProcess(new GlobalViewController.BackgroundProcess("Setting up Firebase.", null));
+            setUpFirebase();
+            GlobalViewController.stopBackgroundProcess(backgroundProcess2);
 
-                //create blank page
-                ProcessBuilder processBuilder = new ProcessBuilder();
-                processBuilder.directory(new File(Drawable.projectPath + "\\ionic_project"));
-                processBuilder.command("cmd.exe", "/c", "ionic generate page " + pageName);
-                Process process = processBuilder.start();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    System.out.println(line);
-                }
-                int exitCode = process.exitValue();
-                System.out.println("\nExited with exit code : " + exitCode);
+            GlobalViewController.BackgroundProcess backgroundProcess = GlobalViewController.startBackgroundProcess(new GlobalViewController.BackgroundProcess("Generating pages.", null));
+            List<Page> PagesList = ScrollHomeLayoutController.loadPages();
+            for (Page p : PagesList) {
+                try {
+                    System.out.println(p.toString());
 
-                //write html to page
-                writeHtmlToPage(p.getFolderName(), pageName);
+                    String folderName = StringUtils.substringAfterLast(p.getFolderName(), File.separator);
+                    String pageName = getPageName(p.getName());
 
-                JsonObject pageSettingsJsonObject = new JsonParser().parse(new FileReader(Drawable.projectPath + File.separator + "RelatedFiles" + File.separator + "pages" + File.separator + folderName + File.separator + "conf.json")).getAsJsonObject();
-                if (pageSettingsJsonObject.has("actions") && !pageSettingsJsonObject.getAsJsonObject("actions").entrySet().isEmpty()) {
-                    for (Map.Entry<String, JsonElement> prop : pageSettingsJsonObject.getAsJsonObject("actions").entrySet()) {
-                        JsonObject action = prop.getValue().getAsJsonObject();
-                        if (action.has("platform") && action.get("platform").getAsString().equals("facebook")) {
-                            Path pageTsPage = Paths.get(Drawable.projectPath + File.separator + "ionic_project" + File.separator + "src" + File.separator + "app" + File.separator + p.getName().trim().toLowerCase() + File.separator + p.getName().trim().toLowerCase() + ".page.ts");
+                    //create blank page
+                    ProcessBuilder processBuilder = new ProcessBuilder();
+                    processBuilder.directory(new File(Drawable.projectPath + "\\ionic_project"));
+                    processBuilder.command("cmd.exe", "/c", "ionic generate page " + pageName);
+                    backgroundProcess.setProcess(processBuilder.start());
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(backgroundProcess.getProcess().getInputStream()));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        System.out.println(line);
+                    }
+                    int exitCode = backgroundProcess.getProcess().exitValue();
+                    System.out.println("\nExited with exit code : " + exitCode);
 
-                            ImportElement importElement = new ImportElement("@ionic-native/facebook/ngx");
-                            importElement.getDependencies().add("Facebook");
-                            TypeScriptParser.addImport(pageTsPage, importElement);
+                    //write html to page
+                    writeHtmlToPage(p.getFolderName(), pageName);
 
-                            importElement = new ImportElement("@ionic/angular");
-                            importElement.getDependencies().add("Platform");
-                            TypeScriptParser.addImport(pageTsPage, importElement);
+                    JsonObject pageSettingsJsonObject = new JsonParser().parse(new FileReader(Drawable.projectPath + File.separator + "RelatedFiles" + File.separator + "pages" + File.separator + folderName + File.separator + "conf.json")).getAsJsonObject();
+                    if (pageSettingsJsonObject.has("actions") && !pageSettingsJsonObject.getAsJsonObject("actions").entrySet().isEmpty()) {
+                        for (Map.Entry<String, JsonElement> prop : pageSettingsJsonObject.getAsJsonObject("actions").entrySet()) {
+                            JsonObject action = prop.getValue().getAsJsonObject();
+                            if (action.has("platform") && action.get("platform").getAsString().equals("facebook")) {
+                                Path pageTsPage = Paths.get(Drawable.projectPath + File.separator + "ionic_project" + File.separator + "src" + File.separator + "app" + File.separator + p.getName().trim().toLowerCase() + File.separator + p.getName().trim().toLowerCase() + ".page.ts");
 
-                            importElement = new ImportElement("@angular/fire/auth");
-                            importElement.getDependencies().add("AngularFireAuth");
-                            TypeScriptParser.addImport(pageTsPage, importElement);
+                                ImportElement importElement = new ImportElement("@ionic-native/facebook/ngx");
+                                importElement.getDependencies().add("Facebook");
+                                TypeScriptParser.addImport(pageTsPage, importElement);
 
-                            importElement = new ImportElement("firebase/app");
-                            importElement.getDependencies().add("auth");
-                            TypeScriptParser.addImport(pageTsPage, importElement);
+                                importElement = new ImportElement("@ionic/angular");
+                                importElement.getDependencies().add("Platform");
+                                TypeScriptParser.addImport(pageTsPage, importElement);
 
-                            TypeScriptParser.addParameterToFunction(pageTsPage, "constructor", new Param("private", "afAuth", "AngularFireAuth"));
-                            TypeScriptParser.addParameterToFunction(pageTsPage, "constructor", new Param("private", "platfom", "Platform"));
-                            TypeScriptParser.addParameterToFunction(pageTsPage, "constructor", new Param("private", "fb", "Facebook"));
+                                importElement = new ImportElement("@angular/fire/auth");
+                                importElement.getDependencies().add("AngularFireAuth");
+                                TypeScriptParser.addImport(pageTsPage, importElement);
 
-                            TypeScriptParser.addFunction(pageTsPage,
-                                    Paths.get(System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "RelatedFiles" + File.separator + "FirebaseLoginTools" + File.separator + "facebookLoginTemplate.txt"),
-                                    "logFacebook" + prop.getKey(),
-                                    null);
+                                importElement = new ImportElement("firebase/app");
+                                importElement.getDependencies().add("auth");
+                                TypeScriptParser.addImport(pageTsPage, importElement);
+
+                                TypeScriptParser.addParameterToFunction(pageTsPage, "constructor", new Param("private", "afAuth", "AngularFireAuth"));
+                                TypeScriptParser.addParameterToFunction(pageTsPage, "constructor", new Param("private", "platfom", "Platform"));
+                                TypeScriptParser.addParameterToFunction(pageTsPage, "constructor", new Param("private", "fb", "Facebook"));
+
+                                TypeScriptParser.addFunction(pageTsPage,
+                                        Paths.get(System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "RelatedFiles" + File.separator + "FirebaseLoginTools" + File.separator + "facebookLoginTemplate.txt"),
+                                        "logFacebook" + prop.getKey(),
+                                        null);
+                            }
                         }
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+            }
+            GlobalViewController.stopBackgroundProcess(backgroundProcess);
+
+            //copy assets
+            try {
+                backgroundProcess = GlobalViewController.startBackgroundProcess(new GlobalViewController.BackgroundProcess("Copying assets.", null));
+                CopyAssets();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-        //copy assets
-        CopyAssets();
+            GlobalViewController.stopBackgroundProcess(backgroundProcess);
+
+            EveryWhereLoader.getInstance().stopLoader(null);
+        }).start();
     }
 
     private static String getPageName(String folderName) {
@@ -222,6 +261,7 @@ public class ProjectGeneration {
     }
 
     private static void setUpFirebase() {
+
         copyFirebaseConfigFile();
         Path ionicAppModulePath = Paths.get(Drawable.projectPath + File.separator + "ionic_project" + File.separator + "src" + File.separator + "app" + File.separator + "app.module.ts");
 
@@ -273,13 +313,13 @@ public class ProjectGeneration {
         }
     }
 
-    private static void installLoginDependencies() {
+    private static void installLoginDependencies(GlobalViewController.BackgroundProcess backgroundProcess) {
         try {
             JsonObject globalSettings = new JsonParser().parse(new FileReader(Drawable.projectPath + File.separator + "state.json")).getAsJsonObject();
             if (globalSettings.has("firebase")) {
                 if (globalSettings.getAsJsonObject("firebase").getAsJsonObject("platforms").has("facebook")) {
                     JsonObject firebaseJsonObject = globalSettings.getAsJsonObject("firebase");
-                    addFacebookCordovaPlugin(firebaseJsonObject);
+                    addFacebookCordovaPlugin(firebaseJsonObject, backgroundProcess);
                 }
             }
             //return exitCode == 0;
@@ -289,20 +329,21 @@ public class ProjectGeneration {
         }
     }
 
-    private static void addFacebookCordovaPlugin(JsonObject firebaseJsonObject) throws IOException {
+    private static void addFacebookCordovaPlugin(JsonObject firebaseJsonObject, GlobalViewController.BackgroundProcess backgroundProcess) throws IOException {
         JsonObject facebookJsonObject = firebaseJsonObject.getAsJsonObject("platforms").getAsJsonObject("facebook");
 
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.directory(new File(Drawable.projectPath + File.separator + "ionic_project"));
         processBuilder.command("cmd.exe", "/c", "ionic cordova plugin add cordova-plugin-facebook4 --variable APP_ID=\"" + facebookJsonObject.get("appId").getAsString() + "\" --variable APP_NAME=\"" + facebookJsonObject.get("appName").getAsString() + "\"");
         processBuilder.redirectErrorStream(true);
-        Process process = processBuilder.start();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        backgroundProcess.setProcess(processBuilder.start());
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(backgroundProcess.getProcess().getInputStream()));
         String line;
         while ((line = reader.readLine()) != null) {
             System.out.println("Adding FB to Cordova: " + line);
         }
-        int exitCode = process.exitValue();
+        int exitCode = backgroundProcess.getProcess().exitValue();
         System.out.println("\nExited with code : " + exitCode);
     }
 

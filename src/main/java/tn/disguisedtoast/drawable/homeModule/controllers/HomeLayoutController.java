@@ -15,7 +15,6 @@ import org.apache.commons.io.FileUtils;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.projectGenerationModule.ionic.ProjectGeneration;
 import tn.disguisedtoast.drawable.storyboardModule.controllers.StoryboardViewController;
-import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -77,13 +76,7 @@ public class HomeLayoutController implements Initializable {
     }
 
     public void exportProject(ActionEvent actionEvent) {
-        EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
-        try {
-            ProjectGeneration.generatePages();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        EveryWhereLoader.getInstance().stopLoader(null);
+        ProjectGeneration.generatePages();
     }
 
     public void showStoryboard() {

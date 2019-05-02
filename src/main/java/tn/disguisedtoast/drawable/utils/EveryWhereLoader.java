@@ -75,7 +75,7 @@ public class EveryWhereLoader {
     }
 
     public void stopLoader(Parent parent) {
-        if (instance != null) {
+        if (instance != null && instance.stage != null) {
             Platform.runLater(() -> {
                 FadeTransition ft = new FadeTransition(Duration.millis(500), vBox);
                 ft.setFromValue(0.5);
