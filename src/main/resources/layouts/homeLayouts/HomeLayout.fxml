@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
@@ -28,6 +29,9 @@
                      <font>
                          <Font name="System Bold" size="12.0"/>
                      </font>
+                       <cursor>
+                           <Cursor fx:constant="HAND"/>
+                       </cursor>
                   </Button>
                    <Button fx:id="scrollBtn" graphicTextGap="10.0" mnemonicParsing="false" onAction="#showScrollView"
                            text="Scroll View">
@@ -41,6 +45,9 @@
                      <font>
                          <Font name="System Bold" size="12.0"/>
                      </font>
+                       <cursor>
+                           <Cursor fx:constant="HAND"/>
+                       </cursor>
                    </Button>
                    <Button fx:id="export" alignment="BASELINE_CENTER" contentDisplay="CENTER"
                            maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false"
@@ -48,6 +55,9 @@
                        <font>
                            <Font name="System Bold" size="12.0"/>
                      </font>
+                       <cursor>
+                           <Cursor fx:constant="HAND"/>
+                       </cursor>
                   </Button>
                    <HBox alignment="CENTER">
                        <children>
@@ -60,6 +70,9 @@
                                        </image>
                                    </ImageView>
                                </graphic>
+                               <cursor>
+                                   <Cursor fx:constant="HAND"/>
+                               </cursor>
                            </Button>
                            <Button contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" mnemonicParsing="false"
                                    styleClass="icon_button">
@@ -70,6 +83,9 @@
                                        </image>
                                    </ImageView>
                                </graphic>
+                               <cursor>
+                                   <Cursor fx:constant="HAND"/>
+                               </cursor>
                            </Button>
                        </children>
                    </HBox>
