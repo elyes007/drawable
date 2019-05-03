@@ -13,9 +13,12 @@ import javafx.scene.control.SplitMenuButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.util.Duration;
+import org.apache.commons.io.FileUtils;
+import tn.disguisedtoast.drawable.projectGenerationModule.ionic.ProjectGeneration;
 import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
@@ -24,6 +27,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
 
 public class GlobalViewController implements Initializable {
 
@@ -149,6 +153,48 @@ public class GlobalViewController implements Initializable {
                 EveryWhereLoader.getInstance().stopLoader(null);
             }
         });
+
+
+        //check and generate ionic project in background
+        if (!getIonicState()) {
+            CompletableFuture.supplyAsync(ProjectGeneration::generateBlankProject)
+                    .thenAccept(this::setIonicState);
+        }
+    }
+
+
+    private boolean getIonicState() {
+        FileReader fileReader;
+        String filePath = Drawable.projectPath + File.separator + "state.json";
+        try {
+            fileReader = new FileReader(filePath);
+        } catch (FileNotFoundException e) {
+            String fileBody = "{\n\t\"ionic_state\":false\n}";
+            try {
+                FileUtils.writeStringToFile(new File(filePath), fileBody);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            return false;
+        }
+        JsonObject projectsJson = new JsonParser().parse(fileReader).getAsJsonObject();
+        return projectsJson.get("ionic_state").getAsBoolean();
+    }
+
+    private void setIonicState(boolean state) {
+        try {
+            String filePath = Drawable.projectPath + File.separator + "state.json";
+
+            JsonObject globalSettingsJson = new JsonParser().parse(filePath).getAsJsonObject();
+            if (globalSettingsJson == null) {
+                globalSettingsJson = new JsonObject();
+            }
+            globalSettingsJson.addProperty("ionic_state", state);
+            Files.write(Paths.get(filePath), new Gson().toJson(globalSettingsJson).getBytes());
+            System.out.println("Changed state to " + state);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static class BackgroundProcess {

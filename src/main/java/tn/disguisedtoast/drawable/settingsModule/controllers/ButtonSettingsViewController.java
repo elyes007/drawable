@@ -19,6 +19,7 @@ import javafx.scene.paint.Color;
 import org.eclipse.jgit.util.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
+import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.models.SupportedComponents;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
@@ -40,10 +41,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.*;
 
 public class ButtonSettingsViewController implements Initializable, SettingsControllerInterface {
     @FXML public BorderPane actionSettingsPane;
@@ -86,7 +84,7 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
 
     private Integer[] textSizes = {10, 12, 14, 18, 24, 36, 48, 64, 72, 96};
     private String[] themes = {"Default", "Primary", "Secondary", "Tertiary", "Success", "Warning", "Danger", "Light", "Medium", "Dark"};
-    private String[] fills = {"Solid", "Outline", "Clear", "None"};
+    private String[] fills = {"Solid", "Outline", "Clear"};
     private String[] actions = {"Select an action", "Navigation", "Login Facebook", "Login Google"};
     private GeneratedElement button;
     private SettingsControllerInterface settingsControllerInterface;
@@ -681,6 +679,7 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
         if(settingsControllerInterface != null) {
             settingsControllerInterface.save();
         }else{
+            System.out.println("Here");
             deleteActionElement();
         }
         PreviewController.saveDocument();
@@ -691,9 +690,18 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
             String pageConfPath = SettingsViewController.pageFolder + File.separator + "conf.json";
             JsonObject jsonObject = new JsonParser().parse(new FileReader(pageConfPath)).getAsJsonObject();
             JsonObject actionObject = jsonObject.getAsJsonObject("actions");
-            Set<Map.Entry<String, JsonElement>> entries = actionObject.entrySet();
+            Set<Map.Entry<String, JsonElement>> entries = new HashSet<>(actionObject.entrySet());
             for (Map.Entry<String, JsonElement> entry : entries) {
                 actionObject.remove(entry.getKey());
+                if (entry.getValue().getAsJsonObject().has("platform") && entry.getValue().getAsJsonObject().get("platform").getAsString().equals("facebook")) {
+                    String globalSettingsPath = Drawable.projectPath + File.separator + "state.json";
+                    JsonObject globalObject = new JsonParser().parse(new FileReader(globalSettingsPath)).getAsJsonObject();
+                    if (globalObject.has("firebase") && globalObject.get("firebase").getAsJsonObject().get("platforms").getAsJsonObject().has("facebook")) {
+                        globalObject.get("firebase").getAsJsonObject().get("platforms").getAsJsonObject().remove("facebook");
+
+                        Files.write(Paths.get(globalSettingsPath), new Gson().toJson(globalObject).getBytes());
+                    }
+                }
             }
 
             Files.write(Paths.get(pageConfPath), new Gson().toJson(jsonObject).getBytes());

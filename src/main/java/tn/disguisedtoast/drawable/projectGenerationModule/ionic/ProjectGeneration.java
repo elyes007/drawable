@@ -188,12 +188,13 @@ public class ProjectGeneration {
                     //write html to page
                     writeHtmlToPage(p.getFolderName(), pageName);
 
-                    JsonObject pageSettingsJsonObject = new JsonParser().parse(new FileReader(Drawable.projectPath + File.separator + "RelatedFiles" + File.separator + "pages" + File.separator + folderName + File.separator + "conf.json")).getAsJsonObject();
+                    JsonObject pageSettingsJsonObject = new JsonParser().parse(new FileReader((Drawable.projectPath + "&RelatedFiles&pages&" + folderName + "&conf.json").replace("&", File.separator))).getAsJsonObject();
+                    Path pageTsPage = Paths.get((Drawable.projectPath + "&ionic_project&src&app&" + getPageName(p.getName()) + "&" + getPageName(p.getName()) + ".page.ts").replace("&", File.separator));
+
                     if (pageSettingsJsonObject.has("actions") && !pageSettingsJsonObject.getAsJsonObject("actions").entrySet().isEmpty()) {
                         for (Map.Entry<String, JsonElement> prop : pageSettingsJsonObject.getAsJsonObject("actions").entrySet()) {
                             JsonObject action = prop.getValue().getAsJsonObject();
                             if (action.has("platform") && action.get("platform").getAsString().equals("facebook")) {
-                                Path pageTsPage = Paths.get(Drawable.projectPath + File.separator + "ionic_project" + File.separator + "src" + File.separator + "app" + File.separator + p.getName().trim().toLowerCase() + File.separator + p.getName().trim().toLowerCase() + ".page.ts");
 
                                 ImportElement importElement = new ImportElement("@ionic-native/facebook/ngx");
                                 importElement.getDependencies().add("Facebook");
@@ -226,8 +227,7 @@ public class ProjectGeneration {
                                     TypeScriptParser.addImport(pageTsPage, importElement);
                                     TypeScriptParser.addParameterToFunction(pageTsPage, "constructor", new Param("private", "router", "Router"));
 
-                                    //TODO: Get the right router url
-                                    extras.add("this.router.navigateByUrl('/" + destination.toLowerCase() + "');");
+                                    extras.add("this.router.navigateByUrl('/" + getPageName(destination) + "');");
                                 }
 
                                 System.out.println("EXTRAASS: " + extras);
@@ -236,6 +236,23 @@ public class ProjectGeneration {
                                         Paths.get(System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "RelatedFiles" + File.separator + "FirebaseLoginTools" + File.separator + "facebookLoginTemplate.txt"),
                                         "logFacebook" + prop.getKey(),
                                         null, extras);
+                            }
+                        }
+                    }
+
+                    if (pageSettingsJsonObject.has("bindings")) {
+                        JsonObject bindingsObject = pageSettingsJsonObject.getAsJsonObject("bindings");
+                        for (Map.Entry<String, JsonElement> entry : bindingsObject.entrySet()) {
+                            ImportElement importElement = new ImportElement("firebase/app");
+                            importElement.getDependencies().add("auth");
+                            TypeScriptParser.addImport(pageTsPage, importElement);
+
+                            TypeScriptParser.addVariable(pageTsPage, new Param("", entry.getKey(), "string"));
+
+                            System.out.println("Entry Value : " + entry.getValue());
+
+                            if (entry.getValue().getAsString().equals("image")) {
+                                TypeScriptParser.addToNgOnInit(pageTsPage, "   this.Image1 = auth().currentUser.photoURL + '?type=large'\n");
                             }
                         }
                     }
@@ -374,8 +391,12 @@ public class ProjectGeneration {
             System.out.println("imgs size: " + imgs.size());
             for (Element img : imgs) {
                 String src = img.attr("src");
-                src = StringUtils.substringAfterLast(src.replace("\\", "/"), "../");
-                img.attr("[src]", "'" + src + "'");
+                if (src.contains("facebook")) {
+                    src = img.id();
+                } else {
+                    src = "'" + StringUtils.substringAfterLast(src.replace("\\", "/"), "../") + "'";
+                }
+                img.attr("[src]", src);
                 img.removeAttr("src");
             }
             File dest = new File((Drawable.projectPath + "&ionic_project&src&app&" + pageName + "&" + pageName + ".page.html")

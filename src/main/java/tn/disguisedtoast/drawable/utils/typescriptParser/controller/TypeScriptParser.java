@@ -94,35 +94,43 @@ public final class TypeScriptParser {
         }
     }
 
-    /*public static void addFunction(Path typescriptPath, FunctionElement functionElement) {
+    public static void addVariable(Path typescriptPath, Param variable) {
         try {
-            SearchResult searchResult = searchLastWordPos(typescriptPath, "}");
+            SearchResult sameVariableResult = searchLastWordPos(typescriptPath, variable.getName());
+
+            SearchResult searchResult = searchLastWordPos(typescriptPath, "implements OnInit");
             if (searchResult != null && searchResult.getPos() != -1) {
-                if (getLastWordPos(searchResult.getLines(), functionElement.getName()) == -1) {
-                    String line = "\n" + functionElement.getName() + "(";
-                    for (Map.Entry<String, String> paramCouple : functionElement.getParameters().entrySet()) {
-                        line += paramCouple.getKey() + ": " + paramCouple.getValue() + ", ";
-                    }
-                    if (functionElement.getParameters().size() != 0) {
-                        line = line.substring(0, line.length() - 3);
-                    }
-                    line += ") {\n";
-                    for (String bodyLine : functionElement.getBodyLines()) {
-                        line += bodyLine + "\n";
-                    }
-                    line += "}\n";
-
-                    searchResult.getLines().add(searchResult.getPos(), line);
-
-                    Files.write(typescriptPath, searchResult.getLines(), StandardCharsets.UTF_8);
-                } else {
-                    throw new Exception("Function with name '" + functionElement.getName() + "' already exists.");
+                if (sameVariableResult.getPos() != -1) {
+                    searchResult.getLines().remove(sameVariableResult.getPos() - 1);
+                    searchResult.getLines().remove(sameVariableResult.getPos() - 1);
+                    searchResult.getLines().remove(sameVariableResult.getPos() - 1);
                 }
+
+                String lineToAdd = "\n" + variable.getAccessibility() + " " + variable.getName() + ": " + variable.getType() + "\n";
+                searchResult.getLines().add(searchResult.getPos() + 1, lineToAdd);
+
+                Files.write(typescriptPath, searchResult.getLines(), StandardCharsets.UTF_8);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
-    }*/
+    }
+
+    public static void addToNgOnInit(Path typescriptPath, String body) {
+        try {
+            SearchResult searchResult = searchLastWordPos(typescriptPath, "ngOnInit");
+            if (searchResult != null && searchResult.getPos() != -1) {
+                int i = searchResult.getPos() + 1;
+                while (!searchResult.getLines().get(i).contains("}")) {
+                    searchResult.getLines().remove(i);
+                }
+                searchResult.getLines().add(i, body);
+                Files.write(typescriptPath, searchResult.getLines(), StandardCharsets.UTF_8);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void addFunction(Path typescriptPath, Path templateFilePath, String functionName, List<Param> params, List<String> extras) {
         try {
@@ -241,25 +249,6 @@ public final class TypeScriptParser {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private void test() {
-        /*
-            String functionDeclarationName = line.substring(0, line.lastIndexOf('('));
-            String[] paramCouples = StringUtils.substringBetween(searchResult.getLines().get(searchResult.getPos()), "(", ")").split(",");
-            Map<String, String> params = new HashMap<>();
-            for(String param : paramCouples) {
-                String[] keyValue = param.trim().split("\\s+");
-                params.put(keyValue[0], keyValue[1]);
-            }
-            String remaining = line.substring(line.lastIndexOf(')')+1, line.length()-1);
-
-            System.out.println("Name: " + functionDeclarationName);
-            System.out.println("Params: ");
-            params.forEach((k, v) -> System.out.println("Key: " + k + " Value: " + v));
-            System.out.println("Remaining: " + remaining);
-
-         */
     }
 
 }

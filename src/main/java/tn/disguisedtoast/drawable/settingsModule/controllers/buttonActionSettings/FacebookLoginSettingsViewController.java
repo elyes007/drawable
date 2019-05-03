@@ -196,6 +196,12 @@ public class FacebookLoginSettingsViewController implements Initializable, Setti
             newFacebookLogObject.addProperty("appId", this.appId.getText());
             newFacebookLogObject.addProperty("appName", this.appName.getText());
 
+            try {
+                this.globalSettingsObject = new JsonParser().parse(new FileReader(Drawable.projectPath + File.separator + "state.json")).getAsJsonObject();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
             this.globalSettingsObject.getAsJsonObject("firebase").getAsJsonObject("platforms").add("facebook", newFacebookLogObject);
             System.out.println(this.globalSettingsObject);
             this.facebookLogObject = newFacebookLogObject;

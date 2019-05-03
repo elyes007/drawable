@@ -236,6 +236,7 @@ public class GlobalProjectGeneration implements Initializable {
             FileUtils.copyDirectory(new File(System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\previewModule"),
                     new File(projectPath + "\\RelatedFiles\\previewModule"));
             FileUtils.copyToDirectory(new File(System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\assets\\drawable\\placeholder.png"),new File(projectPath + "\\RelatedFiles\\assets"));
+            FileUtils.copyToDirectory(new File(System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\assets\\drawable\\facebook.png"), new File(projectPath + "\\RelatedFiles\\assets"));
             FileUtils.copyToDirectory(new File(getClass().getResource("/storyboardModule/storyboard.html").getPath()), new File(projectPath + "\\RelatedFiles"));
             FileUtils.writeStringToFile(new File(Drawable.projectPath + "&RelatedFiles&storyboard.json".replace("&", File.separator)),
                     "{\"zoom\":70,\"pages\":[]}");

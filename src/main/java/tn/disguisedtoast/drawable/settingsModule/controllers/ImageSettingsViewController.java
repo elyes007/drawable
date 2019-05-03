@@ -1,5 +1,8 @@
 package tn.disguisedtoast.drawable.settingsModule.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.helger.css.ECSSVersion;
 import com.helger.css.decl.CSSDeclaration;
 import com.helger.css.decl.CSSExpression;
@@ -7,10 +10,7 @@ import com.helger.css.writer.CSSWriter;
 import com.helger.css.writer.CSSWriterSettings;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -22,16 +22,22 @@ import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerIn
 import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
 public class ImageSettingsViewController implements Initializable, SettingsControllerInterface {
     @FXML public TextField filePath;
-    @FXML public Button browseButton;
+    @FXML
+    public SplitMenuButton browseButton;
+    @FXML
+    public MenuItem loggedUserPhotoButton;
     @FXML public Slider horizontalPosition;
     @FXML public Slider verticalPosition;
 
@@ -95,6 +101,41 @@ public class ImageSettingsViewController implements Initializable, SettingsContr
 
         setUpPosition();
         setUpScale();
+
+        try {
+            JsonObject globalConfigJson = new JsonParser().parse(new FileReader(Drawable.projectPath + File.separator + "state.json")).getAsJsonObject();
+            if (globalConfigJson.has("firebase") && globalConfigJson.get("firebase").getAsJsonObject().get("platforms").getAsJsonObject().has("facebook")) {
+                ((Label) this.loggedUserPhotoButton.getGraphic()).getGraphic().setDisable(false);
+                ((Label) this.loggedUserPhotoButton.getGraphic()).setTooltip(null);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        this.loggedUserPhotoButton.setOnAction(event -> {
+            if (!((Label) this.loggedUserPhotoButton.getGraphic()).getGraphic().isDisable()) {
+                try {
+                    String pageConfPath = SettingsViewController.pageFolder + File.separator + "conf.json";
+                    JsonObject globalConfigJson = new JsonParser().parse(new FileReader(pageConfPath)).getAsJsonObject();
+
+                    if (globalConfigJson.has("bindings")) {
+                        JsonObject bindingsObject = globalConfigJson.getAsJsonObject("bindings");
+                        bindingsObject.addProperty(this.imageView.getElement().id(), "image");
+                    } else {
+                        JsonObject bindingsObject = new JsonObject();
+                        bindingsObject.addProperty(this.imageView.getElement().id(), "image");
+                        globalConfigJson.add("bindings", bindingsObject);
+                    }
+                    Files.write(Paths.get(pageConfPath), new Gson().toJson(globalConfigJson).getBytes());
+
+                    this.filePath.setText("Image bound to logged user photo.");
+                    this.imageView.getElement().attr("src", "../../assets/facebook.png");
+                    this.imageView.getDomElement().setAttribute("src", "../../assets/facebook.png");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private void setUpPosition() {
@@ -173,6 +214,10 @@ public class ImageSettingsViewController implements Initializable, SettingsContr
     public void setImageView(GeneratedElement imageView){
         this.imageView = imageView;
         filePath.setText(generatedViewsPath + this.imageView.getElement().attr("src").substring(5));
+
+        if (this.imageView.getElement().attr("src").contains("facebook")) {
+            this.filePath.setText("Image bound to logged user photo.");
+        }
 
         setImagePosition();
         setImageScale();
