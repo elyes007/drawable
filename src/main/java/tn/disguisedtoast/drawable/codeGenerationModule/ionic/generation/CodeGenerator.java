@@ -344,7 +344,6 @@ public class CodeGenerator {
         //writing html file
         File newHtmlFile = new File(tempPath + "temp.html");
         FileUtils.writeStringToFile(newHtmlFile, htmlString);
-
         return tempPath + "temp.html";
     }
 

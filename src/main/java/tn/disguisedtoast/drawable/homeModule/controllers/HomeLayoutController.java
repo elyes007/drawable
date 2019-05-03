@@ -25,7 +25,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
-import java.util.concurrent.CompletableFuture;
 
 public class HomeLayoutController implements Initializable {
 
@@ -40,6 +39,9 @@ public class HomeLayoutController implements Initializable {
     @FXML
     public Button export;
 
+    private StoryboardViewController storyboardController;
+    private ScrollHomeLayoutController scrollHomeController;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         storyboardBtn.managedProperty().bind(storyboardBtn.visibleProperty());
@@ -47,10 +49,10 @@ public class HomeLayoutController implements Initializable {
         showStoryboard();
 
         //check and generate ionic project in background
-        if (!getIonicState()) {
+        /*if (!getIonicState()) {
             CompletableFuture.supplyAsync(ProjectGeneration::generateBlankProject)
                     .thenAccept(this::setIonicState);
-        }
+        }*/
     }
 
     private boolean getIonicState() {
@@ -100,13 +102,17 @@ public class HomeLayoutController implements Initializable {
     public void showStoryboard() {
         storyboardBtn.setVisible(false);
         scrollBtn.setVisible(true);
+        if (scrollHomeController != null) {
+            scrollHomeController.releaseImages();
+            scrollHomeController = null;
+        }
         try {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("/layouts/storyboard/storyboardView.fxml"));
             Parent parent = loader.load();
             root.setCenter(parent);
             loader.getLocation().openStream();
-            StoryboardViewController storyboardController = loader.getController();
+            storyboardController = loader.getController();
             this.search.setOnKeyReleased(event -> storyboardController.search(this.search.getText()));
         } catch (IOException e) {
             e.printStackTrace();
@@ -116,14 +122,15 @@ public class HomeLayoutController implements Initializable {
     public void showScrollView() {
         storyboardBtn.setVisible(true);
         scrollBtn.setVisible(false);
+        storyboardController = null;
         try {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("/layouts/homeLayouts/ScrollHomeLayout.fxml"));
             Parent parent = loader.load();
             root.setCenter(parent);
             loader.getLocation().openStream();
-            ScrollHomeLayoutController scrollController = loader.getController();
-            this.search.setOnKeyReleased(event -> scrollController.search(this.search.getText()));
+            scrollHomeController = loader.getController();
+            this.search.setOnKeyReleased(event -> scrollHomeController.search(this.search.getText()));
         } catch (IOException e) {
             e.printStackTrace();
         }

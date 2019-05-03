@@ -195,23 +195,23 @@ public class ProjectGeneration {
         CopyAssets();
     }
 
-    private static String getPageName(String folderName) {
-        folderName = folderName.trim();
-        for (int i = 0; i < folderName.length(); i++) {
-            char c = folderName.charAt(i);
+    public static String getPageName(String pageName) {
+        pageName = pageName.trim();
+        for (int i = 0; i < pageName.length(); i++) {
+            char c = pageName.charAt(i);
             if (StringUtils.isAllUpperCase(c + "")) {
                 c = (c + "").toLowerCase().charAt(0);
                 if (i == 0) {
-                    folderName = c + folderName.substring(i + 1);
-                } else if (folderName.charAt(i - 1) == ' ') {
-                    folderName = folderName.substring(0, i - 1) + "-" + c + folderName.substring(i + 1);
-                } else if (folderName.charAt(i - 1) != '-') {
-                    folderName = folderName.substring(0, i) + "-" + c + folderName.substring(i + 1);
+                    pageName = c + pageName.substring(i + 1);
+                } else if (pageName.charAt(i - 1) == ' ') {
+                    pageName = pageName.substring(0, i - 1) + "-" + c + pageName.substring(i + 1);
+                } else if (pageName.charAt(i - 1) != '-') {
+                    pageName = pageName.substring(0, i) + "-" + c + pageName.substring(i + 1);
                     i++;
                 }
             }
         }
-        return folderName;
+        return pageName;
     }
 
     private static void setUpFirebase() {
