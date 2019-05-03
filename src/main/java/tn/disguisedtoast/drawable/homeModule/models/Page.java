@@ -9,6 +9,8 @@ public class Page {
     private String name;
     private String folderName;
     private Image image;
+    private String html;
+    private String tabParent; //to use for tabs
 
     public Page(String name, String folderName) {
         this.name = name;
@@ -21,6 +23,22 @@ public class Page {
     }
 
     public Page() {
+    }
+
+    public String getTabParent() {
+        return tabParent;
+    }
+
+    public void setTabParent(String tabParent) {
+        this.tabParent = tabParent;
+    }
+
+    public String getHtml() {
+        return html;
+    }
+
+    public void setHtml(String html) {
+        this.html = html;
     }
 
     public String getName() {
