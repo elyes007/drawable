@@ -17,19 +17,18 @@ import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.ProjectMain.GlobalViewController;
 import tn.disguisedtoast.drawable.homeModule.controllers.ScrollHomeLayoutController;
 import tn.disguisedtoast.drawable.homeModule.models.Page;
+import tn.disguisedtoast.drawable.storyboardModule.controllers.StoryboardViewController;
 import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 import tn.disguisedtoast.drawable.utils.typescriptParser.controller.TypeScriptParser;
 import tn.disguisedtoast.drawable.utils.typescriptParser.models.ImportElement;
 import tn.disguisedtoast.drawable.utils.typescriptParser.models.Param;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class ProjectGeneration {
 
@@ -143,6 +142,42 @@ public class ProjectGeneration {
         return textFiles;
     }
 
+    public static String getStartPage() {
+        String path = Drawable.projectPath + File.separator + "state.json";
+        FileReader reader = null;
+        try {
+            reader = new FileReader(path);
+            JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
+            if (jsonObject.has("start_page")) {
+                closeReader(reader);
+                return jsonObject.get("start_page").getAsString();
+            }
+
+            List<Page> pages = StoryboardViewController.loadPages();
+            if (pages.size() == 0) return null;
+
+            String folderName = StringUtils.substringAfterLast(pages.get(0).getFolderName(), "/");
+            jsonObject.addProperty("start_page", folderName);
+            FileUtils.write(new File(path), jsonObject.toString());
+            closeReader(reader);
+            return folderName;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        closeReader(reader);
+        return null;
+    }
+
+    private static void closeReader(FileReader reader) {
+        if (reader != null) {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static void generatePages() {
         EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
         Platform.runLater(() -> {
@@ -165,32 +200,14 @@ public class ProjectGeneration {
 
             GlobalViewController.BackgroundProcess backgroundProcess = GlobalViewController.startBackgroundProcess(new GlobalViewController.BackgroundProcess("Generating pages.", null));
             List<Page> PagesList = ScrollHomeLayoutController.loadPages();
+            List<Page> tabs = getTabs(PagesList);
             for (Page p : PagesList) {
                 try {
-                    System.out.println(p.toString());
+                    makePage(p, backgroundProcess);
 
                     String folderName = StringUtils.substringAfterLast(p.getFolderName(), File.separator);
-                    String pageName = getPageName(p.getName());
-
-                    //create blank page
-                    ProcessBuilder processBuilder = new ProcessBuilder();
-                    processBuilder.directory(new File(Drawable.projectPath + "\\ionic_project"));
-                    processBuilder.command("cmd.exe", "/c", "ionic generate page " + pageName);
-                    backgroundProcess.setProcess(processBuilder.start());
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(backgroundProcess.getProcess().getInputStream()));
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        System.out.println(line);
-                    }
-                    int exitCode = backgroundProcess.getProcess().exitValue();
-                    System.out.println("\nExited with exit code : " + exitCode);
-
-                    //write html to page
-                    writeHtmlToPage(p.getFolderName(), pageName);
-
-                    JsonObject pageSettingsJsonObject = new JsonParser().parse(new FileReader((Drawable.projectPath + "&RelatedFiles&pages&" + folderName + "&conf.json").replace("&", File.separator))).getAsJsonObject();
+                    JsonObject pageSettingsJsonObject = new JsonParser().parse(new FileReader(Drawable.projectPath + File.separator + "RelatedFiles" + File.separator + "pages" + File.separator + folderName + File.separator + "conf.json")).getAsJsonObject();
                     Path pageTsPage = Paths.get((Drawable.projectPath + "&ionic_project&src&app&" + getPageName(p.getName()) + "&" + getPageName(p.getName()) + ".page.ts").replace("&", File.separator));
-
                     if (pageSettingsJsonObject.has("actions") && !pageSettingsJsonObject.getAsJsonObject("actions").entrySet().isEmpty()) {
                         for (Map.Entry<String, JsonElement> prop : pageSettingsJsonObject.getAsJsonObject("actions").entrySet()) {
                             JsonObject action = prop.getValue().getAsJsonObject();
@@ -260,6 +277,17 @@ public class ProjectGeneration {
                     e.printStackTrace();
                 }
             }
+
+            /*GlobalViewController.BackgroundProcess tabsBackgroundProcess = backgroundProcess;
+            tabs.forEach(page -> {
+                try {
+                    makePage(page, tabsBackgroundProcess);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            makeAppRouting(PagesList);
+            makeTabRouting(tabs);*/
             GlobalViewController.stopBackgroundProcess(backgroundProcess);
 
             //copy assets
@@ -275,23 +303,134 @@ public class ProjectGeneration {
         }).start();
     }
 
-    public static String getPageName(String folderName) {
-        folderName = folderName.trim();
-        for (int i = 0; i < folderName.length(); i++) {
-            char c = folderName.charAt(i);
+    private static void makeTabRouting(List<Page> tabs) {
+        String routeTemplate = "{ path: '#tab', loadChildren: '../#tab/#tab.module##TabPageModule' },";
+        Map<String, List<Page>> map = new HashMap<>();
+        tabs.forEach(tab -> {
+            map.putIfAbsent(tab.getTabParent(), new ArrayList<>());
+            map.get(tab.getTabParent()).add(tab);
+        });
+        map.forEach((page, tabList) -> {
+            //prepare routes
+            StringBuilder routingString = new StringBuilder();
+            tabList.forEach(tab -> {
+                String tabName = getPageName(tab.getName());
+                String route = routeTemplate.replace("#tab", tabName)
+                        .replace("#Tab", tabName.substring(0, 1).toUpperCase()
+                                + tabName.substring(1));//TODO: remove "-" and turn letter after to upper case
+                routingString.append(route).append("\n");
+            });
+            //write to file
+            try {
+                File routingTemplate = new File(ProjectGeneration.class
+                        .getResource("/tabsGeneration/page_module_template").toURI());
+                String routingFileString = FileUtils.readFileToString(routingTemplate);
+                routingFileString = routingFileString.replace("#route", routingString.toString())
+                        .replace("#page", page)
+                        .replace("#Page", page.substring(0, 1).toUpperCase() + page.substring(1));
+                File routingFile = new File(Drawable.projectPath +
+                        ("&ionic_project&src&app&" + page + "&" + page + ".module.ts").replace("&", File.separator));
+                FileUtils.write(routingFile, routingFileString);
+            } catch (IOException | URISyntaxException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private static void makeAppRouting(List<Page> pagesList) {
+        //prepare routes
+        String routeTemplate = "{ path: '#page', loadChildren: './#page/#page.module##PagePageModule' },";
+        StringBuilder routingString = new StringBuilder();
+        pagesList.forEach(page -> {
+            String pageName = getPageName(page.getName());
+            String route = routeTemplate.replace("#page", pageName)
+                    .replace("#Page", pageName.substring(0, 1).toUpperCase() + pageName.substring(1));
+            routingString.append(route).append("\n");
+        });
+        //write to file
+        try {
+            File routingTemplate = new File(ProjectGeneration.class.getResource("/tabsGeneration/routing_template").toURI());
+            String routingFileString = FileUtils.readFileToString(routingTemplate);
+            routingFileString = routingFileString.replace("#route", routingString.toString());
+            String startPage = getStartPage();
+            startPage = startPage == null ? "" : startPage;
+            routingFileString = routingFileString.replace("#start", startPage);
+            File routingFile = new File(Drawable.projectPath +
+                    "&ionic_project&src&app&app-routing.module.ts".replace("&", File.separator));
+            FileUtils.write(routingFile, routingFileString);
+        } catch (IOException | URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static List<Page> getTabs(List<Page> pagesList) {
+        List<Page> tabList = new ArrayList<>();
+        for (Page page : pagesList) {
+            String folderName = StringUtils.substringAfterLast(page.getFolderName(), File.separator);
+            try {
+                Document document = Jsoup.parse(new File(page.getFolderName() + File.separator + folderName + ".html"), "UTF-8");
+                Elements tabs = document.getElementsByTag("ion-tab");
+                tabs.forEach(tab -> {
+                    tab.attr("tab", getPageName(page.getName()) + "-" + tab.attr("tab"));
+                    tab.attr("id", getPageName(page.getName()));
+                    tab.remove();
+                    Page tabPage = new Page();
+                    tabPage.setName(tab.attr("tab"));
+                    tabPage.setHtml(tab.toString());
+                    tabPage.setTabParent(getPageName(page.getName()));
+                });
+
+                Elements tabButtons = document.getElementsByTag("ion-tab-button");
+                tabButtons.forEach(button -> {
+                    button.attr("tab", getPageName(page.getName()) + "-" + button.attr("tab"));
+                });
+                page.setHtml(document.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return tabList;
+    }
+
+    private static void makePage(Page p, GlobalViewController.BackgroundProcess backgroundProcess) throws IOException {
+        System.out.println(p.toString());
+
+        String pageName = getPageName(p.getName());
+
+        //create blank page
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        processBuilder.directory(new File(Drawable.projectPath + "\\ionic_project"));
+        processBuilder.command("cmd.exe", "/c", "ionic generate page " + pageName);
+        backgroundProcess.setProcess(processBuilder.start());
+        BufferedReader reader = new BufferedReader(new InputStreamReader(backgroundProcess.getProcess().getInputStream()));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            System.out.println(line);
+        }
+        int exitCode = backgroundProcess.getProcess().exitValue();
+        System.out.println("\nExited with exit code : " + exitCode);
+
+        //write html to page
+        writeHtmlToPage(p, pageName);
+    }
+
+    public static String getPageName(String pageName) {
+        pageName = pageName.trim();
+        for (int i = 0; i < pageName.length(); i++) {
+            char c = pageName.charAt(i);
             if (StringUtils.isAllUpperCase(c + "")) {
                 c = (c + "").toLowerCase().charAt(0);
                 if (i == 0) {
-                    folderName = c + folderName.substring(i + 1);
-                } else if (folderName.charAt(i - 1) == ' ') {
-                    folderName = folderName.substring(0, i - 1) + "-" + c + folderName.substring(i + 1);
-                } else if (folderName.charAt(i - 1) != '-') {
-                    folderName = folderName.substring(0, i) + "-" + c + folderName.substring(i + 1);
+                    pageName = c + pageName.substring(i + 1);
+                } else if (pageName.charAt(i - 1) == ' ') {
+                    pageName = pageName.substring(0, i - 1) + "-" + c + pageName.substring(i + 1);
+                } else if (pageName.charAt(i - 1) != '-') {
+                    pageName = pageName.substring(0, i) + "-" + c + pageName.substring(i + 1);
                     i++;
                 }
             }
         }
-        return folderName;
+        return pageName;
     }
 
     private static void setUpFirebase() {
@@ -381,12 +520,9 @@ public class ProjectGeneration {
         System.out.println("\nExited with code : " + exitCode);
     }
 
-    private static void writeHtmlToPage(String folderPath, String pageName) {
+    private static void writeHtmlToPage(Page page, String pageName) {
         try {
-            String folderName = StringUtils.substringAfterLast(folderPath, File.separator);
-            File srcFile = new File((folderPath + "&" + folderName + ".html")
-                    .replace("&", File.separator));
-            Document doc = Jsoup.parse(srcFile, "UTF-8");
+            Document doc = Jsoup.parse(page.getHtml());
             Elements imgs = doc.select("ion-img");
             System.out.println("imgs size: " + imgs.size());
             for (Element img : imgs) {

@@ -21,6 +21,7 @@ import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.detectionModule.controllers.CamChooserController;
 import tn.disguisedtoast.drawable.detectionModule.controllers.CamStreamViewController;
 import tn.disguisedtoast.drawable.homeModule.models.Page;
+import tn.disguisedtoast.drawable.projectGenerationModule.ionic.ProjectGeneration;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
 import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 
@@ -48,6 +49,7 @@ public class StoryboardViewController implements Initializable {
             if (newState == Worker.State.SUCCEEDED) {
                 JSObject jsobj = (JSObject) webView.getEngine().executeScript("window");
                 jsobj.setMember("java", jsCallback);
+                webView.getEngine().executeScript("load()");
                 webView.requestFocus();
             }
         });
@@ -87,6 +89,57 @@ public class StoryboardViewController implements Initializable {
     public static class JSCallback implements CamChooserController.CameraButtonCallback {
         private Stage chooserStage;
 
+        public String getStartPage() {
+            String path = Drawable.projectPath + File.separator + "state.json";
+            FileReader reader = null;
+            try {
+                reader = new FileReader(path);
+                JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
+                if (jsonObject.has("start_page")) {
+                    closeReader(reader);
+                    return jsonObject.get("start_page").getAsString();
+                }
+
+                List<Page> pages = StoryboardViewController.loadPages();
+                if (pages.size() == 0) return null;
+
+                String folderName = StringUtils.substringAfterLast(pages.get(0).getFolderName(), "/");
+                jsonObject.addProperty("start_page", folderName);
+                FileUtils.write(new File(path), jsonObject.toString());
+                closeReader(reader);
+                return folderName;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            closeReader(reader);
+            return null;
+        }
+
+        public void setStartPage(String page) {
+            String path = Drawable.projectPath + File.separator + "state.json";
+            FileReader reader = null;
+            try {
+                reader = new FileReader(path);
+                JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
+                jsonObject.addProperty("start_page", page);
+                FileUtils.write(new File(path), jsonObject.toString());
+                closeReader(reader);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            closeReader(reader);
+        }
+
+        private void closeReader(FileReader reader) {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
         public void removeNav(String src, String dest, String button) {
             String path = (Drawable.projectPath + "&RelatedFiles&pages&" + src).replace("&", File.separator);
             FileReader reader = null;
@@ -102,7 +155,7 @@ public class StoryboardViewController implements Initializable {
                         String htmlPath = (path + "&" + src + ".html")
                                 .replace("&", File.separator);
                         File file = new File(htmlPath);
-                        String routerLink = String.format("['/%s']", dest.toLowerCase());
+                        String routerLink = String.format("['/%s']", ProjectGeneration.getPageName(dest));
                         Document document = null;
                         try {
                             document = Jsoup.parse(file, "UTF-8");
@@ -120,17 +173,11 @@ public class StoryboardViewController implements Initializable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            closeReader(reader);
         }
 
         public void deletePage(String page) {
-            System.gc();
+            //System.gc();
             //remove page directory
             String path = (Drawable.projectPath + "&RelatedFiles&pages&" + page).replace("&", File.separator);
             try {
@@ -155,7 +202,7 @@ public class StoryboardViewController implements Initializable {
                             String htmlPath = (Drawable.projectPath + "&RelatedFiles&pages&" + dir + "&" + dir + ".html")
                                     .replace("&", File.separator);
                             File file = new File(htmlPath);
-                            String routerLink = String.format("['/%s']", dest.toLowerCase());
+                            String routerLink = String.format("['/%s']", ProjectGeneration.getPageName(dest));
                             Document document = null;
                             try {
                                 document = Jsoup.parse(file, "UTF-8");
@@ -173,13 +220,7 @@ public class StoryboardViewController implements Initializable {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+                closeReader(reader);
             }
             //remove from storyboard
             path = (Drawable.projectPath + "&RelatedFiles&storyboard.json").replace("&", File.separator);
@@ -212,19 +253,20 @@ public class StoryboardViewController implements Initializable {
         }
 
         public void addNavigation(String source, String buttonId, String dest) {
+            FileReader fileReader = null;
             try {
                 //update html
                 String htmlPath = (Drawable.projectPath + "&RelatedFiles&pages&" + source + "&" + source + ".html")
                         .replace("&", File.separator);
                 File file = new File(htmlPath);
-                String routerLink = String.format("['/%s']", dest.toLowerCase());
+                String routerLink = String.format("['/%s']", ProjectGeneration.getPageName(dest));
                 Document document = Jsoup.parse(file, "UTF-8");
                 document.body().select("#" + buttonId).attr("[routerLink]", routerLink);
                 FileUtils.write(file, document.toString());
                 //update conf.json
                 String confPath = (Drawable.projectPath + "&RelatedFiles&pages&" + source + "&conf.json")
                         .replace("&", File.separator);
-                FileReader fileReader = new FileReader(confPath);
+                fileReader = new FileReader(confPath);
                 JsonObject json = new JsonParser().parse(fileReader).getAsJsonObject();
                 JsonObject actions = json.get("actions").getAsJsonObject();
                 JsonObject action = new JsonObject();
@@ -234,6 +276,7 @@ public class StoryboardViewController implements Initializable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            closeReader(fileReader);
         }
 
         public void updateStoryboard(String page, String x, String y) {

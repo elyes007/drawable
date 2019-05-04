@@ -152,4 +152,11 @@ public class ScrollHomeLayoutController implements CamChooserController.CameraBu
             });
         }
     }
+
+    public void releaseImages() {
+        for (PageCellViewController pageCell : pageCellViewControllers) {
+            pageCell.releaseImage();
+            System.gc();
+        }
+    }
 }

@@ -30,6 +30,16 @@ public class HomeLayoutController implements Initializable {
     @FXML
     public Button playButton;
 
+    private StoryboardViewController storyboardController;
+    private ScrollHomeLayoutController scrollHomeController;
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        storyboardBtn.managedProperty().bind(storyboardBtn.visibleProperty());
+        scrollBtn.managedProperty().bind(scrollBtn.visibleProperty());
+        showStoryboard();
+    }
+
     public void exportProject(ActionEvent actionEvent) {
         ProjectGeneration.generatePages();
     }
@@ -37,13 +47,17 @@ public class HomeLayoutController implements Initializable {
     public void showStoryboard() {
         storyboardBtn.setVisible(false);
         scrollBtn.setVisible(true);
+        if (scrollHomeController != null) {
+            scrollHomeController.releaseImages();
+            scrollHomeController = null;
+        }
         try {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("/layouts/storyboard/storyboardView.fxml"));
             Parent parent = loader.load();
             root.setCenter(parent);
             loader.getLocation().openStream();
-            StoryboardViewController storyboardController = loader.getController();
+            storyboardController = loader.getController();
             this.search.setOnKeyReleased(event -> storyboardController.search(this.search.getText()));
         } catch (IOException e) {
             e.printStackTrace();
@@ -53,23 +67,17 @@ public class HomeLayoutController implements Initializable {
     public void showScrollView() {
         storyboardBtn.setVisible(true);
         scrollBtn.setVisible(false);
+        storyboardController = null;
         try {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("/layouts/homeLayouts/ScrollHomeLayout.fxml"));
             Parent parent = loader.load();
             root.setCenter(parent);
             loader.getLocation().openStream();
-            ScrollHomeLayoutController scrollController = loader.getController();
-            this.search.setOnKeyReleased(event -> scrollController.search(this.search.getText()));
+            scrollHomeController = loader.getController();
+            this.search.setOnKeyReleased(event -> scrollHomeController.search(this.search.getText()));
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        storyboardBtn.managedProperty().bind(storyboardBtn.visibleProperty());
-        scrollBtn.managedProperty().bind(scrollBtn.visibleProperty());
-        showStoryboard();
     }
 }
