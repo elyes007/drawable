@@ -19,6 +19,7 @@
                   </columnConstraints>
                   <rowConstraints>
                       <RowConstraints vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                   </rowConstraints>
                   <children>
                       <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
@@ -47,6 +48,12 @@
                               <Font size="14.0" />
                           </font>
                       </Label>
+                      <Label text="Image fit" GridPane.rowIndex="1">
+                          <font>
+                              <Font size="14.0"/>
+                          </font>
+                      </Label>
+                      <ComboBox fx:id="fitComboBox" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
                   </children>
               </GridPane>
           </center>
