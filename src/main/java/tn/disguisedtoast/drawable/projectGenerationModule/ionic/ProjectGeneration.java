@@ -17,6 +17,7 @@ import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.ProjectMain.GlobalViewController;
 import tn.disguisedtoast.drawable.homeModule.controllers.ScrollHomeLayoutController;
 import tn.disguisedtoast.drawable.homeModule.models.Page;
+import tn.disguisedtoast.drawable.storyboardModule.controllers.StoryboardViewController;
 import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 import tn.disguisedtoast.drawable.utils.typescriptParser.controller.TypeScriptParser;
 import tn.disguisedtoast.drawable.utils.typescriptParser.models.ImportElement;
@@ -141,6 +142,42 @@ public class ProjectGeneration {
         return textFiles;
     }
 
+    public static String getStartPage() {
+        String path = Drawable.projectPath + File.separator + "state.json";
+        FileReader reader = null;
+        try {
+            reader = new FileReader(path);
+            JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
+            if (jsonObject.has("start_page")) {
+                closeReader(reader);
+                return jsonObject.get("start_page").getAsString();
+            }
+
+            List<Page> pages = StoryboardViewController.loadPages();
+            if (pages.size() == 0) return null;
+
+            String folderName = StringUtils.substringAfterLast(pages.get(0).getFolderName(), "/");
+            jsonObject.addProperty("start_page", folderName);
+            FileUtils.write(new File(path), jsonObject.toString());
+            closeReader(reader);
+            return folderName;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        closeReader(reader);
+        return null;
+    }
+
+    private static void closeReader(FileReader reader) {
+        if (reader != null) {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static void generatePages() {
         EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
         Platform.runLater(() -> {
@@ -168,12 +205,13 @@ public class ProjectGeneration {
                 try {
                     makePage(p, backgroundProcess);
 
-                JsonObject pageSettingsJsonObject = new JsonParser().parse(new FileReader(Drawable.projectPath + File.separator + "RelatedFiles" + File.separator + "pages" + File.separator + folderName + File.separator + "conf.json")).getAsJsonObject();
-                if (pageSettingsJsonObject.has("actions") && !pageSettingsJsonObject.getAsJsonObject("actions").entrySet().isEmpty()) {
-                    for (Map.Entry<String, JsonElement> prop : pageSettingsJsonObject.getAsJsonObject("actions").entrySet()) {
-                        JsonObject action = prop.getValue().getAsJsonObject();
-                        if (action.has("platform") && action.get("platform").getAsString().equals("facebook")) {
-                            Path pageTsPage = Paths.get(Drawable.projectPath + File.separator + "ionic_project" + File.separator + "src" + File.separator + "app" + File.separator + p.getName().trim().toLowerCase() + File.separator + p.getName().trim().toLowerCase() + ".page.ts");
+                    String folderName = StringUtils.substringAfterLast(p.getFolderName(), File.separator);
+                    JsonObject pageSettingsJsonObject = new JsonParser().parse(new FileReader(Drawable.projectPath + File.separator + "RelatedFiles" + File.separator + "pages" + File.separator + folderName + File.separator + "conf.json")).getAsJsonObject();
+                    Path pageTsPage = Paths.get((Drawable.projectPath + "&ionic_project&src&app&" + getPageName(p.getName()) + "&" + getPageName(p.getName()) + ".page.ts").replace("&", File.separator));
+                    if (pageSettingsJsonObject.has("actions") && !pageSettingsJsonObject.getAsJsonObject("actions").entrySet().isEmpty()) {
+                        for (Map.Entry<String, JsonElement> prop : pageSettingsJsonObject.getAsJsonObject("actions").entrySet()) {
+                            JsonObject action = prop.getValue().getAsJsonObject();
+                            if (action.has("platform") && action.get("platform").getAsString().equals("facebook")) {
 
                                 ImportElement importElement = new ImportElement("@ionic-native/facebook/ngx");
                                 importElement.getDependencies().add("Facebook");
@@ -239,17 +277,18 @@ public class ProjectGeneration {
                     e.printStackTrace();
                 }
             }
-            GlobalViewController.stopBackgroundProcess(backgroundProcess);
 
+            /*GlobalViewController.BackgroundProcess tabsBackgroundProcess = backgroundProcess;
             tabs.forEach(page -> {
                 try {
-                    makePage(page);
+                    makePage(page, tabsBackgroundProcess);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             });
             makeAppRouting(PagesList);
-            makeTabRouting(tabs);
+            makeTabRouting(tabs);*/
+            GlobalViewController.stopBackgroundProcess(backgroundProcess);
 
             //copy assets
             try {
@@ -313,6 +352,9 @@ public class ProjectGeneration {
             File routingTemplate = new File(ProjectGeneration.class.getResource("/tabsGeneration/routing_template").toURI());
             String routingFileString = FileUtils.readFileToString(routingTemplate);
             routingFileString = routingFileString.replace("#route", routingString.toString());
+            String startPage = getStartPage();
+            startPage = startPage == null ? "" : startPage;
+            routingFileString = routingFileString.replace("#start", startPage);
             File routingFile = new File(Drawable.projectPath +
                     "&ionic_project&src&app&app-routing.module.ts".replace("&", File.separator));
             FileUtils.write(routingFile, routingFileString);
@@ -353,7 +395,6 @@ public class ProjectGeneration {
     private static void makePage(Page p, GlobalViewController.BackgroundProcess backgroundProcess) throws IOException {
         System.out.println(p.toString());
 
-        String folderName = StringUtils.substringAfterLast(p.getFolderName(), File.separator);
         String pageName = getPageName(p.getName());
 
         //create blank page

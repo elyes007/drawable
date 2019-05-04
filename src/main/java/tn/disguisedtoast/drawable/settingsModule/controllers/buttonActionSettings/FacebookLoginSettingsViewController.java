@@ -127,7 +127,14 @@ public class FacebookLoginSettingsViewController implements Initializable, Setti
         Platform.runLater(() -> {
             ProcessBuilder processBuilder = new ProcessBuilder();
             String ionicToolsPath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "RelatedFiles" + File.separator + "FirebaseLoginTools" + File.separator + "KeyHashTools";
-            processBuilder.command("cmd.exe", "/c", "keytool -exportcert -alias androiddebugkey -keystore \"" + ionicToolsPath + File.separator + "debug.keystore\" -storepass android | \"" + ionicToolsPath + File.separator + "openssl\" sha1 -binary | \"" + ionicToolsPath + File.separator + "openssl\" base64");
+            String keystorePath = System.getProperty("user.home") + "&.android&debug.keystore".replace("&", File.separator);
+            if (!new File(keystorePath).exists()) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Can't find android configuration", ButtonType.OK);
+                alert.show();
+
+                buttonSettingsViewController.buttonAction.getSelectionModel().select(0);
+            }
+            processBuilder.command("cmd.exe", "/c", "keytool -exportcert -alias androiddebugkey -keystore \"" + keystorePath + File.separator + "debug.keystore\" -storepass android | \"" + ionicToolsPath + File.separator + "openssl\" sha1 -binary | \"" + ionicToolsPath + File.separator + "openssl\" base64");
             try {
 
                 Process process = processBuilder.start();
