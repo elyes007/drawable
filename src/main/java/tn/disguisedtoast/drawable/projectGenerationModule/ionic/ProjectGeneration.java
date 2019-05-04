@@ -1,6 +1,5 @@
 package tn.disguisedtoast.drawable.projectGenerationModule.ionic;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import javafx.scene.control.TextInputDialog;
@@ -12,11 +11,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.ProjectMain.GlobalViewController;
-import tn.disguisedtoast.drawable.homeModule.controllers.ScrollHomeLayoutController;
-import tn.disguisedtoast.drawable.homeModule.models.Page;
 import tn.disguisedtoast.drawable.utils.typescriptParser.controller.TypeScriptParser;
 import tn.disguisedtoast.drawable.utils.typescriptParser.models.ImportElement;
-import tn.disguisedtoast.drawable.utils.typescriptParser.models.Param;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -24,7 +20,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class ProjectGeneration {
@@ -115,11 +110,11 @@ public class ProjectGeneration {
     }
 
     public static void CopyAssets() throws IOException {
-        String projectAssets = (Drawable.projectPath + "&RelatedFiles&assets").replace("&", File.separator);
+        String projectAssets = (Drawable.projectPath + "\\RelatedFiles\\assets");
         File srcDir = new File(projectAssets);
 
-        File destDir = new File((Drawable.projectPath + "ionic_project&src&assets").replace("&", File.separator));
-        FileUtils.copyDirectoryToDirectory(srcDir, destDir);
+        File destDir = new File((Drawable.projectPath + "\\ionic_project\\src\\assets"));
+        FileUtils.copyDirectory(srcDir, destDir);
     }
 
     public static List<String> assetList(String projectPath) {
@@ -133,12 +128,104 @@ public class ProjectGeneration {
         return textFiles;
     }
 
+    public static void deleteAssets() {
+        File index = new File(Drawable.projectPath + "\\ionic_project\\src\\assets");
+        File[] entries = index.listFiles();
+        for (File f : entries) {
+
+            if (!f.getPath().contains("icon") && !f.getPath().contains("shapes.svg")) {
+                System.out.printf("File:" + f.getPath());
+
+                f.delete();
+
+
+            }
+        }
+    }
+
+    public static void deleteExistingPages() {
+        File index = new File(Drawable.projectPath + "\\ionic_project\\src\\app");
+        File[] entries = index.listFiles();
+        for (File f : entries) {
+
+            if (f.isDirectory()) {
+                System.out.printf("File:" + f.getPath());
+                try {
+                    FileUtils.deleteDirectory(f);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public static void deleteRoutes() throws IOException {
+      /* File routefile =
+                new File(Drawable.projectPath + "\\ionic_project\\src\\app\\app-routing.module.ts");
+        Scanner sc = null;
+        try {
+         sc = new Scanner(routefile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        while (sc.hasNextLine())
+            //System.out.println("line:" + sc.nextLine() + "\n");
+            //StringUtils.remove(sc.next(),sc.nextLine());
+            // System.out.printf("route deleted");
+            if(sc.nextLine().contains("path")) {
+                new Thread(() -> sc.remove()).start();
+            }*/
+        File inputFile = new File(Drawable.projectPath + "\\ionic_project\\src\\app\\app-routing.module.ts");
+        File tempFile = new File(Drawable.projectPath + "\\ionic_project\\src\\app\\temp.ts");
+
+        BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+
+        int lineToRemove = 2;
+        String currentLine;
+        int count = 0;
+
+        while (reader.readLine() != null) {
+         /*   count++;
+            if (count == lineToRemove) {
+                continue;
+            }*/
+            currentLine = reader.readLine();
+            if (!currentLine.contains("path")) {
+                System.out.println(currentLine);
+            }
+            writer.write(currentLine);
+        }
+
+        writer.close();
+        reader.close();
+        //inputFile.delete();
+        //tempFile.renameTo(inputFile);
+
+    }
+
+
+
+
     public static void generatePages() throws IOException {
-        installLoginDependencies();
-        setUpFirebase();
-        List<Page> PagesList = ScrollHomeLayoutController.loadPages();
-        for (Page p : PagesList) {
+//deleteExistingPages();
+        new Thread(() -> {
             try {
+                deleteRoutes();
+            } catch (IOException e) {
+                System.out.println(e);
+            }
+        }).start();
+
+        //deleteAssets();
+
+        //installLoginDependencies();
+        // setUpFirebase();
+     /*  List<Page> PagesList = ScrollHomeLayoutController.loadPages();
+        for (Page p : PagesList) {
+
+           try {
                 System.out.println(p.toString());
 
                 String folderName = StringUtils.substringAfterLast(p.getFolderName(), File.separator);
@@ -197,9 +284,9 @@ public class ProjectGeneration {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
         //copy assets
-        CopyAssets();
+        //CopyAssets();
     }
 
     private static String getPageName(String folderName) {

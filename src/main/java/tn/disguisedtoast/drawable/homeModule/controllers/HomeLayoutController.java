@@ -13,14 +13,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import org.apache.commons.io.FileUtils;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
+import tn.disguisedtoast.drawable.ProjectMain.GlobalViewController;
 import tn.disguisedtoast.drawable.projectGenerationModule.ionic.ProjectGeneration;
 import tn.disguisedtoast.drawable.storyboardModule.controllers.StoryboardViewController;
 import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -41,6 +39,8 @@ public class HomeLayoutController implements Initializable {
     public Button export;
     @FXML
     public Button playButton;
+    public static boolean generationInProcess;
+
 
     private boolean getIonicState() {
         FileReader fileReader;
@@ -77,6 +77,7 @@ public class HomeLayoutController implements Initializable {
     }
 
     public void exportProject(ActionEvent actionEvent) {
+
         EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
         try {
             ProjectGeneration.generatePages();
@@ -101,6 +102,30 @@ public class HomeLayoutController implements Initializable {
             e.printStackTrace();
         }
     }
+
+    public static boolean playApp() throws IOException {
+        generationInProcess = true;
+        GlobalViewController.startBackgroundProcess("Serving IONIC project.");
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        processBuilder.directory(new File(Drawable.projectPath + "\\ionic_project"));
+        processBuilder.command("cmd.exe", "/c", "ionic serve ");
+        Process process = processBuilder.start();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            System.out.println(line);
+        }
+        int exitCode = process.exitValue();
+        System.out.println("\nExited with exit code : " + exitCode);
+        generationInProcess = false;
+
+        GlobalViewController.stopBackgroundProcess();
+        return exitCode == 0;
+
+
+    }
+
+
 
     public void showScrollView() {
         storyboardBtn.setVisible(true);
@@ -129,5 +154,17 @@ public class HomeLayoutController implements Initializable {
             CompletableFuture.supplyAsync(ProjectGeneration::generateBlankProject)
                     .thenAccept(this::setIonicState);
         }
+        playButton.setOnMouseClicked(event -> {
+
+            new Thread(() -> {
+                try {
+                    playApp();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+            // playApp();
+
+        });
     }
 }
