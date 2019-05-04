@@ -41,11 +41,7 @@ public class PageCellViewController implements Initializable {
             parent.getChildren().clear();
 
             //Detaching image
-            this.imageViewPane.setImageView(null);
-            this.imageViewPane = null;
-            this.imageView.setImage(null);
-            this.imageView = null;
-            this.page.setImage(null);
+            releaseImage();
             System.gc();
 
             new StoryboardViewController.JSCallback().deletePage(page.getFolderName());
@@ -53,6 +49,14 @@ public class PageCellViewController implements Initializable {
             scrollHomeLayoutController.refresh();
         });
 
+    }
+
+    public void releaseImage() {
+        this.imageViewPane.setImageView(null);
+        this.imageViewPane = null;
+        this.imageView.setImage(null);
+        this.imageView = null;
+        this.page.setImage(null);
     }
 
     public void setPage(Page page, PageClickCallback callback, ScrollHomeLayoutController scrollHomeLayoutController) {
