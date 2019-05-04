@@ -30,7 +30,7 @@
                         </Label>
                   <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1">
                      <children>
-                        <TextField fx:id="textValue" minWidth="246.0" />
+                         <ComboBox fx:id="textValue" editable="true" minWidth="246.0"/>
                         <HBox alignment="CENTER" spacing="2.0">
                            <children>
                               <ToggleButton fx:id="boldButton" mnemonicParsing="false" styleClass="icon_button">

@@ -312,6 +312,7 @@ public class ProjectGeneration {
 
                     if (pageSettingsJsonObject.has("bindings")) {
                         JsonObject bindingsObject = pageSettingsJsonObject.getAsJsonObject("bindings");
+                        String ngOnInitBody = "";
                         for (Map.Entry<String, JsonElement> entry : bindingsObject.entrySet()) {
                             ImportElement importElement = new ImportElement("firebase/app");
                             importElement.getDependencies().add("auth");
@@ -320,11 +321,15 @@ public class ProjectGeneration {
                             TypeScriptParser.addVariable(pageTsPage, new Param("", entry.getKey(), "string"));
 
                             System.out.println("Entry Value : " + entry.getValue());
-
                             if (entry.getValue().getAsString().equals("image")) {
-                                TypeScriptParser.addToNgOnInit(pageTsPage, "   this.Image1 = auth().currentUser.photoURL + '?type=large'\n");
+                                ngOnInitBody += "   this." + entry.getKey() + " = auth().currentUser.photoURL + '?type=large'\n";
+                            } else if (entry.getValue().getAsString().equals("name")) {
+                                ngOnInitBody += "   this." + entry.getKey() + " = auth().currentUser.displayName\n";
+                            } else if (entry.getValue().getAsString().equals("email")) {
+                                ngOnInitBody += "   this." + entry.getKey() + " = auth().currentUser.email\n";
                             }
                         }
+                        TypeScriptParser.addToNgOnInit(pageTsPage, ngOnInitBody);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -588,6 +593,12 @@ public class ProjectGeneration {
                 img.attr("[src]", src);
                 img.removeAttr("src");
             }
+
+            Elements boundLabels = doc.select("ion-label[data-bind]");
+            for (Element boundLabel : boundLabels) {
+                boundLabel.text("{{" + boundLabel.id() + "}}");
+            }
+
             File dest = new File((Drawable.projectPath + "&ionic_project&src&app&" + pageName + "&" + pageName + ".page.html")
                     .replace("&", File.separator));
             FileUtils.write(dest, doc.selectFirst("ion-app").html().replace("routerlink", "routerLink"));
