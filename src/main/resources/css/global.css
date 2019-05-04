@@ -39,3 +39,16 @@ ScrollPane {
 .split-menu-button .menu-button {
     -fx-background-color: yellow;
 }
+
+.menu-bar {
+    -fx-background-color: transparent;
+    -fx-selection-bar: transparent;
+}
+
+.menu .label {
+    -fx-text-fill: #0096c9;
+}
+
+.menu-item .label {
+    -fx-text-fill: white;
+}

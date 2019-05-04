@@ -251,6 +251,38 @@
                     <BorderPane.margin>
                         <Insets left="20.0" right="20.0"/>
                     </BorderPane.margin>
+                    <top>
+                        <BorderPane fx:id="destinationPane" maxWidth="1.7976931348623157E308"
+                                    BorderPane.alignment="CENTER">
+                            <center>
+                                <GridPane hgap="20.0" maxWidth="1.7976931348623157E308" vgap="20.0"
+                                          BorderPane.alignment="CENTER">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="140.0" minWidth="140.0"
+                                                           prefWidth="140.0"/>
+                                        <ColumnConstraints hgrow="SOMETIMES"/>
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                    </rowConstraints>
+                                    <BorderPane.margin>
+                                        <Insets left="30.0" right="30.0"/>
+                                    </BorderPane.margin>
+                                    <children>
+                                        <Label text="Destination">
+                                            <font>
+                                                <Font size="14.0"/>
+                                            </font>
+                                        </Label>
+                                        <ComboBox fx:id="pagesList" minWidth="250.0" GridPane.columnIndex="1"/>
+                                    </children>
+                                </GridPane>
+                            </center>
+                            <BorderPane.margin>
+                                <Insets/>
+                            </BorderPane.margin>
+                        </BorderPane>
+                    </top>
                 </BorderPane>
             </bottom>
             <top>

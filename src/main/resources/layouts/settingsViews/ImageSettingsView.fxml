@@ -24,7 +24,22 @@
                       <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
                           <children>
                               <TextField fx:id="filePath" editable="false" minWidth="300.0" prefHeight="25.0" />
-                        <Button fx:id="browseButton" mnemonicParsing="false" text="Browse" />
+                              <SplitMenuButton fx:id="browseButton" mnemonicParsing="false" text="Browse">
+                                  <items>
+                                      <MenuItem fx:id="loggedUserPhotoButton" mnemonicParsing="false">
+                                          <graphic>
+                                              <Label>
+                                                  <graphic>
+                                                      <Label disable="true" text="Set logged user photo"/>
+                                                  </graphic>
+                                                  <tooltip>
+                                                      <Tooltip text="You need to set up Facebook login first."/>
+                                                  </tooltip>
+                                              </Label>
+                                          </graphic>
+                                      </MenuItem>
+                                  </items>
+                              </SplitMenuButton>
                           </children>
                       </HBox>
                       <Label minWidth="118.0" text="Image source">

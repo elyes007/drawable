@@ -1,7 +1,6 @@
 package tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import javafx.application.Platform;
@@ -13,6 +12,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
+import tn.disguisedtoast.drawable.projectGenerationModule.ionic.ProjectGeneration;
 import tn.disguisedtoast.drawable.settingsModule.controllers.ButtonSettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
@@ -21,7 +21,11 @@ import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class FacebookLoginSettingsViewController implements Initializable, SettingsControllerInterface {
 
@@ -53,22 +57,29 @@ public class FacebookLoginSettingsViewController implements Initializable, Setti
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        /*
-        this.appName.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if(this.facebookLogObject != null){
-                this.facebookLogObject.addProperty("appName", this.appName.getText());
-            }else {
-                addLogAction();
-            }
-        });
+        String pagesFolderPath = Drawable.projectPath + "&RelatedFiles&pages".replace("&", File.separator);
+        System.out.println(pagesFolderPath);
+        //String[] directories = new File(pagesFolderPath).list((dir, name) -> (new File(dir, name).isDirectory() && !name.equals(Paths.get(SettingsViewController.pageFolder).getFileName().toString())) && !name.equals("temp"));
 
-        this.appId.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if(this.facebookLogObject != null){
-                this.facebookLogObject.addProperty("appId", this.appId.getText());
-            }else {
-                addLogAction();
+        List<String> pages = Arrays.stream(Objects.requireNonNull(new File(pagesFolderPath).listFiles((dir, name) -> (new File(dir, name).isDirectory() && !name.equals(Paths.get(SettingsViewController.pageFolder).getFileName().toString())) && !name.equals("temp")))).map(file1 -> {
+            File[] files = file1.listFiles();
+            if (files == null) return "";
+            try {
+                for (int i = 0; i < files.length; i++) {
+                    if (files[i].getName().equals("conf.json")) {
+                        JsonObject pageConf = new JsonParser().parse(new FileReader(files[i])).getAsJsonObject();
+                        return pageConf.get("page").getAsString();
+                    }
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
             }
-        });*/
+            return "";
+        }).collect(Collectors.toList());
+
+        destination.getItems().add("No where");
+        destination.getItems().addAll(pages);
+        destination.getSelectionModel().select(0);
 
         this.appIdInfoLabel.setOnMouseClicked(event -> {
             Bounds boundsInScene = this.appIdInfoLabel.localToScene(this.appIdInfoLabel.getBoundsInLocal());
@@ -99,24 +110,18 @@ public class FacebookLoginSettingsViewController implements Initializable, Setti
         }
     }
 
-    private void addLogAction(){
-        this.facebookLogObject = new JsonObject();
-        this.facebookLogObject.addProperty("type", "facebook");
-        this.facebookLogObject.addProperty("appName", this.appName.getText());
-        this.facebookLogObject.addProperty("appId", this.appId.getText());
-        this.facebookLogObject.addProperty("button", this.element.attr("id"));
-
-        JsonElement actionsElement = this.globalSettingsObject.get("actions");
-        if (actionsElement == null) return;
-        actionsElement.getAsJsonArray().add(this.facebookLogObject);
-    }
-
     public void setElement(Element element, ButtonSettingsViewController buttonSettingsViewController) {
         this.element = element;
         getLogJsonObject();
-        if (this.facebookLogObject != null) {
+        if (this.facebookLogObject != null && this.buttonLogObject != null) {
             this.appName.setText(this.facebookLogObject.get("appName").getAsString());
             this.appId.setText(this.facebookLogObject.get("appId").getAsString());
+            String destination = this.buttonLogObject.get("destinationPageName").getAsString();
+            if (destination.isEmpty()) {
+                this.destination.getSelectionModel().select(0);
+            } else {
+                this.destination.setValue(this.buttonLogObject.get("destinationPageName").getAsString());
+            }
         }
 
         Platform.runLater(() -> {
@@ -181,30 +186,6 @@ public class FacebookLoginSettingsViewController implements Initializable, Setti
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
-
-        /*try{
-            globalSettingsObject = new JsonParser().parse(new FileReader(SettingsViewController.pageFolder+"/conf.json")).getAsJsonObject();
-            JsonElement actionElement = globalSettingsObject.get("actions");
-            if (actionElement == null) return;
-            JsonArray actionsArray = actionElement.getAsJsonArray();
-            List<JsonObject> toDeleteObjects = new ArrayList<>();
-
-            for(JsonElement element : actionsArray){
-                JsonObject object = (JsonObject)element;
-                if(object.get("button").getAsString().equals(this.element.attr("id")) && object.get("type").getAsString().equals("facebook")){
-                    facebookLogObject = object;
-                }else if(object.get("button").getAsString().equals(this.element.attr("id"))) {
-                    toDeleteObjects.add(object);
-                }
-            }
-            for(JsonObject jo : toDeleteObjects){
-                actionsArray.remove(jo);
-            }
-            save();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
     }
 
     @Override
@@ -215,11 +196,13 @@ public class FacebookLoginSettingsViewController implements Initializable, Setti
         if (this.buttonLogObject != null) {
             if (!this.buttonLogObject.get("platform").equals("facebook")) {
                 this.buttonLogObject.addProperty("platform", "facebook");
+                this.buttonLogObject.addProperty("destinationPageName", (destination.getSelectionModel().getSelectedIndex() == 0 ? "" : destination.getValue().toString()));
             }
         } else {
             JsonObject newButtonLogObject = new JsonObject();
             newButtonLogObject.addProperty("platform", "facebook");
-            newButtonLogObject.addProperty("destinationPageName", "");
+            System.out.println("desc: " + destination.getValue());
+            newButtonLogObject.addProperty("destinationPageName", (destination.getSelectionModel().getSelectedIndex() == 0 ? "" : ProjectGeneration.getPageName(destination.getValue().toString())));
 
             this.pageSettingsObject.getAsJsonObject("actions").add(this.element.id(), newButtonLogObject);
             this.buttonLogObject = newButtonLogObject;
@@ -233,6 +216,12 @@ public class FacebookLoginSettingsViewController implements Initializable, Setti
             JsonObject newFacebookLogObject = new JsonObject();
             newFacebookLogObject.addProperty("appId", this.appId.getText());
             newFacebookLogObject.addProperty("appName", this.appName.getText());
+
+            try {
+                this.globalSettingsObject = new JsonParser().parse(new FileReader(Drawable.projectPath + File.separator + "state.json")).getAsJsonObject();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
 
             this.globalSettingsObject.getAsJsonObject("firebase").getAsJsonObject("platforms").add("facebook", newFacebookLogObject);
             System.out.println(this.globalSettingsObject);
@@ -248,36 +237,5 @@ public class FacebookLoginSettingsViewController implements Initializable, Setti
 
         this.element.attr("(click)", "logFacebook" + this.element.id() + "()");
         PreviewController.saveDocument();
-
-        /*try{
-            Path confFilePath = Paths.get(SettingsViewController.pageFolder + "/conf.json");
-            Files.write(confFilePath, new GsonBuilder().create().toJson(globalSettingsObject).getBytes());
-
-            JsonObject globalSettingsObject = new JsonParser().parse(new FileReader(confFilePath.toString())).getAsJsonObject();
-            String pageName = globalSettingsObject.get("page").getAsString().toLowerCase();
-            String ionicPagePath = System.getProperty("user.dir") + "/src/main/RelatedFiles/ionic_project/src/app/" + pageName + "/" + pageName + ".page.ts";
-            System.out.println(ionicPagePath);
-
-            CompilerEnvirons env = new CompilerEnvirons();
-            env.setRecoverFromErrors(true);
-            env.setGenerateDebugInfo(true);
-            env.setRecordingComments(true);
-
-            ImportElement importElement = new ImportElement("@ionic-native/facebook/ngx");
-            importElement.getDependencies().add("Facebook");
-            importElement.getDependencies().add("FacebookLoginResponse");
-            //TypeScriptParser.addImport(Paths.get(ionicPagePath), importElement);
-            //TypeScriptParser.removeImport(Paths.get(ionicPagePath), "@ionic-native/facebook/ngx");
-
-            //TypeScriptParser.addParameterToFunction(Paths.get(ionicPagePath), "constructor", "fb", "Facebook");
-            //TypeScriptParser.addParameterToFunction(Paths.get(ionicPagePath), "ngOnInit", "fb", "Facebook");
-
-            FunctionElement functionElement = new FunctionElement("async fbLogin");
-            functionElement.setBodyLines(LogInConfigs.getFacebookFunctionBody());
-
-            //TypeScriptParser.addFunction(Paths.get(ionicPagePath), functionElement);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
     }
 }

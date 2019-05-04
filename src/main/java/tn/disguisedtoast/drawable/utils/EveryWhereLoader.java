@@ -81,6 +81,7 @@ public class EveryWhereLoader {
                 ft.setFromValue(0.5);
                 ft.setToValue(0.0);
                 ft.setOnFinished(event -> {
+                    if (instance.stage == null) return;
                     Parent root = instance.stage.getScene().getRoot();
                     System.out.println("Parent (in param):" + parent);
                     System.out.println("root: " + root);
