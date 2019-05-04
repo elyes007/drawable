@@ -14,7 +14,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 import org.apache.commons.io.FileUtils;
-import tn.disguisedtoast.drawable.projectGenerationModule.ionic.ProjectGeneration;
 import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 
 import java.io.File;
@@ -27,7 +26,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.CompletableFuture;
 
 public class GlobalViewController implements Initializable {
 
@@ -156,10 +154,10 @@ public class GlobalViewController implements Initializable {
 
 
         //check and generate ionic project in background
-        if (!getIonicState()) {
+        /*if (!getIonicState()) {
             CompletableFuture.supplyAsync(ProjectGeneration::generateBlankProject)
                     .thenAccept(this::setIonicState);
-        }
+        }*/
     }
 
 

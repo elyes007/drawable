@@ -37,13 +37,33 @@ public class ProjectGeneration {
     private static List<String> assets = new ArrayList<String>();
     public static boolean generationInProcess;
 
+    private static String getPackageName() {
+        FileReader fileReader;
+        String filePath = Drawable.projectPath + File.separator + "state.json";
+        try {
+            fileReader = new FileReader(filePath);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return "tn.esprit.TestApp";
+        }
+        if (fileReader != null) {
+            try {
+                fileReader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        JsonObject projectsJson = new JsonParser().parse(fileReader).getAsJsonObject();
+        return projectsJson.get("package_name").getAsString();
+    }
+
     public static boolean generateBlankProject() {
         generationInProcess = true;
         GlobalViewController.BackgroundProcess backgroundProcess1 = GlobalViewController.startBackgroundProcess(new GlobalViewController.BackgroundProcess("Resolving IONIC project.", null));
 
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.directory(new File(Drawable.projectPath));
-        processBuilder.command("cmd.exe", "/c", "ionic start ionic_project blank --cordova --package-id tn.esprit.TestApp");
+        processBuilder.command("cmd.exe", "/c", "ionic start ionic_project blank --cordova --package-id " + getPackageName());
         processBuilder.redirectErrorStream(true);
         try {
             backgroundProcess1.setProcess(processBuilder.start());
@@ -124,11 +144,11 @@ public class ProjectGeneration {
     }
 
     public static void CopyAssets() throws IOException {
-        String projectAssets = (Drawable.projectPath + "&RelatedFiles&assets").replace("&", File.separator);
+        String projectAssets = (Drawable.projectPath + "\\RelatedFiles\\assets");
         File srcDir = new File(projectAssets);
 
-        File destDir = new File((Drawable.projectPath + "ionic_project&src&assets").replace("&", File.separator));
-        FileUtils.copyDirectoryToDirectory(srcDir, destDir);
+        File destDir = new File((Drawable.projectPath + "\\ionic_project\\src\\assets"));
+        FileUtils.copyDirectory(srcDir, destDir);
     }
 
     public static List<String> assetList(String projectPath) {
@@ -140,6 +160,37 @@ public class ProjectGeneration {
             }
         }
         return textFiles;
+    }
+
+    public static void deleteAssets() {
+        File index = new File(Drawable.projectPath + "\\ionic_project\\src\\assets");
+        File[] entries = index.listFiles();
+        for (File f : entries) {
+
+            if (!f.getPath().contains("icon") && !f.getPath().contains("shapes.svg")) {
+                System.out.printf("File:" + f.getPath());
+
+                f.delete();
+
+
+            }
+        }
+    }
+
+    public static void deleteExistingPages() {
+        File index = new File(Drawable.projectPath + "\\ionic_project\\src\\app");
+        File[] entries = index.listFiles();
+        for (File f : entries) {
+
+            if (f.isDirectory()) {
+                System.out.printf("File:" + f.getPath());
+                try {
+                    FileUtils.deleteDirectory(f);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public static String getStartPage() {
@@ -199,6 +250,8 @@ public class ProjectGeneration {
             GlobalViewController.stopBackgroundProcess(backgroundProcess2);
 
             GlobalViewController.BackgroundProcess backgroundProcess = GlobalViewController.startBackgroundProcess(new GlobalViewController.BackgroundProcess("Generating pages.", null));
+            deleteExistingPages();
+            deleteAssets();
             List<Page> PagesList = ScrollHomeLayoutController.loadPages();
             List<Page> tabs = getTabs(PagesList);
             for (Page p : PagesList) {
