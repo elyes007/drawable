@@ -35,6 +35,9 @@ public class MenuSettingsController implements Initializable, SettingsController
     }
 
     private org.w3c.dom.Element createMenuButtonDom(String id) {
+        org.w3c.dom.Element menuToggle = this.ionContentGElement.getDomElement().getOwnerDocument().createElement("ion-menu-toggle");
+        menuToggle.setAttribute("auto-hide", "false");
+
         org.w3c.dom.Element menuButtonDom = this.ionContentGElement.getDomElement().getOwnerDocument().createElement(SupportedComponents.ION_ITEM.toString().toUpperCase());
         menuButtonDom.setAttribute("style", "");
         menuButtonDom.setAttribute("class", "clickable menu_item");
@@ -46,10 +49,15 @@ public class MenuSettingsController implements Initializable, SettingsController
 
         menuButtonDom.appendChild(menuButtonTitleDom);
 
-        return menuButtonDom;
+        menuToggle.appendChild(menuButtonDom);
+
+        return menuToggle;
     }
 
     private Element createMenuButtonJSoup(String id) {
+        Element menuToggle = new Element("ion-menu-toggle");
+        menuToggle.attr("auto-hide", "false");
+
         Element menuButtonJSoupElement = new Element(SupportedComponents.ION_ITEM.toString());
         menuButtonJSoupElement.attr("class", "clickable menu_item");
         menuButtonJSoupElement.attr("id", "menu_item_" + id);
@@ -60,7 +68,9 @@ public class MenuSettingsController implements Initializable, SettingsController
         menuButtonTitle.text("Button");
 
         menuButtonJSoupElement.appendChild(menuButtonTitle);
-        return menuButtonJSoupElement;
+
+        menuToggle.appendChild(menuButtonJSoupElement);
+        return menuToggle;
     }
 
     public void setIonContentElement(GeneratedElement ionContentElement) {
