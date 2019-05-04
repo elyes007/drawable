@@ -122,8 +122,11 @@ public class GlobalProjectGeneration implements Initializable {
         }
     }
 
-    public static void openRecentProject(String path) {
-
+    public void openRecentProject(String path) {
+        Drawable.projectPath = projectPath = path;
+        updateCurrentProject();
+        EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
+        showHome();
     }
 
     private boolean checkCurrentProject() {

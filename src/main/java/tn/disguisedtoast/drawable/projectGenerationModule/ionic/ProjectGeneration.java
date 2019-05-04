@@ -201,7 +201,16 @@ public class ProjectGeneration {
             JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
             if (jsonObject.has("start_page")) {
                 closeReader(reader);
-                return jsonObject.get("start_page").getAsString();
+                String startFolder = jsonObject.get("start_page").getAsString();
+                path = Drawable.projectPath + ("&RelatedFiles&pages&" + startFolder + "&conf.json").replace("&", File.separator);
+                try {
+                    reader = new FileReader(path);
+                    jsonObject = new JsonParser().parse(reader).getAsJsonObject();
+                    return getPageName(jsonObject.get("page").getAsString());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return null;
+                }
             }
 
             List<Page> pages = StoryboardViewController.loadPages();
@@ -211,7 +220,7 @@ public class ProjectGeneration {
             jsonObject.addProperty("start_page", folderName);
             FileUtils.write(new File(path), jsonObject.toString());
             closeReader(reader);
-            return folderName;
+            return getPageName(pages.get(0).getName());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -331,16 +340,16 @@ public class ProjectGeneration {
                 }
             }
 
-            /*GlobalViewController.BackgroundProcess tabsBackgroundProcess = backgroundProcess;
-            tabs.forEach(page -> {
+            GlobalViewController.BackgroundProcess tabsBackgroundProcess = backgroundProcess;
+            tabs.forEach(tab -> {
                 try {
-                    makePage(page, tabsBackgroundProcess);
+                    makePage(tab, tabsBackgroundProcess);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             });
             makeAppRouting(PagesList);
-            makeTabRouting(tabs);*/
+            makeTabRouting(tabs);
             GlobalViewController.stopBackgroundProcess(backgroundProcess);
 
             //copy assets
@@ -369,9 +378,8 @@ public class ProjectGeneration {
             tabList.forEach(tab -> {
                 String tabName = getPageName(tab.getName());
                 String route = routeTemplate.replace("#tab", tabName)
-                        .replace("#Tab", tabName.substring(0, 1).toUpperCase()
-                                + tabName.substring(1));//TODO: remove "-" and turn letter after to upper case
-                routingString.append(route).append("\n");
+                        .replace("#Tab", getReversePageName(tabName));
+                routingString.append(route).append("\n\t\t\t\t\t\t");
             });
             //write to file
             try {
@@ -380,7 +388,8 @@ public class ProjectGeneration {
                 String routingFileString = FileUtils.readFileToString(routingTemplate);
                 routingFileString = routingFileString.replace("#route", routingString.toString())
                         .replace("#page", page)
-                        .replace("#Page", page.substring(0, 1).toUpperCase() + page.substring(1));
+                        .replace("&Page", getReversePageName(page))
+                        .replace("#tab", getPageName(tabList.get(0).getName()));
                 File routingFile = new File(Drawable.projectPath +
                         ("&ionic_project&src&app&" + page + "&" + page + ".module.ts").replace("&", File.separator));
                 FileUtils.write(routingFile, routingFileString);
@@ -397,8 +406,8 @@ public class ProjectGeneration {
         pagesList.forEach(page -> {
             String pageName = getPageName(page.getName());
             String route = routeTemplate.replace("#page", pageName)
-                    .replace("#Page", pageName.substring(0, 1).toUpperCase() + pageName.substring(1));
-            routingString.append(route).append("\n");
+                    .replace("#Page", getReversePageName(pageName));
+            routingString.append(route).append("\n\t");
         });
         //write to file
         try {
@@ -431,6 +440,7 @@ public class ProjectGeneration {
                     tabPage.setName(tab.attr("tab"));
                     tabPage.setHtml(tab.toString());
                     tabPage.setTabParent(getPageName(page.getName()));
+                    tabList.add(tabPage);
                 });
 
                 Elements tabButtons = document.getElementsByTag("ion-tab-button");
@@ -481,6 +491,21 @@ public class ProjectGeneration {
                     pageName = pageName.substring(0, i) + "-" + c + pageName.substring(i + 1);
                     i++;
                 }
+            }
+        }
+        return pageName;
+    }
+
+    public static String getReversePageName(String pageName) {
+        pageName = pageName.trim();
+        for (int i = 0; i < pageName.length(); i++) {
+            char c = pageName.charAt(i);
+            if (i == 0) {
+                c = (c + "").toUpperCase().charAt(0);
+                pageName = c + pageName.substring(1);
+            } else if (c == '-') {
+                c = (pageName.charAt(i + 1) + "").toUpperCase().charAt(0);
+                pageName = pageName.substring(0, i) + c + pageName.substring(i + 2);
             }
         }
         return pageName;
@@ -590,7 +615,13 @@ public class ProjectGeneration {
             }
             File dest = new File((Drawable.projectPath + "&ionic_project&src&app&" + pageName + "&" + pageName + ".page.html")
                     .replace("&", File.separator));
-            FileUtils.write(dest, doc.selectFirst("ion-app").html().replace("routerlink", "routerLink"));
+            try {
+                FileUtils.write(dest, doc.selectFirst("ion-app").html().replace("routerlink", "routerLink"));
+            } catch (NullPointerException e) {
+                FileUtils.write(dest, "<ion-content>\n\t"
+                        + doc.selectFirst("ion-tab").html().replace("routerlink", "routerLink")
+                        + "\n</ion-content>");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -27,7 +27,5 @@ public class Drawable extends javafx.application.Application {
         globalStage.setScene(new Scene(root));
         // primaryStage.setMaximized(true);
         globalStage.show();
-        height = globalStage.getScene().getHeight();
-        width = globalStage.getScene().getWidth();
     }
 }

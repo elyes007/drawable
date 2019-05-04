@@ -57,6 +57,9 @@ public class HomeLayoutController implements Initializable {
             // playApp();
 
         });
+        System.out.println(Drawable.globalStage);
+        /*Drawable.height = Drawable.globalStage.getScene().getHeight();
+        Drawable.width = Drawable.globalStage.getScene().getWidth();*/
     }
 
     public void exportProject(ActionEvent actionEvent) {
