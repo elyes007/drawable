@@ -7,11 +7,9 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextInputDialog;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
@@ -27,7 +25,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
@@ -45,19 +42,27 @@ public class GlobalProjectGeneration implements Initializable {
     @FXML
     public Label createProjectLink;
     @FXML
-    public AnchorPane menuPane;
+    public VBox mainVbox;
     @FXML
     public BorderPane subMenu;
 
 
     private String splitn;
     private String projectPath;
+    private String packageName;
     private static List<String> recentList = new ArrayList<>();
+    private static List<String> results;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         if (checkCurrentProject()) return;
-        this.newProject.setOnMouseClicked(event -> createNewProject());
+        this.newProject.setOnMouseClicked(event -> {
+            try {
+                createNewProject();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
         this.openProject.setOnMouseClicked(event -> openProject());
         this.createProjectLink.setOnMouseEntered(event -> {
             createProjectLink.setTextFill(Paint.valueOf("#e28d38"));
@@ -74,21 +79,39 @@ public class GlobalProjectGeneration implements Initializable {
         this.openProjectLink.setOnMouseExited(event -> {
             openProjectLink.setTextFill(Paint.valueOf("#3c3c3c"));
         });
-        this.createProjectLink.setOnMouseClicked(event -> createNewProject());
+        this.createProjectLink.setOnMouseClicked(event -> {
+            try {
+                createNewProject();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
         this.openProjectLink.setOnMouseClicked(event -> openProject());
 
-        Label projectName = new Label();
+        /*Label projectName = new Label();
         projectName.setTextFill(Paint.valueOf("#bcbcbc"));
         projectName.setCursor(Cursor.HAND);
-        System.out.println(recentList);
+        System.out.println(recentList);*/
         for (String p : recentList) {
+            Label projectName = new Label();
+            projectName.setTextFill(Paint.valueOf("#bcbcbc"));
+            projectName.setCursor(Cursor.HAND);
+            projectName.setAlignment(Pos.CENTER_LEFT);
+            System.out.println(p);
             projectName.setText(p);
-
+            recentVBox.getChildren().addAll(projectName);
+            projectName.setOnMouseClicked(event -> {
+                openRecentProject(p);
+            });
+            projectName.setOnMouseEntered(event -> projectName.setTextFill(Paint.valueOf("#e28d38")));
+            projectName.setOnMouseExited(event -> projectName.setTextFill(Paint.valueOf("#d9d9db")));
         }
         if (recentList.size() == 0) {
             recentVBox.setPrefWidth(0);
             recentVBox.setVisible(false);
-            menuPane.setPrefWidth(600);
+            mainVbox.setPrefWidth(600);
+            mainVbox.setAlignment(Pos.CENTER);
+
             //subMenu.setAlignment(openProjectLink, Pos.CENTER_RIGHT);
             //subMenu.setAlignment(createProjectLink,);
             // openProject.alignmentProperty().set(Pos.CENTER);
@@ -96,7 +119,9 @@ public class GlobalProjectGeneration implements Initializable {
             // openProjectLink.alignmentProperty().set(Pos.CENTER);
 
         }
-        recentVBox.getChildren().addAll(projectName);
+    }
+
+    public static void openRecentProject(String path) {
 
     }
 
@@ -142,7 +167,7 @@ public class GlobalProjectGeneration implements Initializable {
         showHome();
     }
 
-    private void createNewProject() {
+    private void createNewProject() throws IOException {
         DirectoryChooser dc = new DirectoryChooser();
         File f = dc.showDialog(Drawable.globalStage);
         if (f == null) {
@@ -151,13 +176,16 @@ public class GlobalProjectGeneration implements Initializable {
         String s = f.getAbsolutePath();
         System.out.println(s);
         try {
-            splitn = dialogSplit();
+            dialogSplit();
             if (splitn == null) return;
-            System.out.println(splitn);
+            for (String r : results) {
+                System.out.println(r);
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
-        projectPath = s + File.separator + splitn;
+        projectPath = s + File.separator + dialogSplit().projectName;
         Drawable.projectPath = projectPath;
 
         EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
@@ -247,15 +275,62 @@ public class GlobalProjectGeneration implements Initializable {
         }
     }
 
-    private String dialogSplit() throws IOException {
-        TextInputDialog dialog = new TextInputDialog();
+    private Results dialogSplit() throws IOException {
+      /*  TextInputDialog dialog = new TextInputDialog();
+        TextInputDialog pkgName = new TextInputDialog();
         dialog.setTitle("Drawable Project Name");
         dialog.setHeaderText("Enter your project title");
+        DialogPane pane =new DialogPane();
+        pane.setContent(new VBox());
 
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(s -> splitn = s);
-        return splitn;
+        return splitn;*/
+
+        Dialog<Results> dialog = new Dialog<>();
+        dialog.setTitle("Dialog Test");
+        dialog.setHeaderText("Please specify…");
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        TextField projectName = new TextField("ProjectName");
+        TextField pkgName = new TextField("PackageName");
+        dialogPane.setContent(new VBox(8, projectName, pkgName));
+
+        //Platform.runLater(projectName::requestFocus);
+        dialog.setResultConverter((ButtonType button) -> {
+            if (button == ButtonType.OK) {
+                return new Results(projectName.getText(), pkgName.getText());
+
+                /*
+                results.add(projectName.getText());
+                results.add(pkgName.getText());*/
+            }
+            return null;
+        });
+        dialog.showAndWait();
+
+        /*Optional<Results> optionalResult = dialog.showAndWait();
+        optionalResult.ifPresent((Results r) -> {
+
+            System.out.println();
+          // results.add( r.projectName);
+            //results.add( r.pkgName);
+       });*/
+        return new Results(projectName.getText(), pkgName.getText());
+
     }
 
+    private static class Results {
+
+        String projectName;
+        String pkgName;
+
+
+        public Results(String name, String pkgName) {
+            this.projectName = name;
+            this.pkgName = pkgName;
+
+        }
+    }
 
 }

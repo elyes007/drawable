@@ -209,7 +209,7 @@ public class ProjectGeneration {
 
 
     public static void generatePages() throws IOException {
-//deleteExistingPages();
+        //deleteExistingPages();
         new Thread(() -> {
             try {
                 deleteRoutes();
