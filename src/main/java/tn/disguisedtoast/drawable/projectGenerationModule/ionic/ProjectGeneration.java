@@ -275,7 +275,7 @@ public class ProjectGeneration {
         }).start();
     }
 
-    private static String getPageName(String folderName) {
+    public static String getPageName(String folderName) {
         folderName = folderName.trim();
         for (int i = 0; i < folderName.length(); i++) {
             char c = folderName.charAt(i);

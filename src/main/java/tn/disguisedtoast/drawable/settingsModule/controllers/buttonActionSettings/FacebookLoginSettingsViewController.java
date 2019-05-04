@@ -12,6 +12,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
+import tn.disguisedtoast.drawable.projectGenerationModule.ionic.ProjectGeneration;
 import tn.disguisedtoast.drawable.settingsModule.controllers.ButtonSettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
@@ -20,7 +21,11 @@ import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class FacebookLoginSettingsViewController implements Initializable, SettingsControllerInterface {
 
@@ -54,10 +59,26 @@ public class FacebookLoginSettingsViewController implements Initializable, Setti
     public void initialize(URL location, ResourceBundle resources) {
         String pagesFolderPath = Drawable.projectPath + "&RelatedFiles&pages".replace("&", File.separator);
         System.out.println(pagesFolderPath);
-        String[] directories = new File(pagesFolderPath).list((dir, name) -> (new File(dir, name).isDirectory() && !name.equals(Paths.get(SettingsViewController.pageFolder).getFileName().toString())) && !name.equals("temp"));
+        //String[] directories = new File(pagesFolderPath).list((dir, name) -> (new File(dir, name).isDirectory() && !name.equals(Paths.get(SettingsViewController.pageFolder).getFileName().toString())) && !name.equals("temp"));
+
+        List<String> pages = Arrays.stream(Objects.requireNonNull(new File(pagesFolderPath).listFiles((dir, name) -> (new File(dir, name).isDirectory() && !name.equals(Paths.get(SettingsViewController.pageFolder).getFileName().toString())) && !name.equals("temp")))).map(file1 -> {
+            File[] files = file1.listFiles();
+            if (files == null) return "";
+            try {
+                for (int i = 0; i < files.length; i++) {
+                    if (files[i].getName().equals("conf.json")) {
+                        JsonObject pageConf = new JsonParser().parse(new FileReader(files[i])).getAsJsonObject();
+                        return pageConf.get("page").getAsString();
+                    }
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            return "";
+        }).collect(Collectors.toList());
 
         destination.getItems().add("No where");
-        destination.getItems().addAll(directories);
+        destination.getItems().addAll(pages);
         destination.getSelectionModel().select(0);
 
         this.appIdInfoLabel.setOnMouseClicked(event -> {
@@ -181,7 +202,7 @@ public class FacebookLoginSettingsViewController implements Initializable, Setti
             JsonObject newButtonLogObject = new JsonObject();
             newButtonLogObject.addProperty("platform", "facebook");
             System.out.println("desc: " + destination.getValue());
-            newButtonLogObject.addProperty("destinationPageName", (destination.getSelectionModel().getSelectedIndex() == 0 ? "" : destination.getValue().toString()));
+            newButtonLogObject.addProperty("destinationPageName", (destination.getSelectionModel().getSelectedIndex() == 0 ? "" : ProjectGeneration.getPageName(destination.getValue().toString())));
 
             this.pageSettingsObject.getAsJsonObject("actions").add(this.element.id(), newButtonLogObject);
             this.buttonLogObject = newButtonLogObject;

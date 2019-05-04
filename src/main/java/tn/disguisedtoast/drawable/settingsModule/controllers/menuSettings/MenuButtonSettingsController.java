@@ -1,5 +1,6 @@
 package tn.disguisedtoast.drawable.settingsModule.controllers.menuSettings;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.helger.css.ECSSVersion;
@@ -15,9 +16,11 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.paint.Color;
 import org.eclipse.jgit.util.StringUtils;
 import org.jsoup.nodes.Element;
+import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.models.SupportedComponents;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
+import tn.disguisedtoast.drawable.projectGenerationModule.ionic.ProjectGeneration;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
 import tn.disguisedtoast.drawable.settingsModule.models.IonIcon;
@@ -26,12 +29,19 @@ import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
 import tn.disguisedtoast.drawable.settingsModule.utils.FxUtils;
 import tn.disguisedtoast.drawable.settingsModule.utils.IconComboboxCell;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class MenuButtonSettingsController implements Initializable, SettingsControllerInterface {
     private final CSSWriter aWriter = new CSSWriter(new CSSWriterSettings(ECSSVersion.CSS30, false));
@@ -69,24 +79,84 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
     public ComboBox icon;
     @FXML
     public Label deleteButton;
+    @FXML
+    public BorderPane destinationPane;
+    @FXML
+    public ComboBox pagesList;
 
     public CustomColorPicker textColor;
     private Integer[] textSizes = {10, 12, 14, 18, 24, 36, 48, 64, 72, 96};
     private String[] themes = {"Default", "Primary", "Secondary", "Tertiary", "Success", "Warning", "Danger", "Light", "Medium", "Dark"};
     private String[] fills = {"Solid", "None"};
-    private String[] actions = {"Select an action", "Navigation", "Login Facebook", "Login Google"};
+    private String[] actions = {"Select an action", "Navigation"};
+
     private GeneratedElement button;
     private GeneratedElement buttonLabel;
+    private JsonObject buttonNavObject;
+    private JsonObject jsonObject;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         aWriter.setContentCharset(StandardCharsets.UTF_8.name());
+
+        actionSettingsPane.getChildren().remove(destinationPane);
 
         deleteButton.setOnMouseClicked(event -> {
             this.button.getElement().remove();
             this.button.getDomElement().getParentNode().removeChild(this.button.getDomElement());
             SettingsViewController.getInstance().clearSettingView();
         });
+
+        buttonAction.getItems().addAll(actions);
+        buttonAction.getSelectionModel().select(0);
+        this.buttonAction.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            int index = (Integer) newValue;
+            switch (index) {
+                case 0:
+                    button.getElement().removeAttr("[routerLink]");
+                    actionSettingsPane.setCenter(noActionPane);
+                    break;
+                case 1:
+                    actionSettingsPane.setCenter(destinationPane);
+                    break;
+            }
+        });
+
+        String parentDirPath = (Drawable.projectPath + "&RelatedFiles&pages").replace("&", File.separator);
+        File file = new File(parentDirPath);
+        List<String> pages = Arrays.stream(Objects.requireNonNull(file.listFiles((dir, name) -> (new File(dir, name).isDirectory() && !name.equals(Paths.get(SettingsViewController.pageFolder).getFileName().toString())) && !name.equals("temp")))).map(file1 -> {
+            File[] files = file1.listFiles();
+            if (files == null) return "";
+            try {
+                for (int i = 0; i < files.length; i++) {
+                    if (files[i].getName().equals("conf.json")) {
+                        JsonObject pageConf = new JsonParser().parse(new FileReader(files[i])).getAsJsonObject();
+                        return pageConf.get("page").getAsString();
+                    }
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            return "";
+        }).collect(Collectors.toList());
+
+
+        this.pagesList.setPromptText("Select a destination page");
+        this.pagesList.getItems().addAll(pages);
+
+        this.pagesList.setOnAction(event -> {
+            String pageName = (String) this.pagesList.getValue();
+
+            if (this.buttonNavObject != null) {
+                this.buttonNavObject.addProperty("dest", pageName);
+            } else {
+                this.buttonNavObject = new JsonObject();
+                this.buttonNavObject.addProperty("dest", pageName);
+
+                this.jsonObject.getAsJsonObject("actions").add(this.button.getElement().id(), buttonNavObject);
+            }
+        });
+
 
         initTextView();
         initThemeView();
@@ -303,7 +373,7 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
     public void setMenuButton(GeneratedElement button) {
         this.button = button;
         this.buttonLabel = new GeneratedElement(button.getElement().selectFirst("ion-label"), (org.w3c.dom.Element) button.getDomElement().getElementsByTagName("ion-label").item(0));
-
+        getNavJsonObject();
         //Setting the botton text
         String buttonText = this.buttonLabel.getElement().text();
         this.textValue.setText(buttonText);
@@ -323,20 +393,28 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
 
         if (this.button.getElement().hasAttr("[routerLink]")) {
             this.buttonAction.getSelectionModel().select(1);
-        } else {
-            try {
-                JsonObject pageSettingsObject = new JsonParser().parse(new FileReader(SettingsViewController.pageFolder + "/conf.json")).getAsJsonObject();
-                if (pageSettingsObject.getAsJsonObject("actions").has(this.button.getElement().id())) {
-                    JsonObject buttonActionObject = pageSettingsObject.getAsJsonObject("actions").getAsJsonObject(this.button.getElement().id());
-                    if (buttonActionObject.get("platform").getAsString().equals("facebook")) {
-                        this.buttonAction.getSelectionModel().select(2);
-                    } else {
-                        this.buttonAction.getSelectionModel().select(3);
-                    }
-                }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+            if (this.buttonNavObject != null) {
+                this.pagesList.setValue(this.buttonNavObject.get("dest").getAsString());
             }
+        }
+    }
+
+    private void getNavJsonObject() {
+        try {
+            jsonObject = new JsonParser().parse(new FileReader(SettingsViewController.pageFolder + "/conf.json")).getAsJsonObject();
+
+            JsonObject actions = jsonObject.getAsJsonObject("actions");
+
+            if (actions.has(this.button.getElement().id())) {
+                JsonObject buttonAction = actions.getAsJsonObject(this.button.getElement().id());
+                if (buttonAction.has("dest")) {
+                    buttonNavObject = buttonAction;
+                } else {
+                    actions.remove(this.button.getElement().id());
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
@@ -443,6 +521,12 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
 
     @Override
     public void save() {
+        try {
+            Files.write(Paths.get(SettingsViewController.pageFolder + "/conf.json"), new GsonBuilder().create().toJson(jsonObject).getBytes());
+            this.button.getElement().attr("[routerLink]", "['/" + ProjectGeneration.getPageName((String) this.pagesList.getValue()) + "']");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         PreviewController.saveDocument();
     }
 }

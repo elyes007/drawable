@@ -90,8 +90,16 @@ public class ImageSettingsViewController implements Initializable, SettingsContr
                     FileUtils.copyFile(new File(image.getPath()), new File(generatedViewsPath + "/" + newImagePath));
                     imageView.getElement().attr("src", "../../"+newImagePath);
                     imageView.getDomElement().setAttribute("src", "../../" + newImagePath);
-                    if(!oldImagePath.getFileName().toString().equals("placeholder.png")){
+                    if (!oldImagePath.getFileName().toString().equals("placeholder.png") && !oldImagePath.getFileName().toString().equals("facebook.png")) {
                         new File(oldImagePath.toUri()).delete();
+                    }
+
+                    String pageConfPath = SettingsViewController.pageFolder + File.separator + "conf.json";
+                    JsonObject globalConfigJson = new JsonParser().parse(new FileReader(pageConfPath)).getAsJsonObject();
+                    JsonObject bindingsObject;
+                    if (globalConfigJson.has("bindings") && (bindingsObject = globalConfigJson.getAsJsonObject("bindings")).has(this.imageView.getElement().id())) {
+                        bindingsObject.remove(this.imageView.getElement().id());
+                        Files.write(Paths.get(pageConfPath), new Gson().toJson(globalConfigJson).getBytes());
                     }
                 }catch (IOException e) {
                     e.printStackTrace();
@@ -127,6 +135,11 @@ public class ImageSettingsViewController implements Initializable, SettingsContr
                         globalConfigJson.add("bindings", bindingsObject);
                     }
                     Files.write(Paths.get(pageConfPath), new Gson().toJson(globalConfigJson).getBytes());
+
+                    Path oldImagePath = Paths.get(generatedViewsPath + imageView.getElement().attr("src").substring(5));
+                    if (!oldImagePath.getFileName().toString().equals("placeholder.png") && !oldImagePath.getFileName().toString().equals("facebook.png")) {
+                        new File(oldImagePath.toUri()).delete();
+                    }
 
                     this.filePath.setText("Image bound to logged user photo.");
                     this.imageView.getElement().attr("src", "../../assets/facebook.png");
