@@ -134,7 +134,7 @@ public class FacebookLoginSettingsViewController implements Initializable, Setti
 
                 buttonSettingsViewController.buttonAction.getSelectionModel().select(0);
             }
-            processBuilder.command("cmd.exe", "/c", "keytool -exportcert -alias androiddebugkey -keystore \"" + keystorePath + File.separator + "debug.keystore\" -storepass android | \"" + ionicToolsPath + File.separator + "openssl\" sha1 -binary | \"" + ionicToolsPath + File.separator + "openssl\" base64");
+            processBuilder.command("cmd.exe", "/c", "keytool -exportcert -alias androiddebugkey -keystore \"" + keystorePath + "\" -storepass android | \"" + ionicToolsPath + File.separator + "openssl\" sha1 -binary | \"" + ionicToolsPath + File.separator + "openssl\" base64");
             try {
 
                 Process process = processBuilder.start();
