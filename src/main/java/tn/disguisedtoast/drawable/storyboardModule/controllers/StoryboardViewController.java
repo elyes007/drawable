@@ -11,6 +11,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.web.WebView;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import netscape.javascript.JSObject;
 import org.apache.commons.io.FileUtils;
@@ -130,6 +131,21 @@ public class StoryboardViewController implements Initializable {
             closeReader(reader);
         }
 
+        public void removeStartPage() {
+            String path = Drawable.projectPath + File.separator + "state.json";
+            FileReader reader = null;
+            try {
+                reader = new FileReader(path);
+                JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
+                jsonObject.remove("start_page");
+                FileUtils.write(new File(path), jsonObject.toString());
+                closeReader(reader);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            closeReader(reader);
+        }
+
         private void closeReader(FileReader reader) {
             if (reader != null) {
                 try {
@@ -141,73 +157,26 @@ public class StoryboardViewController implements Initializable {
         }
 
         public void removeNav(String src, String dest, String button) {
-            String path = (Drawable.projectPath + "&RelatedFiles&pages&" + src).replace("&", File.separator);
-            FileReader reader = null;
             try {
-                reader = new FileReader(path + "/conf.json");
-                JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
-                JsonObject actions = jsonObject.get("actions").getAsJsonObject();
-                actions.entrySet().removeIf(action -> {
-                    String actionDest = action.getValue().getAsJsonObject().get("dest").getAsString();
-                    String actionButton = action.getKey();
-                    if (actionDest.equals(dest) && actionButton.equals(button)) {
-                        //remove routerLink
-                        String htmlPath = (path + "&" + src + ".html")
-                                .replace("&", File.separator);
-                        File file = new File(htmlPath);
-                        String routerLink = String.format("['/%s']", ProjectGeneration.getPageName(dest));
-                        Document document = null;
-                        try {
-                            document = Jsoup.parse(file, "UTF-8");
-                            document.body().getElementsByAttributeValue("[routerLink]", routerLink)
-                                    .forEach(btn -> btn.removeAttr("[routerLink]"));
-                            FileUtils.write(file, document.toString());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        return true;
-                    }
-                    return false;
-                });
-                FileUtils.write(new File(path + "/conf.json"), jsonObject.toString());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            closeReader(reader);
-        }
-
-        public void deletePage(String page) {
-            //System.gc();
-            //remove page directory
-            String path = (Drawable.projectPath + "&RelatedFiles&pages&" + page).replace("&", File.separator);
-            try {
-                FileUtils.deleteDirectory(new File(path));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            //remove from other pages' conf files
-            File root = new File(pagesPath);
-            String[] directories = root.list((dir, name) -> (new File(dir, name).isDirectory()));
-            for (String dir : directories) {
-                if (dir.equals("temp")) continue;
+                String path = (Drawable.projectPath + "&RelatedFiles&pages&" + src).replace("&", File.separator);
                 FileReader reader = null;
                 try {
-                    reader = new FileReader(pagesPath + "/" + dir + "/conf.json");
+                    reader = new FileReader(path + "/conf.json");
                     JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
                     JsonObject actions = jsonObject.get("actions").getAsJsonObject();
                     actions.entrySet().removeIf(action -> {
-                        String dest = action.getValue().getAsJsonObject().get("dest").getAsString();
-                        if (dest.equals(page)) {
+                        String actionDest = action.getValue().getAsJsonObject().get("dest").getAsString();
+                        String actionButton = action.getKey();
+                        if (actionDest.equals(dest) && actionButton.equals(button)) {
                             //remove routerLink
-                            String htmlPath = (Drawable.projectPath + "&RelatedFiles&pages&" + dir + "&" + dir + ".html")
+                            String htmlPath = (path + "&" + src + ".html")
                                     .replace("&", File.separator);
                             File file = new File(htmlPath);
-                            String routerLink = String.format("['/%s']", ProjectGeneration.getPageName(dest));
                             Document document = null;
                             try {
                                 document = Jsoup.parse(file, "UTF-8");
-                                document.body().getElementsByAttributeValue("[routerLink]", routerLink)
-                                        .forEach(button -> button.removeAttr("[routerLink]"));
+                                document.body().getElementsByAttributeValue("[routerlink]", dest)
+                                        .forEach(btn -> btn.removeAttr("[routerlink]"));
                                 FileUtils.write(file, document.toString());
                             } catch (IOException e) {
                                 e.printStackTrace();
@@ -216,34 +185,106 @@ public class StoryboardViewController implements Initializable {
                         }
                         return false;
                     });
-                    FileUtils.write(new File(pagesPath + "/" + dir + "/conf.json"), jsonObject.toString());
+                    FileUtils.write(new File(path + "/conf.json"), jsonObject.toString());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 closeReader(reader);
-            }
-            //remove from storyboard
-            path = (Drawable.projectPath + "&RelatedFiles&storyboard.json").replace("&", File.separator);
-            FileReader fileReader = null;
-            try {
-                fileReader = new FileReader(path);
-            } catch (FileNotFoundException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
-                return;
             }
-            JsonObject storyboard = new JsonParser().parse(fileReader).getAsJsonObject();
-            JsonArray pages = storyboard.get("pages").getAsJsonArray();
-            for (int i = 0; i < pages.size(); i++) {
-                JsonObject object = (JsonObject) pages.get(i);
-                if (object.get("page").getAsString().equals(page)) {
-                    pages.remove(i);
-                    break;
-                }
-            }
+        }
+
+        public String deletePage(String page) {
             try {
-                FileUtils.writeStringToFile(new File(path), storyboard.toString());
-            } catch (IOException e1) {
-                e1.printStackTrace();
+                //remove page directory
+                String path = (Drawable.projectPath + "&RelatedFiles&pages&" + page).replace("&", File.separator);
+                try {
+                    FileUtils.deleteDirectory(new File(path));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                //remove from other pages' conf files
+                File root = new File(pagesPath);
+                String[] directories = root.list((dir, name) -> (new File(dir, name).isDirectory()));
+                for (String dir : directories) {
+                    if (dir.equals("temp")) continue;
+                    FileReader reader = null;
+                    try {
+                        reader = new FileReader(pagesPath + "/" + dir + "/conf.json");
+                        JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
+                        JsonObject actions = jsonObject.get("actions").getAsJsonObject();
+                        actions.entrySet().removeIf(action -> {
+                            if (action.getValue().getAsJsonObject().has("platform")) {
+                                if (action.getValue().getAsJsonObject().get("destinationPageName").getAsString().equals(page)) {
+                                    action.getValue().getAsJsonObject().addProperty("destinationPageName", "");
+                                }
+                                return false;
+                            }
+                            String dest = action.getValue().getAsJsonObject().get("dest").getAsString();
+                            if (dest.equals(page)) {
+                                //remove routerLink
+                                String htmlPath = (Drawable.projectPath + "&RelatedFiles&pages&" + dir + "&" + dir + ".html")
+                                        .replace("&", File.separator);
+                                File file = new File(htmlPath);
+                                String routerLink = String.format("['/%s']", ProjectGeneration.getPageName(dest));
+                                Document document = null;
+                                try {
+                                    document = Jsoup.parse(file, "UTF-8");
+                                    document.body().getElementsByAttributeValue("[routerlink]", routerLink)
+                                            .forEach(button -> button.removeAttr("[routerlink]"));
+                                    FileUtils.write(file, document.toString());
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                return true;
+                            }
+                            return false;
+                        });
+                        FileUtils.write(new File(pagesPath + "/" + dir + "/conf.json"), jsonObject.toString());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    closeReader(reader);
+                }
+                //remove from storyboard
+                path = (Drawable.projectPath + "&RelatedFiles&storyboard.json").replace("&", File.separator);
+                FileReader fileReader;
+                try {
+                    fileReader = new FileReader(path);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+                JsonObject storyboard = new JsonParser().parse(fileReader).getAsJsonObject();
+                JsonArray pages = storyboard.get("pages").getAsJsonArray();
+                for (int i = 0; i < pages.size(); i++) {
+                    JsonObject object = (JsonObject) pages.get(i);
+                    if (object.get("page").getAsString().equals(page)) {
+                        pages.remove(i);
+                        break;
+                    }
+                }
+                try {
+                    FileUtils.writeStringToFile(new File(path), storyboard.toString());
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+
+                //select new start page if the old one is deleted
+                if (getStartPage().equals(page) && pages.size() > 0) {
+                    String startPage = pages.get(0).getAsJsonObject().get("page").getAsString();
+                    setStartPage(startPage);
+                    return startPage;
+                }
+                //remove start_page from state.json if no more pages exist
+                if (pages.size() == 0) {
+                    removeStartPage();
+                }
+                return null;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
             }
         }
 
@@ -255,24 +296,31 @@ public class StoryboardViewController implements Initializable {
         public void addNavigation(String source, String buttonId, String dest) {
             FileReader fileReader = null;
             try {
-                //update html
-                String htmlPath = (Drawable.projectPath + "&RelatedFiles&pages&" + source + "&" + source + ".html")
-                        .replace("&", File.separator);
-                File file = new File(htmlPath);
-                String routerLink = String.format("['/%s']", ProjectGeneration.getPageName(dest));
-                Document document = Jsoup.parse(file, "UTF-8");
-                document.body().select("#" + buttonId).attr("[routerLink]", routerLink);
-                FileUtils.write(file, document.toString());
+                boolean hasFacebook = false;
+
                 //update conf.json
                 String confPath = (Drawable.projectPath + "&RelatedFiles&pages&" + source + "&conf.json")
                         .replace("&", File.separator);
                 fileReader = new FileReader(confPath);
                 JsonObject json = new JsonParser().parse(fileReader).getAsJsonObject();
                 JsonObject actions = json.get("actions").getAsJsonObject();
+                if (actions.has(buttonId)) {
+                    if (actions.get(buttonId).getAsJsonObject().has("platform")) {
+                        hasFacebook = true;
+                    }
+                }
                 JsonObject action = new JsonObject();
                 action.addProperty("dest", dest);
                 actions.add(buttonId, action);
                 FileUtils.writeStringToFile(new File(confPath), json.toString());
+                //update html
+                String htmlPath = (Drawable.projectPath + "&RelatedFiles&pages&" + source + "&" + source + ".html")
+                        .replace("&", File.separator);
+                File file = new File(htmlPath);
+                Document document = Jsoup.parse(file, "UTF-8");
+                document.body().select("#" + buttonId).attr("[routerlink]", dest);
+                if (hasFacebook) document.body().select("#" + buttonId).removeAttr("(click)");
+                FileUtils.write(file, document.toString());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -344,6 +392,8 @@ public class StoryboardViewController implements Initializable {
             chooserStage.setWidth(500);
             chooserStage.setResizable(false);
             chooserStage.centerOnScreen();
+            chooserStage.initModality(Modality.APPLICATION_MODAL);
+            chooserStage.initOwner(Drawable.globalStage);
             chooserStage.show();
             EveryWhereLoader.getInstance().stopLoader(null);
         }

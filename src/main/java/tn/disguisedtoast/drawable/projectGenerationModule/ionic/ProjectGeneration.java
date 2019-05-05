@@ -607,7 +607,7 @@ public class ProjectGeneration {
                 String src = img.attr("src");
                 if (src.contains("facebook")) {
                     src = img.id();
-                } else {
+                } else if (src.contains("assets")) {
                     src = "'" + StringUtils.substringAfterLast(src.replace("\\", "/"), "../") + "'";
                 }
                 img.attr("[src]", src);

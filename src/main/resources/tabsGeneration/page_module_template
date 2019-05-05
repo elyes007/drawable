@@ -16,13 +16,9 @@ import { &PagePage } from './#page.page';
         path: '',
         component: &PagePage,
         children: [
+            { path: '', redirectTo: '#tab', pathMatch: 'full' },
             #route
         ]
-      },
-      {
-        path: '',
-        redirectTo: '/#page/#tab',
-        pathMatch: 'full'
       }
     ])
   ],

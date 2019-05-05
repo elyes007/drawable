@@ -365,6 +365,12 @@ public class CodeGenerator {
         if (app == null) {
             app = new IonApp();
         }
+        //change menu id
+        if (app.getIonMenu() != null) {
+            app.getIonMenu().setMenuId("menu" + id);
+            app.getDiv().getHeader().getToolbar().getIonButtons().getMenuButton().setMenu("menu" + id);
+        }
+
         JAXBContext jc = JAXBContext.newInstance(IonApp.class);
         Marshaller marshaller = jc.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
