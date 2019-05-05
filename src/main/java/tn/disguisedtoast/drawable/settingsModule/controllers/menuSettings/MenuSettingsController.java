@@ -37,6 +37,7 @@ public class MenuSettingsController implements Initializable, SettingsController
     private org.w3c.dom.Element createMenuButtonDom(String id) {
         org.w3c.dom.Element menuToggle = this.ionContentGElement.getDomElement().getOwnerDocument().createElement("ion-menu-toggle");
         menuToggle.setAttribute("auto-hide", "false");
+        menuToggle.setAttribute("menu", this.ionContentGElement.getElement().parent().attr("menu-id"));
 
         org.w3c.dom.Element menuButtonDom = this.ionContentGElement.getDomElement().getOwnerDocument().createElement(SupportedComponents.ION_ITEM.toString().toUpperCase());
         menuButtonDom.setAttribute("style", "");
@@ -57,6 +58,7 @@ public class MenuSettingsController implements Initializable, SettingsController
     private Element createMenuButtonJSoup(String id) {
         Element menuToggle = new Element("ion-menu-toggle");
         menuToggle.attr("auto-hide", "false");
+        menuToggle.attr("menu", this.ionContentGElement.getElement().parent().attr("menu-id"));
 
         Element menuButtonJSoupElement = new Element(SupportedComponents.ION_ITEM.toString());
         menuButtonJSoupElement.attr("class", "clickable menu_item");
