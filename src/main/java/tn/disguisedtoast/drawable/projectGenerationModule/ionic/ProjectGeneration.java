@@ -290,14 +290,19 @@ public class ProjectGeneration {
 
                                 List<String> extras = new ArrayList<>();
 
-                                String destination = action.get("destinationPageName").getAsString();
-                                if (!destination.isEmpty()) {
+                                String destPageFolderName = action.get("destinationPageName").getAsString();
+                                if (!destPageFolderName.isEmpty()) {
+                                    String destPagePath = (Drawable.projectPath + "&RelatedFiles&pages&" + destPageFolderName + "&conf.json").replace("&", File.separator);
+                                    JsonObject destPageConfig = new JsonParser().parse(new FileReader(destPagePath)).getAsJsonObject();
+                                    String pageName = ProjectGeneration.getPageName(destPageConfig.get("page").getAsString());
+
+
                                     importElement = new ImportElement("@angular/router");
                                     importElement.getDependencies().add("Router");
                                     TypeScriptParser.addImport(pageTsPage, importElement);
                                     TypeScriptParser.addParameterToFunction(pageTsPage, "constructor", new Param("private", "router", "Router"));
 
-                                    extras.add("this.router.navigateByUrl('/" + getPageName(destination) + "');");
+                                    extras.add("this.router.navigateByUrl('/" + pageName + "');");
                                 }
 
                                 System.out.println("EXTRAASS: " + extras);
@@ -597,6 +602,17 @@ public class ProjectGeneration {
             Elements boundLabels = doc.select("ion-label[data-bind]");
             for (Element boundLabel : boundLabels) {
                 boundLabel.text("{{" + boundLabel.id() + "}}");
+            }
+
+            Elements routerLinkElements = doc.select("*[[routerlink]]");
+            JsonParser jsonParser = new JsonParser();
+            for (Element routerLinkElement : routerLinkElements) {
+                String destPageFolderName = routerLinkElement.attr("[routerlink]");
+                String destPagePath = (Drawable.projectPath + "&RelatedFiles&pages&" + destPageFolderName + "&conf.json").replace("&", File.separator);
+                JsonObject jsonObject = jsonParser.parse(new FileReader(destPagePath)).getAsJsonObject();
+
+                String destPageName = jsonObject.get("page").getAsString();
+                routerLinkElement.attr("[routerlink]", "'/" + ProjectGeneration.getPageName(destPageName) + "'");
             }
 
             File dest = new File((Drawable.projectPath + "&ionic_project&src&app&" + pageName + "&" + pageName + ".page.html")

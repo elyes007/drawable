@@ -85,7 +85,7 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
     private Integer[] textSizes = {10, 12, 14, 18, 24, 36, 48, 64, 72, 96};
     private String[] themes = {"Default", "Primary", "Secondary", "Tertiary", "Success", "Warning", "Danger", "Light", "Medium", "Dark"};
     private String[] fills = {"Solid", "Outline", "Clear"};
-    private String[] actions = {"Select an action", "Navigation", "Login Facebook", "Login Google"};
+    private String[] actions = {"Select an action", "Navigation", "Login Facebook"};
     private GeneratedElement button;
     private SettingsControllerInterface settingsControllerInterface;
 
@@ -115,8 +115,7 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
                     case 0:
                         actionSettingsPane.setCenter(noActionPane);
                         settingsControllerInterface = null;
-                        System.out.println("Here None");
-                        button.getElement().removeAttr("[routerLink]");
+                        button.getElement().removeAttr("[routerlink]");
                         break;
                     case 1:
                         FXMLLoader navigationLoader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/buttonActionSettings/NavigationSettingsView.fxml"));

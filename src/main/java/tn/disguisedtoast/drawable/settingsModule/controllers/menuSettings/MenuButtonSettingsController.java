@@ -20,7 +20,6 @@ import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.models.SupportedComponents;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
-import tn.disguisedtoast.drawable.projectGenerationModule.ionic.ProjectGeneration;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
 import tn.disguisedtoast.drawable.settingsModule.models.IonIcon;
@@ -38,10 +37,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 public class MenuButtonSettingsController implements Initializable, SettingsControllerInterface {
     private final CSSWriter aWriter = new CSSWriter(new CSSWriterSettings(ECSSVersion.CSS30, false));
@@ -113,7 +109,10 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
             int index = (Integer) newValue;
             switch (index) {
                 case 0:
-                    button.getElement().removeAttr("[routerLink]");
+                    this.button.getElement().removeAttr("[routerlink]");
+                    if (jsonObject.getAsJsonObject("actions").has(this.button.getElement().id())) {
+                        jsonObject.getAsJsonObject("actions").remove(this.button.getElement().id());
+                    }
                     actionSettingsPane.setCenter(noActionPane);
                     break;
                 case 1:
@@ -124,6 +123,9 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
 
         String parentDirPath = (Drawable.projectPath + "&RelatedFiles&pages").replace("&", File.separator);
         File file = new File(parentDirPath);
+        String[] directories = file.list((dir, name) -> (new File(dir, name).isDirectory() && !name.equals(Paths.get(SettingsViewController.pageFolder).getFileName().toString())) && !name.equals("temp"));
+
+        /*
         List<String> pages = Arrays.stream(Objects.requireNonNull(file.listFiles((dir, name) -> (new File(dir, name).isDirectory() && !name.equals(Paths.get(SettingsViewController.pageFolder).getFileName().toString())) && !name.equals("temp")))).map(file1 -> {
             File[] files = file1.listFiles();
             if (files == null) return "";
@@ -138,15 +140,14 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
                 e.printStackTrace();
             }
             return "";
-        }).collect(Collectors.toList());
+        }).collect(Collectors.toList());*/
 
 
         this.pagesList.setPromptText("Select a destination page");
-        this.pagesList.getItems().addAll(pages);
+        this.pagesList.getItems().addAll(directories);
 
         this.pagesList.setOnAction(event -> {
             String pageName = (String) this.pagesList.getValue();
-
             if (this.buttonNavObject != null) {
                 this.buttonNavObject.addProperty("dest", pageName);
             } else {
@@ -155,6 +156,7 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
 
                 this.jsonObject.getAsJsonObject("actions").add(this.button.getElement().id(), buttonNavObject);
             }
+            this.button.getElement().attr("[routerlink]", this.pagesList.getValue().toString());
         });
 
 
@@ -391,7 +393,7 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
         //Setting the button icon
         getButtonIcon();
 
-        if (this.button.getElement().hasAttr("[routerLink]")) {
+        if (this.button.getElement().hasAttr("[routerlink]")) {
             this.buttonAction.getSelectionModel().select(1);
             if (this.buttonNavObject != null) {
                 this.pagesList.setValue(this.buttonNavObject.get("dest").getAsString());
@@ -521,9 +523,18 @@ public class MenuButtonSettingsController implements Initializable, SettingsCont
 
     @Override
     public void save() {
+        if (this.pagesList.getValue() == null) {
+            this.button.getElement().removeAttr("[routerlink]");
+
+            if (this.jsonObject.getAsJsonObject("actions").has(this.button.getElement().id())) {
+                this.jsonObject.getAsJsonObject("actions").remove(this.button.getElement().id());
+            }
+            return;
+        }
+
         try {
             Files.write(Paths.get(SettingsViewController.pageFolder + "/conf.json"), new GsonBuilder().create().toJson(jsonObject).getBytes());
-            this.button.getElement().attr("[routerLink]", "['/" + ProjectGeneration.getPageName((String) this.pagesList.getValue()) + "']");
+            //this.button.getElement().attr("[routerlink]", this.pagesList.getValue().toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
