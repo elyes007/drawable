@@ -52,10 +52,16 @@ public class ThemeSettingsViewController implements Initializable, SettingsContr
         themesPath = Paths.get((Drawable.projectPath + "&RelatedFiles&themes").replace("&", File.separator));
 
         ((CustomColorPicker) this.baseColorPicker.getGraphic()).setOnAction(event -> {
-            this.cssDeclarations.getDeclarationOfPropertyName("--ion-color-" + themeName).setExpression(CSSExpression.createSimple(FxUtils.toRGBCode(((CustomColorPicker) event.getSource()).getValue())));
+            Color color = ((CustomColorPicker) event.getSource()).getValue();
+            this.cssDeclarations.getDeclarationOfPropertyName("--ion-color-" + themeName).setExpression(CSSExpression.createSimple(FxUtils.toRGBCode((color))));
+            String rgb = (int) (color.getRed() * 255) + "," + (int) (color.getGreen() * 255) + "," + (int) (color.getBlue() * 255);
+            this.cssDeclarations.getDeclarationOfPropertyName("--ion-color-" + themeName + "-rgb").setExpression(CSSExpression.createSimple(rgb));
         });
         ((CustomColorPicker) this.contrastColorPicker.getGraphic()).setOnAction(event -> {
-            this.cssDeclarations.getDeclarationOfPropertyName("--ion-color-" + themeName + "-contrast").setExpression(CSSExpression.createSimple(FxUtils.toRGBCode(((CustomColorPicker) event.getSource()).getValue())));
+            Color color = ((CustomColorPicker) event.getSource()).getValue();
+            this.cssDeclarations.getDeclarationOfPropertyName("--ion-color-" + themeName + "-contrast").setExpression(CSSExpression.createSimple(FxUtils.toRGBCode((color))));
+            String rgb = (int) (color.getRed() * 255) + "," + (int) (color.getGreen() * 255) + "," + (int) (color.getBlue() * 255);
+            this.cssDeclarations.getDeclarationOfPropertyName("--ion-color-" + themeName + "-contrast-rgb").setExpression(CSSExpression.createSimple(rgb));
         });
         ((CustomColorPicker) this.shadeColorPicker.getGraphic()).setOnAction(event -> {
             this.cssDeclarations.getDeclarationOfPropertyName("--ion-color-" + themeName + "-shade").setExpression(CSSExpression.createSimple(FxUtils.toRGBCode(((CustomColorPicker) event.getSource()).getValue())));
@@ -86,7 +92,7 @@ public class ThemeSettingsViewController implements Initializable, SettingsContr
     public void save() {
         try {
             System.out.println("Saved");
-            Files.write(themesPath, aWriter.getCSSAsString(cssDeclarations).getBytes());
+            Files.write(themesPath, (":root {\n" + aWriter.getCSSAsString(cssDeclarations) + "}").getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }

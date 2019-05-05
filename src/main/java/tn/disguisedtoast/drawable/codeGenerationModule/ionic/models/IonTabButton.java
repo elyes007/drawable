@@ -59,7 +59,7 @@ public class IonTabButton {
         this.badge = badge;
     }
 
-    @XmlAttribute(name = "clickable")
+    @XmlAttribute(name = "class")
     public String getClasse() {
         return classe;
     }
