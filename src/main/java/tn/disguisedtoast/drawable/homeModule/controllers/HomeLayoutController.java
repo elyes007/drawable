@@ -50,25 +50,25 @@ public class HomeLayoutController implements Initializable {
         storyboardBtn.managedProperty().bind(storyboardBtn.visibleProperty());
         scrollBtn.managedProperty().bind(scrollBtn.visibleProperty());
         showStoryboard();
-        //stopButton.isVisible();
+        stopButton.setDisable(true);
         playButton.setOnMouseClicked(event -> {
             playThread = new Thread(() -> {
                 try {
                     playApp();
                     System.out.println(playProcess);
-                    //loadIonicLab();
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             });
             playThread.start();
             playButton.setDisable(true);
+            stopButton.setDisable(false);
         });
 
         stopButton.setOnMouseClicked(event -> {
             playButton.setDisable(false);
             stopProjectServe();
+            stopButton.setDisable(true);
         });
     }
 

@@ -15,11 +15,14 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.stage.DirectoryChooser;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
-import tn.disguisedtoast.drawable.ProjectMain.GlobalViewController;
 import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,6 +94,7 @@ public class GlobalProjectGeneration implements Initializable {
         projectName.setTextFill(Paint.valueOf("#bcbcbc"));
         projectName.setCursor(Cursor.HAND);
         System.out.println(recentList);*/
+        deleteRecentProject();
         for (String p : recentList) {
             Label projectName = new Label();
             projectName.setTextFill(Paint.valueOf("#bcbcbc"));
@@ -121,7 +125,8 @@ public class GlobalProjectGeneration implements Initializable {
     }
 
     public void openRecentProject(String path) {
-        Drawable.projectPath = path;
+        Drawable.projectPath = projectPath = path;
+        updateCurrentProject();
         EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
         showHome();
     }
@@ -168,6 +173,7 @@ public class GlobalProjectGeneration implements Initializable {
         showHome();
     }
 
+
     private void createNewProject() throws IOException {
         DirectoryChooser dc = new DirectoryChooser();
         File f = dc.showDialog(Drawable.globalStage);
@@ -179,7 +185,7 @@ public class GlobalProjectGeneration implements Initializable {
         Results results = dialogSplit();
         if (results == null) return;
         projectPath = s + File.separator + results.projectName;
-        if (projectPath.isEmpty() || results.pkgName.isEmpty() || (projectPath.isEmpty() && results.pkgName.isEmpty()))
+        if (results.projectName.isEmpty() || results.pkgName.isEmpty() || (results.projectName.isEmpty() && results.pkgName.isEmpty()))
             return;
         Drawable.projectPath = projectPath;
 
@@ -187,39 +193,17 @@ public class GlobalProjectGeneration implements Initializable {
         CompletableFuture
                 .runAsync(GlobalProjectGeneration.this::createprojectHierarchy)
                 .thenAccept(aVoid -> {
-                    try {
-                        loadIonicLab();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                     updateCurrentProject();
                     createStateFile(results.pkgName);
                     Platform.runLater(this::showHome);
                 });
     }
 
-    public boolean loadIonicLab() throws IOException {
-        GlobalViewController.BackgroundProcess backgroundProcess = GlobalViewController.startBackgroundProcess(new GlobalViewController.BackgroundProcess("Loading IONIC Lab.", null));
-        ProcessBuilder processBuilder = new ProcessBuilder();
-        processBuilder.directory(new File(Drawable.projectPath + "\\ionic_project"));
-        processBuilder.command("cmd.exe", "/c", "npm i @ionic/lab");
-        backgroundProcess.setProcess(processBuilder.start());
-        BufferedReader reader = new BufferedReader(new InputStreamReader(backgroundProcess.getProcess().getInputStream()));
-        String line;
-        while ((line = reader.readLine()) != null) {
-            System.out.println(line);
-        }
-        int exitCode = backgroundProcess.getProcess().exitValue();
-        System.out.println("\nExited with exit code : " + exitCode);
-
-        GlobalViewController.stopBackgroundProcess(backgroundProcess);
-        return exitCode == 0;
-    }
 
     private void createStateFile(String pkgName) {
         try {
             String filePath = Drawable.projectPath + File.separator + "state.json";
-            String content = "{\"state\":false, \"package_name\":\"" + pkgName + "\"}";
+            String content = "{\"ionic_state\":false, \"package_name\":\"" + pkgName + "\"}";
             FileUtils.write(new File(filePath), content);
         } catch (IOException e) {
             e.printStackTrace();
@@ -245,6 +229,34 @@ public class GlobalProjectGeneration implements Initializable {
             FileUtils.writeStringToFile(new File("./src/main/projects.json"), projectsJson.toString());
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void deleteRecentProject() {
+
+        FileReader fileReader = null;
+        try {
+            fileReader = new FileReader("./src/main/projects.json");
+        } catch (FileNotFoundException e) {
+            String fileBody = "{\n\t\"current\":null,\n\t\"recent\":[]\n}";
+            try {
+                FileUtils.writeStringToFile(new File("./src/main/projects.json"), fileBody);
+                fileReader = new FileReader("./src/main/projects.json");
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+        JsonObject projectsJson = new JsonParser().parse(fileReader).getAsJsonObject();
+        JsonArray recent = projectsJson.get("recent").getAsJsonArray();
+
+        for (int i = 0; i < recent.size(); i++) {
+            String path = recent.get(i).getAsString();
+            if (!new File(path).exists()) {
+                System.out.println(path);
+                StringUtils.remove(path, path);
+                recentList.remove(path);
+                System.out.println("path deleted");
+            }
         }
     }
 
