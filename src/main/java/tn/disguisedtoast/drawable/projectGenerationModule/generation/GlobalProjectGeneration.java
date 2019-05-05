@@ -16,12 +16,10 @@ import javafx.scene.paint.Paint;
 import javafx.stage.DirectoryChooser;
 import org.apache.commons.io.FileUtils;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
+import tn.disguisedtoast.drawable.ProjectMain.GlobalViewController;
 import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -122,8 +120,10 @@ public class GlobalProjectGeneration implements Initializable {
         }
     }
 
-    public static void openRecentProject(String path) {
-
+    public void openRecentProject(String path) {
+        Drawable.projectPath = path;
+        EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
+        showHome();
     }
 
     private boolean checkCurrentProject() {
@@ -179,16 +179,41 @@ public class GlobalProjectGeneration implements Initializable {
         Results results = dialogSplit();
         if (results == null) return;
         projectPath = s + File.separator + results.projectName;
+        if (projectPath.isEmpty() || results.pkgName.isEmpty() || (projectPath.isEmpty() && results.pkgName.isEmpty()))
+            return;
         Drawable.projectPath = projectPath;
 
         EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
         CompletableFuture
                 .runAsync(GlobalProjectGeneration.this::createprojectHierarchy)
                 .thenAccept(aVoid -> {
+                    try {
+                        loadIonicLab();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     updateCurrentProject();
                     createStateFile(results.pkgName);
                     Platform.runLater(this::showHome);
                 });
+    }
+
+    public boolean loadIonicLab() throws IOException {
+        GlobalViewController.BackgroundProcess backgroundProcess = GlobalViewController.startBackgroundProcess(new GlobalViewController.BackgroundProcess("Loading IONIC Lab.", null));
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        processBuilder.directory(new File(Drawable.projectPath + "\\ionic_project"));
+        processBuilder.command("cmd.exe", "/c", "npm i @ionic/lab");
+        backgroundProcess.setProcess(processBuilder.start());
+        BufferedReader reader = new BufferedReader(new InputStreamReader(backgroundProcess.getProcess().getInputStream()));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            System.out.println(line);
+        }
+        int exitCode = backgroundProcess.getProcess().exitValue();
+        System.out.println("\nExited with exit code : " + exitCode);
+
+        GlobalViewController.stopBackgroundProcess(backgroundProcess);
+        return exitCode == 0;
     }
 
     private void createStateFile(String pkgName) {
@@ -286,18 +311,25 @@ public class GlobalProjectGeneration implements Initializable {
         dialog.setHeaderText("Please specify…");
         DialogPane dialogPane = dialog.getDialogPane();
         dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-        TextField projectName = new TextField("ProjectName");
-        TextField pkgName = new TextField("PackageName");
-        dialogPane.setContent(new VBox(8, projectName, pkgName));
+        Label projectLabel = new Label("your Project Name:");
+        TextField projectName = new TextField();
+        Label packageLabel = new Label("your package Name:");
+        TextField pkgName = new TextField();
+        dialogPane.setContent(new VBox(8, projectLabel, projectName, packageLabel, pkgName));
 
         //Platform.runLater(projectName::requestFocus);
         dialog.setResultConverter((ButtonType button) -> {
             if (button == ButtonType.OK) {
                 System.out.println(pkgName.getText());
+                if (pkgName.getText().equals("") || projectName.getText().equals("") || (projectName.getText().equals("") && pkgName.getText().equals(""))) {
+                    new Alert(Alert.AlertType.WARNING, "Please set your project", ButtonType.CLOSE).show();
+                }
+
                 return new Results(projectName.getText(), pkgName.getText());
             }
             return null;
         });
+
 
         try {
             return dialog.showAndWait().get();

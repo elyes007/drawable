@@ -6,8 +6,8 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" stylesheets="@../../css/global.css"
-            xmlns="http://javafx.com/javafx/10.0.1"
+<BorderPane fx:id="root" stylesheets="@../../css/global.css" xmlns="http://javafx.com/javafx/8.0.141"
+            xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="tn.disguisedtoast.drawable.homeModule.controllers.HomeLayoutController">
    <top>
       <BorderPane style="-fx-background-color: #3c3f41;" BorderPane.alignment="CENTER">
@@ -61,10 +61,25 @@
                   </Button>
                    <HBox alignment="CENTER">
                        <children>
+                           <Button fx:id="stopButton" alignment="TOP_RIGHT" graphicTextGap="0.0"
+                                   styleClass="icon_button">
+                               <graphic>
+                                   <ImageView fitHeight="15.0" fitWidth="15.0" focusTraversable="true"
+                                              pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                           <Image url="@../../drawable/icons/stop.png"/>
+                                       </image>
+                                   </ImageView>
+                               </graphic>
+                               <cursor>
+                                   <Cursor fx:constant="HAND"/>
+                               </cursor>
+                           </Button>
                            <Button fx:id="playButton" graphicTextGap="0.0" mnemonicParsing="false"
                                    styleClass="icon_button">
                                <graphic>
-                                   <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
+                                   <ImageView fx:id="playImageview" fitHeight="15.0" fitWidth="15.0" pickOnBounds="true"
+                                              preserveRatio="true">
                                        <image>
                                            <Image url="@../../drawable/icons/play.png"/>
                                        </image>

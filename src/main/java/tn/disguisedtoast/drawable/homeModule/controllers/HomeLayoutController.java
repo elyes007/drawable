@@ -7,6 +7,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.ProjectMain.GlobalViewController;
@@ -34,30 +35,43 @@ public class HomeLayoutController implements Initializable {
     public Button export;
     @FXML
     public Button playButton;
-    public static boolean generationInProcess;
-
-
+    @FXML
+    public Button stopButton;
+    @FXML
+    public ImageView playImageview;
+    private GlobalViewController.BackgroundProcess playProcess;
+    private Thread playThread;
     private StoryboardViewController storyboardController;
     private ScrollHomeLayoutController scrollHomeController;
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         storyboardBtn.managedProperty().bind(storyboardBtn.visibleProperty());
         scrollBtn.managedProperty().bind(scrollBtn.visibleProperty());
         showStoryboard();
+        //stopButton.isVisible();
         playButton.setOnMouseClicked(event -> {
-
-            new Thread(() -> {
+            playThread = new Thread(() -> {
                 try {
                     playApp();
+                    System.out.println(playProcess);
+                    //loadIonicLab();
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            }).start();
-            // playApp();
+            });
+            playThread.start();
+            playButton.setDisable(true);
+        });
 
+        stopButton.setOnMouseClicked(event -> {
+            playButton.setDisable(false);
+            stopProjectServe();
         });
     }
+
 
     public void exportProject(ActionEvent actionEvent) {
         ProjectGeneration.generatePages();
@@ -83,26 +97,22 @@ public class HomeLayoutController implements Initializable {
         }
     }
 
-    public static boolean playApp() throws IOException {
-        generationInProcess = true;
-        GlobalViewController.BackgroundProcess backgroundProcess = GlobalViewController.startBackgroundProcess(new GlobalViewController.BackgroundProcess("Serving IONIC project.", null));
+    public void playApp() throws IOException {
+        playProcess = GlobalViewController.startBackgroundProcess(new GlobalViewController.BackgroundProcess("Serving IONIC project.", null));
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.directory(new File(Drawable.projectPath + "\\ionic_project"));
         processBuilder.command("cmd.exe", "/c", "ionic serve --lab");
-        backgroundProcess.setProcess(processBuilder.start());
-        BufferedReader reader = new BufferedReader(new InputStreamReader(backgroundProcess.getProcess().getInputStream()));
+        playProcess.setProcess(processBuilder.start());
+        BufferedReader reader = new BufferedReader(new InputStreamReader(playProcess.getProcess().getInputStream()));
         String line;
         while ((line = reader.readLine()) != null) {
             System.out.println(line);
         }
-        int exitCode = backgroundProcess.getProcess().exitValue();
-        System.out.println("\nExited with exit code : " + exitCode);
-        generationInProcess = false;
+    }
 
-        GlobalViewController.stopBackgroundProcess(backgroundProcess);
-        return exitCode == 0;
-
-
+    public void stopProjectServe() {
+        playProcess.getProcess().destroy();
+        GlobalViewController.stopBackgroundProcess(playProcess);
     }
 
 
