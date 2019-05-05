@@ -307,9 +307,10 @@ public class GlobalProjectGeneration implements Initializable {
             FileUtils.copyToDirectory(new File(System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\assets\\drawable\\placeholder.png"),new File(projectPath + "\\RelatedFiles\\assets"));
             FileUtils.copyToDirectory(new File(System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\generated_views\\assets\\drawable\\facebook.png"), new File(projectPath + "\\RelatedFiles\\assets"));
             FileUtils.copyToDirectory(new File(System.getProperty("user.dir") + "\\src\\main\\RelatedFiles\\themes"), new File(projectPath + "\\RelatedFiles"));
-            FileUtils.copyToDirectory(new File(getClass().getResource("/storyboardModule/storyboard.html").getPath()), new File(projectPath + "\\RelatedFiles"));
+            String storyboardHtml = FileUtils.readFileToString(new File(getClass().getResource("/storyboardModule/storyboard").getPath()), "UTF-8");
+            FileUtils.write(new File(projectPath + "\\RelatedFiles\\storyboard.html"), storyboardHtml, "UTF-8");
             FileUtils.writeStringToFile(new File(Drawable.projectPath + "&RelatedFiles&storyboard.json".replace("&", File.separator)),
-                    "{\"zoom\":70,\"pages\":[]}");
+                    "{\"zoom\":30,\"pages\":[]}");
             FileUtils.writeStringToFile(new File(Drawable.projectPath + File.separator + "state.json"),
                     "{\n\t\"ionic_state\":false\n}");
             System.out.println("Done!");
