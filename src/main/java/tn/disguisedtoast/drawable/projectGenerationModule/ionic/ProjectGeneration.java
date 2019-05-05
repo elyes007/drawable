@@ -82,11 +82,11 @@ public class ProjectGeneration {
             GlobalViewController.stopBackgroundProcess(backgroundProcess3);
             System.out.println("\nThis Exited with code : " + exitCode);
             generationInProcess = false;
-            /*try {
+            try {
                 loadIonicLab();
             } catch (IOException e) {
                 e.printStackTrace();
-            }*/
+            }
             return exitCode == 0;
 
         } catch (IOException e) {

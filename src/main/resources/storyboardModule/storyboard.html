@@ -889,7 +889,7 @@
         for (let i = 0; i < pageDivs.length; i++) {
             const pageDiv = pageDivs[i]
             const title = pages[pageDiv.children[1].id].title
-            if (title.toLowerCase().includes(text)) {
+            if (title.toLowerCase().includes(text.toLowerCase())) {
                 count++
                 pageDiv.style.zIndex = '4'
                 pageDiv.style.boxShadow = '0px 0px 24px 4px #9ecaed'

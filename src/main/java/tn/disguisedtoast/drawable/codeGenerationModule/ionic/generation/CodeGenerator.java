@@ -410,7 +410,7 @@ public class CodeGenerator {
         try {
             fileReader = new FileReader(path);
         } catch (FileNotFoundException e) {
-            String fileBody = "{\"zoom\":50," +
+            String fileBody = "{\"zoom\":30," +
                     "\"pages\":[{\n" +
                     "\t\t\"page\":\"" + pageName + "\",\n" +
                     "\t\t\"x\":\"16\",\n" +
