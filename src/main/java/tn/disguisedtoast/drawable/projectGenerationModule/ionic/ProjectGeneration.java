@@ -46,14 +46,12 @@ public class ProjectGeneration {
             e.printStackTrace();
             return "tn.esprit.TestApp";
         }
-        if (fileReader != null) {
-            try {
-                fileReader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         JsonObject projectsJson = new JsonParser().parse(fileReader).getAsJsonObject();
+        try {
+            fileReader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return projectsJson.get("package_name").getAsString();
     }
 
@@ -82,17 +80,42 @@ public class ProjectGeneration {
             GlobalViewController.BackgroundProcess backgroundProcess3 = GlobalViewController.startBackgroundProcess(new GlobalViewController.BackgroundProcess("Resolving Facebook dependency.", null));
             installFacebookCordovaPlugin(backgroundProcess3);
             GlobalViewController.stopBackgroundProcess(backgroundProcess3);
-
             System.out.println("\nThis Exited with code : " + exitCode);
             generationInProcess = false;
-
+            /*try {
+                loadIonicLab();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }*/
             return exitCode == 0;
+
         } catch (IOException e) {
             e.printStackTrace();
             generationInProcess = false;
             return false;
         }
+
+
     }
+
+    public static boolean loadIonicLab() throws IOException {
+        GlobalViewController.BackgroundProcess backgroundProcess = GlobalViewController.startBackgroundProcess(new GlobalViewController.BackgroundProcess("Loading IONIC Lab.", null));
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        processBuilder.directory(new File(Drawable.projectPath + "\\ionic_project"));
+        processBuilder.command("cmd.exe", "/c", "npm i @ionic/lab");
+        backgroundProcess.setProcess(processBuilder.start());
+        BufferedReader reader = new BufferedReader(new InputStreamReader(backgroundProcess.getProcess().getInputStream()));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            System.out.println(line);
+        }
+        int exitCode = backgroundProcess.getProcess().exitValue();
+        System.out.println("\nExited with exit code : " + exitCode);
+
+        GlobalViewController.stopBackgroundProcess(backgroundProcess);
+        return exitCode == 0;
+    }
+
 
     private static void installFacebookCordovaPlugin(GlobalViewController.BackgroundProcess backgroundProcess) throws IOException {
 

@@ -20,7 +20,7 @@ import java.util.List;
 
 public class ShapeDetectionService {
 
-    private static final String URL = "http://102.158.40.7:5000/";
+    private static final String URL = "http://192.168.137.132:5000/";
 
     public static void upload(File file, UploadCallback callback) {
         new Thread(() -> {

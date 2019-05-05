@@ -15,6 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.stage.DirectoryChooser;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.utils.EveryWhereLoader;
 
@@ -93,6 +94,7 @@ public class GlobalProjectGeneration implements Initializable {
         projectName.setTextFill(Paint.valueOf("#bcbcbc"));
         projectName.setCursor(Cursor.HAND);
         System.out.println(recentList);*/
+        deleteRecentProject();
         for (String p : recentList) {
             Label projectName = new Label();
             projectName.setTextFill(Paint.valueOf("#bcbcbc"));
@@ -171,6 +173,7 @@ public class GlobalProjectGeneration implements Initializable {
         showHome();
     }
 
+
     private void createNewProject() throws IOException {
         DirectoryChooser dc = new DirectoryChooser();
         File f = dc.showDialog(Drawable.globalStage);
@@ -182,6 +185,8 @@ public class GlobalProjectGeneration implements Initializable {
         Results results = dialogSplit();
         if (results == null) return;
         projectPath = s + File.separator + results.projectName;
+        if (results.projectName.isEmpty() || results.pkgName.isEmpty() || (results.projectName.isEmpty() && results.pkgName.isEmpty()))
+            return;
         Drawable.projectPath = projectPath;
 
         EveryWhereLoader.getInstance().showLoader(Drawable.globalStage);
@@ -194,10 +199,11 @@ public class GlobalProjectGeneration implements Initializable {
                 });
     }
 
+
     private void createStateFile(String pkgName) {
         try {
             String filePath = Drawable.projectPath + File.separator + "state.json";
-            String content = "{\"state\":false, \"package_name\":\"" + pkgName + "\"}";
+            String content = "{\"ionic_state\":false, \"package_name\":\"" + pkgName + "\"}";
             FileUtils.write(new File(filePath), content);
         } catch (IOException e) {
             e.printStackTrace();
@@ -223,6 +229,34 @@ public class GlobalProjectGeneration implements Initializable {
             FileUtils.writeStringToFile(new File("./src/main/projects.json"), projectsJson.toString());
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void deleteRecentProject() {
+
+        FileReader fileReader = null;
+        try {
+            fileReader = new FileReader("./src/main/projects.json");
+        } catch (FileNotFoundException e) {
+            String fileBody = "{\n\t\"current\":null,\n\t\"recent\":[]\n}";
+            try {
+                FileUtils.writeStringToFile(new File("./src/main/projects.json"), fileBody);
+                fileReader = new FileReader("./src/main/projects.json");
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+        JsonObject projectsJson = new JsonParser().parse(fileReader).getAsJsonObject();
+        JsonArray recent = projectsJson.get("recent").getAsJsonArray();
+
+        for (int i = 0; i < recent.size(); i++) {
+            String path = recent.get(i).getAsString();
+            if (!new File(path).exists()) {
+                System.out.println(path);
+                StringUtils.remove(path, path);
+                recentList.remove(path);
+                System.out.println("path deleted");
+            }
         }
     }
 
@@ -290,18 +324,25 @@ public class GlobalProjectGeneration implements Initializable {
         dialog.setHeaderText("Please specify…");
         DialogPane dialogPane = dialog.getDialogPane();
         dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-        TextField projectName = new TextField("ProjectName");
-        TextField pkgName = new TextField("PackageName");
-        dialogPane.setContent(new VBox(8, projectName, pkgName));
+        Label projectLabel = new Label("your Project Name:");
+        TextField projectName = new TextField();
+        Label packageLabel = new Label("your package Name:");
+        TextField pkgName = new TextField();
+        dialogPane.setContent(new VBox(8, projectLabel, projectName, packageLabel, pkgName));
 
         //Platform.runLater(projectName::requestFocus);
         dialog.setResultConverter((ButtonType button) -> {
             if (button == ButtonType.OK) {
                 System.out.println(pkgName.getText());
+                if (pkgName.getText().equals("") || projectName.getText().equals("") || (projectName.getText().equals("") && pkgName.getText().equals(""))) {
+                    new Alert(Alert.AlertType.WARNING, "Please set your project", ButtonType.CLOSE).show();
+                }
+
                 return new Results(projectName.getText(), pkgName.getText());
             }
             return null;
         });
+
 
         try {
             return dialog.showAndWait().get();
