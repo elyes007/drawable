@@ -5,9 +5,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.ProjectMain.GlobalViewController;
 import tn.disguisedtoast.drawable.projectGenerationModule.ionic.ProjectGeneration;
@@ -34,6 +37,9 @@ public class HomeLayoutController implements Initializable {
     public Button export;
     @FXML
     public Button playButton;
+    @FXML
+    private Button settingsButton;
+
     public static boolean generationInProcess;
 
 
@@ -56,6 +62,20 @@ public class HomeLayoutController implements Initializable {
             }).start();
             // playApp();
 
+        });
+
+        settingsButton.setOnAction(event -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/layouts/settingsViews/globalSettings/GlobalSettingsView.fxml"));
+                Stage stage = new Stage();
+                stage.initModality(Modality.APPLICATION_MODAL);
+                stage.initOwner(Drawable.globalStage);
+                stage.setScene(new Scene(loader.load()));
+
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
     }
 

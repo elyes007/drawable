@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/10.0.1"
+      fx:controller="tn.disguisedtoast.drawable.settingsModule.controllers.globalSettings.ThemeSettingsViewController">
+    <children>
+        <BorderPane>
+            <center>
+                <GridPane hgap="20.0" vgap="20.0">
+                    <BorderPane.margin>
+                        <Insets bottom="20.0" left="40.0" right="40.0" top="20.0"/>
+                    </BorderPane.margin>
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="140.0" minWidth="140.0" prefWidth="140.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <children>
+                        <Label text="Shaed color" GridPane.rowIndex="2">
+                            <font>
+                                <Font size="14.0"/>
+                            </font>
+                        </Label>
+                        <Label text="Contrast color" GridPane.rowIndex="1">
+                            <font>
+                                <Font size="14.0"/>
+                            </font>
+                        </Label>
+                        <Label text="Base color">
+                            <font>
+                                <Font size="14.0"/>
+                            </font>
+                        </Label>
+                        <Label text="Tint color" GridPane.rowIndex="3">
+                            <font>
+                                <Font size="14.0"/>
+                            </font>
+                        </Label>
+                        <Label fx:id="baseColorPicker" GridPane.columnIndex="1"/>
+                        <Label fx:id="contrastColorPicker" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                        <Label fx:id="tintColorPicker" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                        <Label fx:id="shadeColorPicker" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                    </children>
+                </GridPane>
+            </center>
+        </BorderPane>
+    </children>
+</VBox>

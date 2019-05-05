@@ -14,6 +14,7 @@ import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
@@ -55,6 +56,8 @@ public class ImageSettingsViewController implements Initializable, SettingsContr
     private Label scaleVValue;
     @FXML
     private Label deleteButton;
+    @FXML
+    private ComboBox fitComboBox;
 
     private final CSSWriter aWriter = new CSSWriter (new CSSWriterSettings(ECSSVersion.CSS30, false));
 
@@ -62,10 +65,26 @@ public class ImageSettingsViewController implements Initializable, SettingsContr
 
     private GeneratedElement imageView;
 
+    private String[] fitOptions = {"Cover", "Fill", "Contain", "None"};
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         aWriter.setContentCharset (StandardCharsets.UTF_8.name ());
         generatedViewsPath = (Drawable.projectPath + "&RelatedFiles").replace("&", File.separator);
+        this.fitComboBox.getItems().addAll(fitOptions);
+
+        this.fitComboBox.setOnAction(event -> {
+            try {
+                CSSDeclaration declaration = imageView.getCssRules().getDeclarationOfPropertyName("object-fit");
+                imageView.getCssRules().removeDeclaration(declaration);
+            } catch (NullPointerException e) {
+                System.out.println(e);
+            }
+            imageView.getCssRules().addDeclaration(new CSSDeclaration("object-fit", CSSExpression.createSimple(this.fitComboBox.getValue().toString().toLowerCase())));
+            String cssString = aWriter.getCSSAsString(imageView.getCssRules());
+            imageView.getElement().attr("style", cssString);
+            imageView.getDomElement().setAttribute("style", cssString);
+        });
 
         this.deleteButton.setOnMouseClicked(event -> {
             this.imageView.getElement().remove();
@@ -231,6 +250,8 @@ public class ImageSettingsViewController implements Initializable, SettingsContr
         if (this.imageView.getElement().attr("src").contains("facebook")) {
             this.filePath.setText("Image bound to logged user photo.");
         }
+
+        this.fitComboBox.setValue(StringUtils.capitalize(CssRuleExtractor.extractValue(this.imageView.getCssRules(), "object-fit")));
 
         setImagePosition();
         setImageScale();

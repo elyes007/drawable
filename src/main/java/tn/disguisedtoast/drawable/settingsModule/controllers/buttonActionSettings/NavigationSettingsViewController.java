@@ -8,22 +8,16 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
-import tn.disguisedtoast.drawable.projectGenerationModule.ionic.ProjectGeneration;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 public class NavigationSettingsViewController implements Initializable, SettingsControllerInterface {
     @FXML public ComboBox pagesList;
@@ -36,9 +30,9 @@ public class NavigationSettingsViewController implements Initializable, Settings
     public void initialize(URL location, ResourceBundle resources) {
         String parentDirPath = (Drawable.projectPath + "&RelatedFiles&pages").replace("&", File.separator);
         File file = new File(parentDirPath);
-        //String[] directories = file.list((dir, name) -> (new File(dir, name).isDirectory() && !name.equals(Paths.get(SettingsViewController.pageFolder).getFileName().toString())) && !name.equals("temp"));
+        String[] directories = file.list((dir, name) -> (new File(dir, name).isDirectory() && !name.equals(Paths.get(SettingsViewController.pageFolder).getFileName().toString())) && !name.equals("temp"));
 
-        List<String> pages = Arrays.stream(Objects.requireNonNull(file.listFiles((dir, name) -> (new File(dir, name).isDirectory() && !name.equals(Paths.get(SettingsViewController.pageFolder).getFileName().toString())) && !name.equals("temp")))).map(file1 -> {
+        /*List<String> pages = Arrays.stream(Objects.requireNonNull(file.listFiles((dir, name) -> (new File(dir, name).isDirectory() && !name.equals(Paths.get(SettingsViewController.pageFolder).getFileName().toString())) && !name.equals("temp")))).map(file1 -> {
             File[] files = file1.listFiles();
             if (files == null) return "";
             try {
@@ -52,11 +46,11 @@ public class NavigationSettingsViewController implements Initializable, Settings
                 e.printStackTrace();
             }
             return "";
-        }).collect(Collectors.toList());
+        }).collect(Collectors.toList());*/
 
 
         this.pagesList.setPromptText("Select a destination page");
-        this.pagesList.getItems().addAll(pages);
+        this.pagesList.getItems().addAll(directories);
 
         this.pagesList.setOnAction(event -> {
             String pageName = (String)this.pagesList.getValue();
@@ -102,9 +96,18 @@ public class NavigationSettingsViewController implements Initializable, Settings
 
     @Override
     public void save() {
+        if (this.pagesList.getValue() == null) {
+            this.buttonGeneratedElement.getElement().removeAttr("[routerlink]");
+
+            if (this.jsonObject.getAsJsonObject("actions").has(this.buttonGeneratedElement.getElement().id())) {
+                this.jsonObject.getAsJsonObject("actions").remove(this.buttonGeneratedElement.getElement().id());
+            }
+            return;
+        }
+
         try{
             Files.write(Paths.get(SettingsViewController.pageFolder+"/conf.json"), new GsonBuilder().create().toJson(jsonObject).getBytes());
-            this.buttonGeneratedElement.getElement().attr("[routerLink]", "['/" + ProjectGeneration.getPageName((String) this.pagesList.getValue()) + "']");
+            this.buttonGeneratedElement.getElement().attr("[routerlink]", this.pagesList.getValue().toString());
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,14 +1,19 @@
 package tn.disguisedtoast.drawable.settingsModule.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.helger.css.ECSSVersion;
 import com.helger.css.decl.CSSDeclaration;
 import com.helger.css.decl.CSSExpression;
 import com.helger.css.writer.CSSWriter;
 import com.helger.css.writer.CSSWriterSettings;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
+import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
 import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
 import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
@@ -16,13 +21,20 @@ import tn.disguisedtoast.drawable.settingsModule.utils.CssRuleExtractor;
 import tn.disguisedtoast.drawable.settingsModule.utils.CustomColorPicker;
 import tn.disguisedtoast.drawable.settingsModule.utils.FxUtils;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
 public class LabelSettingsViewController implements Initializable, SettingsControllerInterface {
-    @FXML public TextField textValue;
+    @FXML
+    public ComboBox textValue;
     @FXML public ToggleButton boldButton;
     @FXML public ToggleButton italicButton;
     @FXML public ToggleButton underlinedButton;
@@ -58,7 +70,7 @@ public class LabelSettingsViewController implements Initializable, SettingsContr
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        aWriter.setContentCharset (StandardCharsets.UTF_8.name ());
+        aWriter.setContentCharset(StandardCharsets.UTF_8.name());
 
         this.deleteButton.setOnMouseClicked(event -> {
             this.element.getElement().remove();
@@ -88,6 +100,69 @@ public class LabelSettingsViewController implements Initializable, SettingsContr
         initTextView();
         initPosition();
         initScale();
+
+        try {
+            JsonObject globalConfigJson = new JsonParser().parse(new FileReader(Drawable.projectPath + File.separator + "state.json")).getAsJsonObject();
+            if (globalConfigJson.has("firebase") && globalConfigJson.get("firebase").getAsJsonObject().get("platforms").getAsJsonObject().has("facebook")) {
+                this.textValue.getItems().add("Bind to logged user name");
+                this.textValue.getItems().add("Bind to logged user email");
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        this.textValue.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (this.textValue.getValue().equals("Bound to logged user name") || this.textValue.getValue().equals("Bound to logged user email"))
+                return;
+            try {
+                String pageConfPath = SettingsViewController.pageFolder + File.separator + "conf.json";
+                JsonObject globalConfigJson = new JsonParser().parse(new FileReader(pageConfPath)).getAsJsonObject();
+
+                if (!this.textValue.getValue().equals("Bind to logged user name") && !this.textValue.getValue().equals("Bind to logged user email")) {
+                    this.element.getElement().removeAttr("data-bind");
+                    if (globalConfigJson.has("bindings")) {
+                        globalConfigJson.getAsJsonObject("bindings").remove(this.element.getElement().id());
+                        Files.write(Paths.get(pageConfPath), new Gson().toJson(globalConfigJson).getBytes());
+                    }
+                    return;
+                }
+
+                String binding = "";
+                switch (this.textValue.getSelectionModel().getSelectedIndex()) {
+                    case 0:
+                        String text1 = "Bound to logged user name";
+                        Platform.runLater(() -> this.textValue.setValue(text1));
+                        element.getElement().text(text1);
+                        element.getDomElement().setTextContent(text1);
+                        this.element.getElement().attr("data-bind", "name");
+                        binding = "name";
+                        break;
+                    case 1:
+                        String text2 = "Bound to logged user email";
+                        Platform.runLater(() -> this.textValue.setValue(text2));
+                        element.getElement().text(text2);
+                        element.getDomElement().setTextContent(text2);
+                        this.element.getElement().attr("data-bind", "email");
+                        binding = "email";
+                        break;
+                }
+
+                if (globalConfigJson.has("bindings")) {
+                    JsonObject bindingsObject = globalConfigJson.getAsJsonObject("bindings");
+                    bindingsObject.addProperty(this.element.getElement().id(), binding);
+                } else {
+                    JsonObject bindingsObject = new JsonObject();
+                    bindingsObject.addProperty(this.element.getElement().id(), binding);
+                    globalConfigJson.add("bindings", bindingsObject);
+                }
+                System.out.println("Writing here " + globalConfigJson);
+                Files.write(Paths.get(pageConfPath), new Gson().toJson(globalConfigJson).getBytes());
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     //Init
@@ -100,9 +175,9 @@ public class LabelSettingsViewController implements Initializable, SettingsContr
         this.textColor.setTooltip(new Tooltip("Select font color."));
         this.fontColorPane.setGraphic(this.textColor);
 
-        this.textValue.setOnKeyReleased(event -> {
-            element.getElement().text(this.textValue.getText());
-            element.getDomElement().setTextContent(this.textValue.getText());
+        this.textValue.getEditor().setOnKeyReleased(event -> {
+            element.getElement().text(this.textValue.getEditor().getText());
+            element.getDomElement().setTextContent(this.textValue.getEditor().getText());
         });
 
         this.textSize.setOnAction(event -> {
@@ -257,7 +332,14 @@ public class LabelSettingsViewController implements Initializable, SettingsContr
     public void setLabel(GeneratedElement element) {
         this.element = element;
         System.out.println(this.element);
-        this.textValue.setText(element.getElement().text().trim());
+        this.textValue.setValue(element.getElement().text().trim());
+        if (this.element.getElement().hasAttr("data-bind")) {
+            if (this.element.getElement().attr("data-bind").equals("name")) {
+                this.textValue.getSelectionModel().select(0);
+            } else {
+                this.textValue.getSelectionModel().select(1);
+            }
+        }
 
         try {
             CssRuleExtractor.extractValue(element.getCssRules(), "white-space");
