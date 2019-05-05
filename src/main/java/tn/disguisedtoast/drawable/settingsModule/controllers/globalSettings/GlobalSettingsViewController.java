@@ -27,8 +27,6 @@ public class GlobalSettingsViewController implements Initializable {
     @FXML
     private VBox themingButton;
     @FXML
-    private VBox firebaseButton;
-    @FXML
     private VBox primaryButton;
     @FXML
     private VBox secondaryButton;

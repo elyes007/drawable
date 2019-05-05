@@ -80,6 +80,9 @@ public class ProjectGeneration {
             GlobalViewController.BackgroundProcess backgroundProcess3 = GlobalViewController.startBackgroundProcess(new GlobalViewController.BackgroundProcess("Resolving Facebook dependency.", null));
             installFacebookCordovaPlugin(backgroundProcess3);
             GlobalViewController.stopBackgroundProcess(backgroundProcess3);
+
+            loadIonicLab();
+
             System.out.println("\nThis Exited with code : " + exitCode);
             generationInProcess = false;
             /*try {
