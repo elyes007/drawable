@@ -163,28 +163,23 @@ public class StoryboardViewController implements Initializable {
                 try {
                     reader = new FileReader(path + "/conf.json");
                     JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
-                    JsonObject actions = jsonObject.get("actions").getAsJsonObject();
-                    actions.entrySet().removeIf(action -> {
-                        String actionDest = action.getValue().getAsJsonObject().get("dest").getAsString();
-                        String actionButton = action.getKey();
-                        if (actionDest.equals(dest) && actionButton.equals(button)) {
-                            //remove routerLink
-                            String htmlPath = (path + "&" + src + ".html")
-                                    .replace("&", File.separator);
-                            File file = new File(htmlPath);
-                            Document document = null;
-                            try {
-                                document = Jsoup.parse(file, "UTF-8");
-                                document.body().getElementsByAttributeValue("[routerlink]", dest)
-                                        .forEach(btn -> btn.removeAttr("[routerlink]"));
-                                FileUtils.write(file, document.toString());
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            return true;
+                    JsonObject action = jsonObject.get("actions").getAsJsonObject().get(button).getAsJsonObject();
+                    jsonObject.get("actions").getAsJsonObject().remove(button);
+                    //remove routerLink
+                    String htmlPath = (path + "&" + src + ".html")
+                            .replace("&", File.separator);
+                    File file = new File(htmlPath);
+                    Document document = null;
+                    try {
+                        document = Jsoup.parse(file, "UTF-8");
+                        document.body().getElementById(button).removeAttr("[routerlink]");
+                        if (action.has("platform")) {
+                            document.body().getElementById(button).removeAttr("(click)");
                         }
-                        return false;
-                    });
+                        FileUtils.write(file, document.toString());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     FileUtils.write(new File(path + "/conf.json"), jsonObject.toString());
                 } catch (IOException e) {
                     e.printStackTrace();

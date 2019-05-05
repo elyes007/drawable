@@ -496,21 +496,29 @@
                         for (const button in json.actions) {
                             if (json.actions.hasOwnProperty(button)) {
                                 const action = json.actions[button]
-                                if (action.hasOwnProperty('platform')) continue
-
-                                page.to.push({
-                                    dest: action.dest,
+                                console.log(JSON.stringify(action))
+                                if (action.hasOwnProperty('platform') && action.destinationPageName.length == 0) {
+                                    continue
+                                }
+                                let nav = {
                                     button: button
-                                })
-                                pages[action.dest].from.push(key)
+                                }
+                                if (action.hasOwnProperty('platform')) {
+                                    nav.dest = action.destinationPageName
+                                } else {
+                                    nav.dest = action.dest
+                                }
 
-                                if (svg.getElementById(key + '-' + action.dest)) return
+                                page.to.push(nav)
+                                pages[nav.dest].from.push(key)
+
+                                if (svg.getElementById(key + '-' + nav.dest)) return
 
                                 const segue = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                                segue.setAttribute('id', key + '-' + action.dest);
+                                segue.setAttribute('id', key + '-' + nav.dest);
                                 segue.setAttribute("stroke", "black")
                                 segue.setAttribute("class", "segue")
-                                setSeguePosition(segue, page.page, action.dest)
+                                setSeguePosition(segue, page.page, nav.dest)
                                 svg.appendChild(segue)
                             }
                         }

@@ -361,6 +361,16 @@ public class ProjectGeneration {
             }
             GlobalViewController.stopBackgroundProcess(backgroundProcess);
 
+            //copy themes
+            try {
+                String themesPath = Drawable.projectPath + "&RelatedFiles&themes".replace("&", File.separator);
+                String themes = FileUtils.readFileToString(new File(themesPath), "UTF-8");
+                themesPath = Drawable.projectPath + "&ionic_project&src&theme&variables.scss".replace("&", File.separator);
+                FileUtils.write(new File(themesPath), themes, "UTF-8");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             EveryWhereLoader.getInstance().stopLoader(null);
         }).start();
     }
@@ -607,11 +617,13 @@ public class ProjectGeneration {
                 String src = img.attr("src");
                 if (src.contains("facebook")) {
                     src = img.id();
+                    img.attr("[src]", src);
+                    img.removeAttr("src");
                 } else if (src.contains("assets")) {
                     src = "'" + StringUtils.substringAfterLast(src.replace("\\", "/"), "../") + "'";
+                    img.attr("[src]", src);
+                    img.removeAttr("src");
                 }
-                img.attr("[src]", src);
-                img.removeAttr("src");
             }
             File dest = new File((Drawable.projectPath + "&ionic_project&src&app&" + pageName + "&" + pageName + ".page.html")
                     .replace("&", File.separator));
