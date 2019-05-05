@@ -74,8 +74,8 @@
                                    <Cursor fx:constant="HAND"/>
                                </cursor>
                            </Button>
-                           <Button contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" mnemonicParsing="false"
-                                   styleClass="icon_button">
+                           <Button fx:id="settingsButton" contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0"
+                                   mnemonicParsing="false" styleClass="icon_button">
                                <graphic>
                                    <ImageView fx:id="settings" fitHeight="15.0" fitWidth="15.0">
                                        <image>

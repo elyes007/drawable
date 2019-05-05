@@ -703,6 +703,10 @@ public class ButtonSettingsViewController implements Initializable, SettingsCont
                 }
             }
 
+            if (this.button.getElement().hasAttr("(click)")) {
+                this.button.getElement().removeAttr("(click)");
+            }
+
             Files.write(Paths.get(pageConfPath), new Gson().toJson(jsonObject).getBytes());
         } catch (IOException e) {
             e.printStackTrace();
