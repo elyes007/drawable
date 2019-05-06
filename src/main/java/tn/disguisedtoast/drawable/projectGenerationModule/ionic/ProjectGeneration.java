@@ -85,11 +85,6 @@ public class ProjectGeneration {
 
             System.out.println("\nThis Exited with code : " + exitCode);
             generationInProcess = false;
-            try {
-                loadIonicLab();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             return exitCode == 0;
 
         } catch (IOException e) {
