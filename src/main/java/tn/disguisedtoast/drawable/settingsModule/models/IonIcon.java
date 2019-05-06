@@ -2,7 +2,6 @@ package tn.disguisedtoast.drawable.settingsModule.models;
 
 import javafx.scene.image.Image;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,6 +48,11 @@ public class IonIcon {
         if (o == null || getClass() != o.getClass()) return false;
         IonIcon ionIcon = (IonIcon) o;
         return Objects.equals(name, ionIcon.name);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 
     @Override

@@ -10,6 +10,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Worker;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ComboBox;
@@ -26,6 +27,7 @@ import org.jsoup.nodes.Document;
 import org.w3c.dom.Element;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.models.GeneratedElement;
+import tn.disguisedtoast.drawable.models.SupportedComponents;
 import tn.disguisedtoast.drawable.previewModule.models.Device;
 
 import javax.imageio.ImageIO;
@@ -55,11 +57,14 @@ public class PreviewController {
     private PreviewController() {
         Device defaultDevice = Device.devices[0];
         double ratio = defaultDevice.getWidth() / defaultDevice.getHeight();
-        double previewHeight = Math.min(Drawable.height - 30 * 2 - BUTTON_SIZE, defaultDevice.getHeight());
+        double drawableHeight = Drawable.globalStage.getScene().getHeight();
+        double previewHeight = Math.min(drawableHeight - 30 * 2 - BUTTON_SIZE - 35, defaultDevice.getHeight());
         double previewWidth = previewHeight * ratio;
         root = new VBox();
-        root.setPrefHeight(previewHeight + BUTTON_SIZE);
+        root.setPrefHeight(previewHeight + BUTTON_SIZE + 10);
         root.setPrefWidth(previewWidth);
+        root.setSpacing(10);
+        root.setAlignment(Pos.CENTER);
 
         webView = new WebView();
         webView.setPrefHeight(previewHeight + BUTTON_SIZE);
@@ -113,7 +118,8 @@ public class PreviewController {
             public void changed(ObservableValue<? extends Device> observable, Device oldValue, Device newValue) {
                 if(newValue != null){
                     double ratio = newValue.getWidth() / newValue.getHeight();
-                    double previewHeight = Math.min(Drawable.height - 30 * 2 - BUTTON_SIZE, newValue.getHeight());
+                    double drawableHeight = Drawable.globalStage.getScene().getHeight();
+                    double previewHeight = Math.min(drawableHeight - 30 * 2 - BUTTON_SIZE - 35, newValue.getHeight());
                     double previewWidth = previewHeight * ratio;
 
                     root.setPrefHeight(previewHeight + BUTTON_SIZE);
@@ -225,9 +231,17 @@ public class PreviewController {
     public class AppInterface {
 
         public void setEelement(Object dom) {
+            System.out.println(dom);
             if(dom instanceof Element) {
-                org.jsoup.nodes.Element element = PreviewController.ionicDocument.select("#"+((Element) dom).getAttribute("id")).first();
-                GeneratedElement generatedElement = new GeneratedElement(element, (Element)dom);
+                Element domElement = (Element) dom;
+                org.jsoup.nodes.Element element;
+                if (domElement.getTagName().equals(SupportedComponents.ION_TAB_BUTTON.toString().toUpperCase())) {
+                    element = PreviewController.ionicDocument.selectFirst(SupportedComponents.ION_TAB_BUTTON.toString() + "[tab=" + domElement.getAttribute("tab") + "]");
+                } else {
+                    element = PreviewController.ionicDocument.select("#" + domElement.getAttribute("id")).first();
+                }
+                System.out.println(element);
+                GeneratedElement generatedElement = new GeneratedElement(element, domElement);
                 callBack.clicked(generatedElement);
             }else{
                 System.out.println("Not Element");

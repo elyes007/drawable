@@ -168,7 +168,8 @@ public class WebCamController implements Initializable {
         stop_img1.setVisible(true);
         new Thread(() -> {
             startWebCamStream();
-            switchShouldUpload();
+            shouldUpload = true;
+            uploadInterface.startUpload();
         }).start();
     }
 
@@ -176,7 +177,7 @@ public class WebCamController implements Initializable {
     protected void stopWebCamCamera() {
         stop_img1.setVisible(false);
         record_img.setVisible(true);
-        switchShouldUpload();
+        shouldUpload = false;
         stopCamera = true;
         new Thread(() -> {
             if (grabber != null) {
@@ -227,13 +228,6 @@ public class WebCamController implements Initializable {
 
     public void setShoudUpload(boolean shouldUpload) {
         this.shouldUpload = shouldUpload;
-    }
-
-    public void switchShouldUpload() {
-        shouldUpload = !shouldUpload;
-        if (shouldUpload) {
-            uploadInterface.startUpload();
-        }
     }
 
     public void drawObjects(List<DetectedObject> objects) {

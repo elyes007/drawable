@@ -1,0 +1,18 @@
+  /*start#functionName#*/
+  #functionName#(#params#) {
+    if(this.platfom.is('cordova')) {
+      this.fb.login(['email', 'public_profile']).then(res => {
+        const facebookCredential = auth.FacebookAuthProvider.credential(res.authResponse.accessToken)
+        auth().signInWithCredential(facebookCredential);
+        #extras#
+      })
+    }else {
+      this.afAuth.auth.signInWithPopup(new auth.FacebookAuthProvider()).then(resp => {
+        console.log(resp)
+        #extras#
+      }).catch(e => {
+        console.log(e)
+      })
+    }
+  }
+  /*end#functionName#*/

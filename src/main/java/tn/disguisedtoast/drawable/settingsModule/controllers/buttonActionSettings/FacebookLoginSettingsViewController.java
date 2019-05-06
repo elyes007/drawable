@@ -1,33 +1,25 @@
 package tn.disguisedtoast.drawable.settingsModule.controllers.buttonActionSettings;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
-import org.mozilla.javascript.CompilerEnvirons;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
-import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsControllerInterface;
+import tn.disguisedtoast.drawable.previewModule.controllers.PreviewController;
+import tn.disguisedtoast.drawable.settingsModule.controllers.ButtonSettingsViewController;
 import tn.disguisedtoast.drawable.settingsModule.controllers.SettingsViewController;
-import tn.disguisedtoast.drawable.settingsModule.models.LogInConfigs;
-import tn.disguisedtoast.drawable.utils.typescriptParser.models.FunctionElement;
-import tn.disguisedtoast.drawable.utils.typescriptParser.models.ImportElement;
+import tn.disguisedtoast.drawable.settingsModule.interfaces.SettingsControllerInterface;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class FacebookLoginSettingsViewController implements Initializable, SettingsControllerInterface {
@@ -39,147 +31,213 @@ public class FacebookLoginSettingsViewController implements Initializable, Setti
     @FXML
     private TextField packageName;
     @FXML
+    private TextField keyhash;
+    @FXML
     private ComboBox destination;
     @FXML
-    private Label infoLabel;
+    private Label appIdInfoLabel;
     @FXML
-    private Hyperlink infoHyperlink;
+    private Label keyhashInfoLabel;
+    @FXML
+    private Hyperlink appIdInfoHyperlink;
+    @FXML
+    private Hyperlink keyhashInfoHyperlink;
 
-    private JsonObject jsonObject;
+    private JsonObject globalSettingsObject;
+    private JsonObject facebookLogObject;
     private JsonObject buttonLogObject;
+    private JsonObject pageSettingsObject;
 
     private Element element;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        this.appName.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if(this.buttonLogObject != null){
-                this.buttonLogObject.addProperty("appName", this.appName.getText());
-            }else {
-                addLogAction();
+        String pagesFolderPath = Drawable.projectPath + "&RelatedFiles&pages".replace("&", File.separator);
+        System.out.println(pagesFolderPath);
+        String[] directories = new File(pagesFolderPath).list((dir, name) -> (new File(dir, name).isDirectory() && !name.equals(Paths.get(SettingsViewController.pageFolder).getFileName().toString())) && !name.equals("temp"));
+
+       /* List<String> pages = Arrays.stream(Objects.requireNonNull(new File(pagesFolderPath).listFiles((dir, name) -> (new File(dir, name).isDirectory() && !name.equals(Paths.get(SettingsViewController.pageFolder).getFileName().toString())) && !name.equals("temp")))).map(file1 -> {
+            File[] files = file1.listFiles();
+            if (files == null) return "";
+            try {
+                for (int i = 0; i < files.length; i++) {
+                    if (files[i].getName().equals("conf.json")) {
+                        JsonObject pageConf = new JsonParser().parse(new FileReader(files[i])).getAsJsonObject();
+                        return pageConf.get("page").getAsString();
+                    }
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
             }
+            return "";
+        }).collect(Collectors.toList());*/
+
+        destination.getItems().add("Nowhere");
+        destination.getItems().addAll(directories);
+        destination.getSelectionModel().select(0);
+
+        this.appIdInfoLabel.setOnMouseClicked(event -> {
+            Bounds boundsInScene = this.appIdInfoLabel.localToScene(this.appIdInfoLabel.getBoundsInLocal());
+            this.appIdInfoLabel.getTooltip().show(this.appIdInfoLabel, boundsInScene.getMaxX(), boundsInScene.getMaxY() + this.appIdInfoLabel.getHeight());
+            this.appIdInfoLabel.getTooltip().setAutoHide(true);
         });
 
-        this.appId.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if(this.buttonLogObject != null){
-                this.buttonLogObject.addProperty("appId", this.appId.getText());
-            }else {
-                addLogAction();
-            }
+        this.appIdInfoHyperlink.setOnAction(event -> {
+            Drawable.getInstance().getHostServices().showDocument("https://ionicframework.com/docs/native/facebook#installation");
         });
 
-        this.infoLabel.setOnMouseClicked(event -> {
-            Bounds boundsInScene = this.infoLabel.localToScene(this.infoLabel.getBoundsInLocal());
-            this.infoLabel.getTooltip().show(this.infoLabel, boundsInScene.getMaxX(), boundsInScene.getMaxY() + this.infoLabel.getHeight());
-            this.infoLabel.getTooltip().setAutoHide(true);
+
+        this.keyhashInfoLabel.setOnMouseClicked(event -> {
+            Bounds boundsInScene = this.keyhashInfoLabel.localToScene(this.keyhashInfoLabel.getBoundsInLocal());
+            this.keyhashInfoLabel.getTooltip().show(this.keyhashInfoLabel, boundsInScene.getMaxX(), boundsInScene.getMaxY() + this.keyhashInfoLabel.getHeight());
+            this.keyhashInfoLabel.getTooltip().setAutoHide(true);
         });
 
-        this.infoHyperlink.setOnAction(event -> {
+        this.keyhashInfoHyperlink.setOnAction(event -> {
             Drawable.getInstance().getHostServices().showDocument("https://ionicframework.com/docs/native/facebook#installation");
         });
 
         try {
-            String id = Jsoup.parse(new File(System.getProperty("user.dir") + "/src/main/RelatedFiles/ionic_project/config.xml"), "UTF-8").selectFirst("widget").attr("id");
+            String id = Jsoup.parse(new File(Drawable.projectPath + File.separator + "ionic_project" + File.separator + "config.xml"), "UTF-8").selectFirst("widget").attr("id");
             this.packageName.setText(id);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void addLogAction(){
-        this.buttonLogObject = new JsonObject();
-        this.buttonLogObject.addProperty("type", "facebook");
-        this.buttonLogObject.addProperty("appName", this.appName.getText());
-        this.buttonLogObject.addProperty("appId", this.appId.getText());
-        this.buttonLogObject.addProperty("button", this.element.attr("id"));
-
-        JsonElement actionsElement = this.jsonObject.get("actions");
-        if (actionsElement == null) return;
-        actionsElement.getAsJsonArray().add(this.buttonLogObject);
-    }
-
-    public void setElement(Element element){
+    public void setElement(Element element, ButtonSettingsViewController buttonSettingsViewController) {
         this.element = element;
         getLogJsonObject();
-        if(this.buttonLogObject != null){
-            this.appName.setText(this.buttonLogObject.get("appName").getAsString());
-            this.appId.setText(this.buttonLogObject.get("appId").getAsString());
-        }
-    }
-
-    private void getLogJsonObject(){
-        try{
-            jsonObject = new JsonParser().parse(new FileReader(SettingsViewController.pageFolder+"/conf.json")).getAsJsonObject();
-            JsonElement actionElement = jsonObject.get("actions");
-            if (actionElement == null) return;
-            JsonArray actionsArray = actionElement.getAsJsonArray();
-            List<JsonObject> toDeleteObjects = new ArrayList<>();
-
-            for(JsonElement element : actionsArray){
-                JsonObject object = (JsonObject)element;
-                if(object.get("button").getAsString().equals(this.element.attr("id")) && object.get("type").getAsString().equals("facebook")){
-                    buttonLogObject = object;
-                }else if(object.get("button").getAsString().equals(this.element.attr("id"))) {
-                    toDeleteObjects.add(object);
-                }
+        if (this.facebookLogObject != null && this.buttonLogObject != null) {
+            this.appName.setText(this.facebookLogObject.get("appName").getAsString());
+            this.appId.setText(this.facebookLogObject.get("appId").getAsString());
+            String destination = this.buttonLogObject.get("destinationPageName").getAsString();
+            if (destination.isEmpty()) {
+                this.destination.getSelectionModel().select(0);
+            } else {
+                this.destination.setValue(this.buttonLogObject.get("destinationPageName").getAsString());
             }
-            for(JsonObject jo : toDeleteObjects){
-                actionsArray.remove(jo);
-            }
-            save();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-    }
 
-    public static boolean getLogSetting(Element button){
-        try{
-            JsonObject jsonObject = new JsonParser().parse(new FileReader(SettingsViewController.pageFolder+"/conf.json")).getAsJsonObject();
-            JsonArray actionsArray = jsonObject.get("actions").getAsJsonArray();
+        Platform.runLater(() -> {
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            String ionicToolsPath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "RelatedFiles" + File.separator + "FirebaseLoginTools" + File.separator + "KeyHashTools";
+            String keystorePath = System.getProperty("user.home") + "&.android&debug.keystore".replace("&", File.separator);
+            if (!new File(keystorePath).exists()) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Can't find android configuration", ButtonType.OK);
+                alert.show();
 
-            for(JsonElement element : actionsArray){
-                JsonObject object = (JsonObject)element;
-                if(object.get("button").getAsString().equals(button.attr("id")) && object.get("type").getAsString().equals("facebook")){
-                    return true;
+                buttonSettingsViewController.buttonAction.getSelectionModel().select(0);
+            }
+            processBuilder.command("cmd.exe", "/c", "keytool -exportcert -alias androiddebugkey -keystore \"" + keystorePath + "\" -storepass android | \"" + ionicToolsPath + File.separator + "openssl\" sha1 -binary | \"" + ionicToolsPath + File.separator + "openssl\" base64");
+            try {
+
+                Process process = processBuilder.start();
+
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+                String line = reader.readLine();
+                this.keyhash.setText(line);
+
+                int exitCode = process.waitFor();
+
+                System.out.println("\nExited with error code : " + exitCode);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        try {
+            JsonObject globalConfig = new JsonParser().parse(new FileReader(Drawable.projectPath + File.separator + "state.json")).getAsJsonObject();
+            if (!globalConfig.has("firebase")) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, "You need to configure firebase first!", ButtonType.OK, ButtonType.CANCEL);
+                alert.setHeaderText("Firebase is not configured.");
+                alert.showAndWait();
+
+                if (alert.getResult() == ButtonType.OK) {
+                    FirebaseConfigViewController.showPopup(buttonSettingsViewController);
+                } else {
+                    buttonSettingsViewController.buttonAction.getSelectionModel().select(0);
                 }
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        return false;
+    }
+
+    private void getLogJsonObject(){
+        try {
+            pageSettingsObject = new JsonParser().parse(new FileReader(SettingsViewController.pageFolder + "/conf.json")).getAsJsonObject();
+            globalSettingsObject = new JsonParser().parse(new FileReader(Drawable.projectPath + File.separator + "state.json")).getAsJsonObject();
+
+            if (pageSettingsObject.getAsJsonObject("actions").has(this.element.id())) {
+                buttonLogObject = pageSettingsObject.getAsJsonObject("actions").getAsJsonObject(this.element.id());
+                if (buttonLogObject.get("platform").getAsString().equals("facebook") && globalSettingsObject.has("firebase")) {
+                    JsonObject firebasePlatObject = globalSettingsObject.getAsJsonObject("firebase").getAsJsonObject("platforms");
+                    if (firebasePlatObject.has("facebook")) {
+                        facebookLogObject = firebasePlatObject.getAsJsonObject("facebook");
+                        this.appId.setText(facebookLogObject.get("appId").getAsString());
+                        this.appName.setText(facebookLogObject.get("appName").getAsString());
+                    }
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void save() {
+        if (this.appId.getText().isEmpty() || this.appName.getText().isEmpty()) {
+            return;
+        }
+        if (this.buttonLogObject != null) {
+            if (!this.buttonLogObject.get("platform").equals("facebook")) {
+                this.buttonLogObject.addProperty("platform", "facebook");
+                this.buttonLogObject.addProperty("destinationPageName", (destination.getSelectionModel().getSelectedIndex() == 0 ? "" : destination.getValue().toString()));
+            }
+        } else {
+            JsonObject newButtonLogObject = new JsonObject();
+            newButtonLogObject.addProperty("platform", "facebook");
+            System.out.println("desc: " + destination.getValue());
+            newButtonLogObject.addProperty("destinationPageName", (destination.getSelectionModel().getSelectedIndex() == 0 ? "" : destination.getValue().toString()));
+
+            this.pageSettingsObject.getAsJsonObject("actions").add(this.element.id(), newButtonLogObject);
+            this.buttonLogObject = newButtonLogObject;
+        }
+
+        if (this.facebookLogObject != null) {
+            System.out.println("facebook login not null");
+            this.facebookLogObject.addProperty("appId", this.appId.getText());
+            this.facebookLogObject.addProperty("appName", this.appName.getText());
+        } else {
+            JsonObject newFacebookLogObject = new JsonObject();
+            newFacebookLogObject.addProperty("appId", this.appId.getText());
+            newFacebookLogObject.addProperty("appName", this.appName.getText());
+
+            try {
+                this.globalSettingsObject = new JsonParser().parse(new FileReader(Drawable.projectPath + File.separator + "state.json")).getAsJsonObject();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            this.globalSettingsObject.getAsJsonObject("firebase").getAsJsonObject("platforms").add("facebook", newFacebookLogObject);
+            System.out.println(this.globalSettingsObject);
+            this.facebookLogObject = newFacebookLogObject;
+        }
+
         try{
-            Path confFilePath = Paths.get(SettingsViewController.pageFolder + "/conf.json");
-            Files.write(confFilePath, new GsonBuilder().create().toJson(jsonObject).getBytes());
-
-            JsonObject jsonObject = new JsonParser().parse(new FileReader(confFilePath.toString())).getAsJsonObject();
-            String pageName = jsonObject.get("page").getAsString().toLowerCase();
-            String ionicPagePath = System.getProperty("user.dir") + "/src/main/RelatedFiles/ionic_project/src/app/" + pageName + "/" + pageName + ".page.ts";
-            System.out.println(ionicPagePath);
-
-            CompilerEnvirons env = new CompilerEnvirons();
-            env.setRecoverFromErrors(true);
-            env.setGenerateDebugInfo(true);
-            env.setRecordingComments(true);
-
-            ImportElement importElement = new ImportElement("@ionic-native/facebook/ngx");
-            importElement.getDependencies().add("Facebook");
-            importElement.getDependencies().add("FacebookLoginResponse");
-            //TypeScriptParser.addImport(Paths.get(ionicPagePath), importElement);
-            //TypeScriptParser.removeImport(Paths.get(ionicPagePath), "@ionic-native/facebook/ngx");
-
-            //TypeScriptParser.addParameterToFunction(Paths.get(ionicPagePath), "constructor", "fb", "Facebook");
-            //TypeScriptParser.addParameterToFunction(Paths.get(ionicPagePath), "ngOnInit", "fb", "Facebook");
-
-            FunctionElement functionElement = new FunctionElement("async fbLogin");
-            functionElement.setBodyLines(LogInConfigs.getFacebookFunctionBody());
-
-            //TypeScriptParser.addFunction(Paths.get(ionicPagePath), functionElement);
+            Files.write(Paths.get(SettingsViewController.pageFolder + File.separator + "conf.json"), new Gson().toJson(pageSettingsObject).getBytes());
+            Files.write(Paths.get(Drawable.projectPath + File.separator + "state.json"), new Gson().toJson(globalSettingsObject).getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        this.element.attr("(click)", "logFacebook" + this.element.id() + "()");
+        PreviewController.saveDocument();
     }
 }

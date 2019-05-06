@@ -1,5 +1,8 @@
 package tn.disguisedtoast.drawable.codeGenerationModule.ionic.generation;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.io.FileUtils;
 import tn.disguisedtoast.drawable.ProjectMain.Drawable;
 import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.*;
@@ -9,9 +12,7 @@ import tn.disguisedtoast.drawable.codeGenerationModule.ionic.models.exceptions.N
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -108,6 +109,7 @@ public class CodeGenerator {
         ionMenu.getHeader().getToolbar().setIonButtons(null);
         IonContent ionContent = new IonContent();
         ionContent.setId("ion-content");
+        ionContent.setClasse("clickable");
         ionContent.setIonLists(new ArrayList<>(new ArrayList<>(Collections.singletonList(new IonList()))));
         ionMenu.setContent(ionContent);
 
@@ -224,7 +226,7 @@ public class CodeGenerator {
                 ((IonItem) view).getLabel().setLabel("Input " + k++);
             }
             if (view instanceof IonLabel) {
-                view.setId("Label" + textCounter);
+                view.setId("Label" + textCounter++);
                 ((IonLabel) view).setEllipsis(true);
             }
             if (view instanceof IonImg) {
@@ -265,11 +267,13 @@ public class CodeGenerator {
         for (List<IonView> tab : tabs) {
             IonTab ionTab = new IonTab();
             ionTab.setTab("tab" + i);
+            ionTab.setId(ionTab.getTab());
 
             IonTabButton tabButton = new IonTabButton();
+            tabButton.setId("tab-button" + i);
             tabButton.setTab(ionTab.getTab());
             tabButton.setLabel("Tab " + i);
-            tabButton.setIcon(new IonIcon(IonIcon.names.get(i - 1)));
+            tabButton.setIcon(new IonIcon(IonIcon.names.get((i - 1) % (IonIcon.names.size() - 1))));
 
             IonContent content = getContent(tab);
 
@@ -340,7 +344,7 @@ public class CodeGenerator {
         //writing html file
         File newHtmlFile = new File(tempPath + "temp.html");
         FileUtils.writeStringToFile(newHtmlFile, htmlString);
-
+        System.out.println(htmlString);
         return tempPath + "temp.html";
     }
 
@@ -361,6 +365,12 @@ public class CodeGenerator {
         if (app == null) {
             app = new IonApp();
         }
+        //change menu id
+        if (app.getIonMenu() != null) {
+            app.getIonMenu().setMenuId("menu" + id);
+            app.getDiv().getHeader().getToolbar().getIonButtons().getMenuButton().setMenu("menu" + id);
+        }
+
         JAXBContext jc = JAXBContext.newInstance(IonApp.class);
         Marshaller marshaller = jc.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
@@ -382,13 +392,49 @@ public class CodeGenerator {
         FileUtils.writeStringToFile(newHtmlFile, htmlString);
 
         //writing config file
-        String configString = String.format("{\n\t\"page\": \"%s\",\n\t\"html\": \"%s.html\",\n\t\"actions\":[\n\n\t]\n}", pageName, pageName);
+        String configString = String.format("{\n\t\"page\": \"%s\",\n\t\"html\": \"%s.html\",\n\t\"actions\":{\n\n\t}\n}", pageName, pageName);
         File configFile = new File((pagesPath + "&" + pageName + "&" + "conf.json").replace("&", File.separator));
         FileUtils.writeStringToFile(configFile, configString);
 
         //updating id file
         FileUtils.writeStringToFile(idFile, id + "");
 
+        updateStoryboard(pageName);
+
         return pagesPath + File.separator + pageName;
+    }
+
+    private static void updateStoryboard(String pageName) {
+        String path = (Drawable.projectPath + "&RelatedFiles&storyboard.json").replace("&", File.separator);
+        FileReader fileReader = null;
+        try {
+            fileReader = new FileReader(path);
+        } catch (FileNotFoundException e) {
+            String fileBody = "{\"zoom\":30," +
+                    "\"pages\":[{\n" +
+                    "\t\t\"page\":\"" + pageName + "\",\n" +
+                    "\t\t\"x\":\"16\",\n" +
+                    "\t\t\"y\":\"430\"\n" +
+                    "\t}]}";
+            try {
+                FileUtils.writeStringToFile(new File(path), fileBody);
+                return;
+            } catch (IOException e1) {
+                e1.printStackTrace();
+                return;
+            }
+        }
+        JsonObject storyboard = new JsonParser().parse(fileReader).getAsJsonObject();
+        JsonArray pages = storyboard.get("pages").getAsJsonArray();
+        JsonObject object = new JsonObject();
+        object.addProperty("page", pageName);
+        object.addProperty("x", "24");
+        object.addProperty("y", "446");
+        pages.add(object);
+        try {
+            FileUtils.writeStringToFile(new File(path), storyboard.toString());
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
     }
 }

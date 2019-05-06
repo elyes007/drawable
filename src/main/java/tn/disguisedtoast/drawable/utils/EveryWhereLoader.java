@@ -4,6 +4,7 @@ import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.Image;
@@ -23,8 +24,6 @@ public class EveryWhereLoader {
 
     private EveryWhereLoader() {
     }
-
-    ;
 
     public static EveryWhereLoader getInstance() {
         if (instance == null) {
@@ -53,18 +52,10 @@ public class EveryWhereLoader {
 
                 vBox.getChildren().add(progressIndicator);
 
-                Parent root = stage.getScene().getRoot();
-
                 vBox.setBackground(new Background(new BackgroundFill(Color.color(1, 1, 1), CornerRadii.EMPTY, Insets.EMPTY)));
 
-                AnchorPane anchorPane = new AnchorPane();
-                anchorPane.getChildren().add(root);
+                AnchorPane anchorPane = (AnchorPane) stage.getScene().getRoot();
                 anchorPane.getChildren().add(vBox);
-
-                AnchorPane.setTopAnchor(root, 0.0);
-                AnchorPane.setRightAnchor(root, 0.0);
-                AnchorPane.setBottomAnchor(root, 0.0);
-                AnchorPane.setLeftAnchor(root, 0.0);
 
                 AnchorPane.setTopAnchor(vBox, 0.0);
                 AnchorPane.setRightAnchor(vBox, 0.0);
@@ -76,7 +67,7 @@ public class EveryWhereLoader {
                 ft.setToValue(0.5);
                 ft.play();
 
-                stage.getScene().setRoot(anchorPane);
+                //stage.getScene().setRoot(anchorPane);
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
@@ -90,10 +81,20 @@ public class EveryWhereLoader {
                 ft.setFromValue(0.5);
                 ft.setToValue(0.0);
                 ft.setOnFinished(event -> {
+                    if (instance.stage == null) return;
+                    Parent root = instance.stage.getScene().getRoot();
+                    System.out.println("Parent (in param):" + parent);
+                    System.out.println("root: " + root);
+
+                    AnchorPane anchorPane = (AnchorPane) instance.stage.getScene().getRoot();
+                    anchorPane.getChildren().remove(1);
+
+                    for (Node node : anchorPane.getChildren()) {
+                        System.out.println(node.getClass());
+                    }
+
                     if (parent != null) {
-                        instance.stage.getScene().setRoot(parent);
-                    } else {
-                        ((AnchorPane) instance.stage.getScene().getRoot()).getChildren().remove(1);
+                        ((BorderPane) anchorPane.getChildren().get(0)).setCenter(parent);
                     }
                     instance = null;
                     System.gc();
@@ -101,6 +102,43 @@ public class EveryWhereLoader {
                 ft.play();
             });
         }
+    }
+
+    public void stopLoaderAndRefresh(Parent parent, LoaderListener loaderListener) {
+        if (instance != null) {
+            Platform.runLater(() -> {
+                FadeTransition ft = new FadeTransition(Duration.millis(500), vBox);
+                ft.setFromValue(0.5);
+                ft.setToValue(0.0);
+                ft.setOnFinished(event -> {
+                    Parent root = instance.stage.getScene().getRoot();
+                    System.out.println("Parent (in param):" + parent);
+                    System.out.println("root: " + root);
+
+                    AnchorPane anchorPane = (AnchorPane) instance.stage.getScene().getRoot();
+                    anchorPane.getChildren().remove(1);
+
+                    if (parent != null) {
+                        anchorPane.getChildren().remove(0);
+                        anchorPane.getChildren().add(parent);
+
+                        AnchorPane.setTopAnchor(parent, 0.0);
+                        AnchorPane.setRightAnchor(parent, 0.0);
+                        AnchorPane.setBottomAnchor(parent, 0.0);
+                        AnchorPane.setLeftAnchor(parent, 0.0);
+                    }
+                    instance = null;
+                    System.gc();
+                    if (loaderListener != null)
+                        loaderListener.finished();
+                });
+                ft.play();
+            });
+        }
+    }
+
+    public interface LoaderListener {
+        void finished();
     }
 
 }

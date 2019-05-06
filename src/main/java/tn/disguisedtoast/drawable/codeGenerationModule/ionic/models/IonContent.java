@@ -1,8 +1,8 @@
 package tn.disguisedtoast.drawable.codeGenerationModule.ionic.models;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import java.util.List;
 
 @XmlRootElement(name = "ion-content")
@@ -14,8 +14,9 @@ public class IonContent {
     private List<IonLabel> labels;
     private List<IonItem> items;
     private List<IonList> ionLists;
+    private String classe;
 
-    @XmlTransient
+    @XmlAttribute(name = "id")
     public String getId() {
         return id;
     }
@@ -67,5 +68,14 @@ public class IonContent {
 
     public void setIonLists(List<IonList> ionLists) {
         this.ionLists = ionLists;
+    }
+
+    @XmlAttribute(name = "class")
+    public String getClasse() {
+        return classe;
+    }
+
+    public void setClasse(String classe) {
+        this.classe = classe;
     }
 }

@@ -23,13 +23,9 @@ public class Drawable extends javafx.application.Application {
         instance = this;
         globalStage = primaryStage;
         Parent root = (new FXMLLoader(getClass().getResource("/layouts/projectGenerationViews/startView.fxml"))).load();
-        primaryStage.setTitle("Drawable");
-        primaryStage.setScene(new Scene(root));
-        primaryStage.setMaximized(true);
-        primaryStage.show();
-        height = primaryStage.getScene().getHeight();
-        width = primaryStage.getScene().getWidth();
+        globalStage.setTitle("Drawable");
+        globalStage.setScene(new Scene(root));
+        // primaryStage.setMaximized(true);
+        globalStage.show();
     }
-
-
 }

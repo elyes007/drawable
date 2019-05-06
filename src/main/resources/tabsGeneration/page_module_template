@@ -1,0 +1,27 @@
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+
+import { &PagePage } from './#page.page';
+
+@NgModule({
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    RouterModule.forChild([
+      {
+        path: '',
+        component: &PagePage,
+        children: [
+            { path: '', redirectTo: '#tab', pathMatch: 'full' },
+            #route
+        ]
+      }
+    ])
+  ],
+  declarations: [&PagePage]
+})
+export class &PagePageModule {}
